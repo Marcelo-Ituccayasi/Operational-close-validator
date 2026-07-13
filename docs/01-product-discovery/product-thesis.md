@@ -212,7 +212,7 @@ Los posibles indicadores de éxito incluyen:
 - reducción de cierres reabiertos;
 - reducción de devoluciones por parte de contabilidad;
 - reducción de llamadas o mensajes necesarios para resolver discrepancias;
-- tiempo necesario para llevar un evento desde pendiente u observado hasta validado.
+- tiempo necesario para llevar un evento desde pendiente o con observaciones hasta validado.
 
 ## Hipótesis del MVP
 
@@ -226,7 +226,7 @@ La hipótesis se considerará demostrada técnicamente cuando el MVP pueda:
 2. Detectar evidencia o autorización faltante.
 3. Generar una alerta bloqueante.
 4. Bloquear el cierre operativo.
-5. Aceptar la evidencia o autorización faltante.
+5. Adjuntar la evidencia o registrar la autorización faltante.
 6. Revalidar el evento exitosamente.
 7. Resolver la alerta mediante la revalidación.
 8. Validar el cierre operativo.
@@ -246,7 +246,7 @@ El problema operativo está respaldado por observación directa y casos investig
 
 Sin embargo:
 
-- el impacto económico estimado requiere mediciones adicionales;
-- el comportamiento de los usuarios todavía no fue validado mediante un prototipo funcional;
-- la eficacia del enfoque de validación continúa siendo una hipótesis de producto;
-- la escalabilidad del enfoque más allá del cierre de caja todavía no ha sido demostrada.
+- El impacto económico estimado requiere mediciones adicionales.
+- El comportamiento de los usuarios todavía no fue validado mediante un prototipo funcional.
+- La eficacia del enfoque de validación continúa siendo una hipótesis de producto.
+- La escalabilidad del enfoque más allá del cierre de caja todavía no ha sido demostrada.

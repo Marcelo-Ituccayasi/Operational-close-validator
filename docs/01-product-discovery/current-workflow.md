@@ -113,7 +113,7 @@ El usuario responsable reúne:
 - evidencia de anulaciones;
 - autorizaciones de gerencia.
 
-La información puede encontrarse en documentos físicos, mensajes, hojas de cálculo o sistemas operativos.
+La información puede encontrarse en documentos físicos, mensajes, hojas de cálculo o sistemas empresariales.
 
 ### Paso 2 — Contar el efectivo físico
 
@@ -298,7 +298,7 @@ El proceso presenta oportunidades para validar eventos durante:
 ## Flujo futuro propuesto
 
 1. Registrar un evento operativo.
-2. Determinar la evidencia requerida.
+2. Determinar los datos, la evidencia y la autorización requeridos.
 3. Aplicar las reglas de negocio correspondientes.
 4. Asignar un estado explícito.
 5. Generar una alerta cuando una regla falle.

@@ -129,17 +129,26 @@ Las siguientes consecuencias se consideran plausibles, pero requieren evidencia 
 
 ## Impacto estimado
 
-Con base en las observaciones y casos investigados disponibles:
+Con base en las observaciones y los casos investigados disponibles:
 
 - P-001 puede generar aproximadamente 1–3 horas de retrabajo por incidente.
 - P-010 puede generar aproximadamente 3 horas de retrabajo por cierre afectado.
 - P-011 puede generar aproximadamente 2 horas de retraso por ruta afectada.
 
-El impacto operativo combinado se estima provisionalmente en:
+P-010 y P-011 representan aproximadamente cinco horas de impacto cuando
+cada caso ocurre una vez durante la semana.
 
-> **10–15 horas de trabajo evitable por semana**, equivalentes a aproximadamente **520–780 horas por año**.
+La estimación total de **10–15 horas de trabajo evitable por semana** es una
+hipótesis provisional que combina los casos investigados con una frecuencia
+todavía no medida de incidentes P-001.
 
-Esta estimación tiene **confianza media** y debe validarse mediante mediciones operativas adicionales.
+Por tanto, esta cifra no representa todavía un resultado estadístico
+confirmado y debe validarse mediante mediciones operativas adicionales.
+
+Bajo el supuesto de que ese impacto se mantuviera durante 52 semanas, la
+proyección anual equivalente sería de aproximadamente **520–780 horas**.
+Esta proyección depende directamente de que la estimación semanal sea
+confirmada.
 
 ## Oportunidad de producto
 
