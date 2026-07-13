@@ -1,194 +1,205 @@
-# Problem Statement
+# Declaración del Problema
 
-**Version:** v0.2
-**Status:** Approved baseline
-**Selected cluster:** C-001 — Operational inconsistencies during critical closing processes
+**Versión:** v0.2
+**Estado:** Baseline aprobado
+**Clúster seleccionado:** C-001 — Inconsistencias operativas durante procesos críticos de cierre
 
-## Main problem
+## Problema principal
 
-Operational closing processes involving cash, supporting documents, and stock generate avoidable rework because critical information arrives late, is not validated when it is registered, or does not match between physical records and digital systems.
+Los procesos de cierre operativo relacionados con caja, documentos de soporte y stock generan retrabajo evitable porque la información crítica llega tarde, no se valida cuando se registra o no coincide entre los registros físicos y los sistemas digitales.
 
-These inconsistencies are commonly discovered during final consolidation or after the information has already been submitted to another area, rather than at the moment when the operational event occurs.
+Estas inconsistencias suelen descubrirse durante la consolidación final o después de que la información ya fue enviada a otra área, en lugar de detectarse cuando ocurre el evento operativo.
 
-## Affected users
+## Usuarios afectados
 
-### Primary users
+### Usuarios principales
 
-- Administration personnel responsible for recording operational movements.
-- Cash or treasury personnel responsible for reconciling balances.
-- Users responsible for consolidating the operational close.
+- Personal de administración responsable de registrar movimientos operativos.
+- Personal de caja o tesorería responsable de conciliar saldos.
+- Usuarios responsables de consolidar el cierre operativo.
 
-### Secondary users
+### Usuarios secundarios
 
-- Finance personnel preparing balances or accounting information.
-- Logistics personnel validating stock before dispatch.
-- Management personnel authorizing extraordinary movements.
-- Accounting personnel receiving the consolidated close.
+- Personal de finanzas que prepara balances o información contable.
+- Personal de logística que valida stock antes del despacho.
+- Personal de gerencia que autoriza movimientos extraordinarios.
+- Personal de contabilidad que recibe el cierre consolidado.
 
-## Operational context
+## Contexto operativo
 
-The problem appears during processes such as:
+El problema aparece durante procesos como:
 
-- daily cash reconciliation;
-- registration of income and expenses;
-- validation of discounts and cancellations;
-- reception of supporting documents;
-- supplier invoice processing;
-- reconciliation of physical and digital balances;
-- preparation of information for accounting;
-- stock validation before dispatch.
+- conciliación diaria de caja;
+- registro de ingresos y egresos;
+- validación de descuentos y anulaciones;
+- recepción de documentos de soporte;
+- procesamiento de facturas de proveedores;
+- conciliación de saldos físicos y digitales;
+- preparación de información para contabilidad;
+- validación de stock antes del despacho.
 
-The process is especially vulnerable when information is distributed between:
+El proceso es especialmente vulnerable cuando la información se distribuye entre:
 
-- physical invoices or receipts;
-- spreadsheets;
-- ERP or POS records;
-- messages and verbal authorizations;
-- personal files;
-- external providers such as banks or suppliers.
+- facturas o recibos físicos;
+- hojas de cálculo;
+- registros de ERP o POS;
+- mensajes y autorizaciones verbales;
+- archivos personales;
+- proveedores externos, como bancos o proveedores comerciales.
 
-## Observed failure pattern
+## Patrón de falla observado
 
-A representative case showed the following sequence:
+Un caso representativo mostró la siguiente secuencia:
 
-1. Administration collected and reviewed the invoices from the previous operational period.
-2. The information was manually consolidated for accounting.
-3. Management requested the updated balance.
-4. The physical and digital values did not match.
-5. A previously authorized movement had not been correctly registered or communicated.
-6. Administration repeated the audit and data-entry process.
-7. The accounting information had to be corrected and submitted again.
+1. Administración recopiló y revisó las facturas del período operativo anterior.
+2. La información fue consolidada manualmente para contabilidad.
+3. Gerencia solicitó el balance actualizado.
+4. Los valores físicos y digitales no coincidieron.
+5. Un movimiento previamente autorizado no había sido registrado o comunicado correctamente.
+6. Administración repitió el proceso de auditoría e ingreso de datos.
+7. La información contable tuvo que corregirse y enviarse nuevamente.
 
-The incident generated approximately three hours of rework.
+El incidente generó aproximadamente tres horas de retrabajo.
 
-## Root cause hypothesis
+## Hipótesis de causa raíz
 
-The principal working hypothesis is:
+> No existe un mecanismo temprano y coordinado que verifique si los eventos operativos cuentan con la evidencia, autorización e información consistente requeridas antes de incluirlos en el cierre final.
 
-> There is no early and coordinated control mechanism that verifies whether operational events have the required supporting evidence, authorization, and consistent data before they are included in the final close.
+Por tanto, el problema no se limita a un ingreso de datos incorrecto.
 
-The problem is therefore not limited to incorrect data entry.
+También involucra:
 
-It also involves:
+- autorizaciones informales;
+- documentos de soporte ausentes o tardíos;
+- comunicación tardía entre áreas;
+- transcripción manual;
+- falta de un estado verificable para cada evento;
+- validación ejecutada únicamente al final del proceso.
 
-- informal authorizations;
-- missing or late supporting documents;
-- delayed communication between areas;
-- manual transcription;
-- lack of a verifiable event state;
-- validation performed only at the end of the process.
+## Método actual de resolución
 
-## Current resolution method
+Las organizaciones suelen resolver estas inconsistencias mediante esfuerzo manual adicional:
 
-Organizations commonly resolve these inconsistencies through additional manual effort:
+- revisar transacciones una por una;
+- buscar documentos físicos;
+- llamar o enviar mensajes al responsable;
+- solicitar autorizaciones faltantes;
+- corregir hojas de cálculo o registros del ERP;
+- reabrir información previamente consolidada;
+- extender la jornada laboral;
+- volver a enviar el cierre a contabilidad.
 
-- reviewing transactions one by one;
-- searching for physical documents;
-- calling or messaging the responsible person;
-- requesting missing authorizations;
-- correcting spreadsheets or ERP records;
-- reopening previously consolidated information;
-- extending the workday;
-- resubmitting the close to accounting.
+## Por qué el método actual es insuficiente
 
-## Why the current method is insufficient
+El enfoque actual es insuficiente porque es reactivo.
 
-The current approach is insufficient because it is reactive.
+Intenta reparar las inconsistencias después de que ya afectaron el proceso de cierre, en lugar de prevenirlas cuando se registra el evento operativo.
 
-It attempts to repair inconsistencies after they have already affected the closing process rather than preventing them when the operational event is registered.
+Además, depende en gran medida de:
 
-It also depends heavily on:
+- memoria individual;
+- comunicación informal;
+- documentos físicos;
+- comparación manual;
+- experiencia del personal;
+- disponibilidad de terceros.
 
-- individual memory;
-- informal communication;
-- physical documents;
-- manual comparison;
-- staff experience;
-- availability of external parties.
+Por ello, el proceso no escala de forma confiable y permanece expuesto a errores humanos repetidos.
 
-The process therefore does not scale reliably and remains vulnerable to repeated human error.
+## Consecuencias
 
-## Consequences
+### Consecuencias directas
 
-### Direct consequences
+- Revisión repetida de movimientos operativos.
+- Corrección manual de saldos.
+- Reapertura de cierres previamente consolidados.
+- Envío tardío a contabilidad.
+- Extensión de la jornada laboral.
+- Retrasos en despachos u otras operaciones.
 
-- Repeated review of operational movements.
-- Manual correction of balances.
-- Reopening of previously consolidated closes.
-- Delayed submission to accounting.
-- Extended working hours.
-- Dispatch or operational delays.
+### Consecuencias organizacionales potenciales
 
-### Potential organizational consequences
+Las siguientes consecuencias se consideran plausibles, pero requieren evidencia adicional antes de tratarse como confirmadas:
 
-The following consequences are considered plausible but require additional evidence before being treated as confirmed:
+- reducción de la confianza en la información operativa;
+- deterioro del ambiente laboral;
+- retraso en decisiones de gerencia;
+- mayor exposición ante auditorías;
+- pérdidas financieras causadas por discrepancias no resueltas.
 
-- reduced confidence in operational information;
-- deterioration of the internal working environment;
-- delayed management decisions;
-- increased audit exposure;
-- financial losses caused by unresolved discrepancies.
+## Impacto estimado
 
-## Estimated impact
+Con base en las observaciones y casos investigados disponibles:
 
-Based on the available observations and investigated cases:
+- P-001 puede generar aproximadamente 1–3 horas de retrabajo por incidente.
+- P-010 puede generar aproximadamente 3 horas de retrabajo por cierre afectado.
+- P-011 puede generar aproximadamente 2 horas de retraso por ruta afectada.
 
-- P-001 may generate approximately 1–3 hours of rework per incident.
-- P-010 may generate approximately 3 hours of rework per affected close.
-- P-011 may generate approximately 2 hours of delay per affected route.
+El impacto operativo combinado se estima provisionalmente en:
 
-The combined operational impact is provisionally estimated at:
+> **10–15 horas de trabajo evitable por semana**, equivalentes a aproximadamente **520–780 horas por año**.
 
-> **10–15 hours of avoidable work per week**, equivalent to approximately **520–780 hours per year**.
+Esta estimación tiene **confianza media** y debe validarse mediante mediciones operativas adicionales.
 
-This estimate has **medium confidence** and must be validated through additional operational measurements.
+## Oportunidad de producto
 
-## Product opportunity
+> **Una capa de validación operativa temprana que detecte inconsistencias antes de que se conviertan en retrabajo de cierre.**
 
-The identified opportunity is to provide:
+El producto propuesto debe verificar si los eventos operativos registrados:
 
-> **An early operational validation layer that detects inconsistencies before they become closing rework.**
+- contienen los datos requeridos;
+- tienen documentación de soporte cuando corresponde;
+- cuentan con autorización formal cuando corresponde;
+- mantienen un estado verificable;
+- cumplen las reglas de negocio aplicables;
+- pueden incluirse en un cierre validado.
 
-The proposed product should verify whether registered operational events:
+## Límite del producto
 
-- contain the required data;
-- have supporting documentation when required;
-- have formal authorization when required;
-- maintain a verifiable state;
-- satisfy the applicable business rules;
-- are eligible to be included in a validated close.
+El producto propuesto no pretende reemplazar:
 
-## Product boundary
+- el ERP;
+- el POS;
+- el sistema contable;
+- la facturación electrónica;
+- la gestión completa de inventario;
+- las plataformas bancarias;
+- los procedimientos de control físico.
 
-The proposed product is not intended to replace:
+Su propósito es operar como una capa de validación y control sobre eventos operativos ya registrados.
 
-- the ERP;
-- the POS;
-- the accounting system;
-- electronic invoicing;
-- complete inventory management;
-- banking platforms;
-- physical control procedures.
+## Declaración del problema
 
-Its purpose is to operate as a validation and control layer over registered operational events.
+> Los equipos de administración, caja, finanzas y logística experimentan retrabajo y cierres operativos tardíos porque los movimientos registrados, documentos de soporte, autorizaciones y saldos no se validan de forma consistente antes de la consolidación final. Los procesos actuales detectan estas fallas demasiado tarde y las resuelven mediante revisión, comunicación y corrección manual.
 
-## Problem statement
+## Hipótesis inicial de producto
 
-> Administration, cash, finance, and logistics teams experience rework and delayed operational closes because registered movements, supporting documents, authorizations, and balances are not consistently validated before final consolidation. Existing processes detect these failures too late and resolve them through manual review, communication, and correction.
+> Si los eventos operativos se validan cuando se registran y sus inconsistencias no resueltas permanecen visibles mediante estados y alertas explícitos, la organización puede reducir el retrabajo de cierre, evitar que se ignoren movimientos sin soporte y mejorar la confiabilidad de la información enviada a contabilidad.
 
-## Initial product hypothesis
+## Principio central del producto
 
-> If operational events are validated when they are registered and their unresolved inconsistencies remain visible through explicit states and alerts, the organization can reduce closing rework, prevent unsupported movements from being ignored, and improve the reliability of the information submitted to accounting.
+> El problema principal no es la capacidad de registrar información. El problema principal es la incapacidad de verificar su consistencia operativa antes del cierre.
 
-## Core product principle
+## Relación con el alcance del MVP
 
-> The primary problem is not the ability to register information. The primary problem is the inability to verify its operational consistency before the close.
+El dominio investigado contempla caja, documentos, stock y dependencias externas. Sin embargo, el MVP v0.3 se limita al cierre operativo de caja y a eventos de ingreso, egreso, descuento y anulación.
 
-## Confidence level
+Las facturas de proveedores, la conciliación bancaria o POS, el stock y el cierre provisional permanecen fuera del MVP.
 
-**Overall confidence:** Medium–high
+## Nivel de confianza
 
-- Direct evidence supports the existence of late-detected cash-close inconsistencies.
-- Investigated cases support similar patterns involving supplier documents and stock.
-- The estimated time and economic impact require further measurement.
-- The effectiveness of early validation remains a product hypothesis to be tested through the MVP.
+**Confianza general:** Media–alta
+
+- Existe evidencia directa de inconsistencias de caja detectadas tardíamente.
+- Los casos investigados respaldan patrones similares relacionados con documentos de proveedores y stock.
+- El tiempo estimado y el impacto económico requieren mediciones adicionales.
+- La eficacia de la validación temprana continúa siendo una hipótesis de producto que debe comprobarse mediante el MVP.
+
+## Límite de cobertura
+
+El producto puede bloquear eventos registrados que carecen de evidencia,
+autorización o consistencia.
+
+No puede detectar directamente un movimiento real que nunca fue registrado.
+Ese riesgo permanece bajo controles operativos externos, como conciliación
+física, supervisión o auditoría manual.

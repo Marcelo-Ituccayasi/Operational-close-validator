@@ -1,357 +1,355 @@
-# Current Workflow
+# Flujo Actual
 
-**Version:** v0.2
-**Status:** Approved baseline
-**Process:** Daily cash operational close
+**Versión:** v0.2
+**Estado:** Baseline aprobado
+**Proceso:** Cierre operativo diario de caja
 
-## Purpose
+## Propósito
 
-This document describes the current operational workflow used to consolidate and validate the daily cash close before the introduction of the proposed product.
+Este documento describe el flujo operativo actual utilizado para consolidar y validar el cierre diario de caja antes de introducir el producto propuesto.
 
-The objective is to identify:
+El objetivo es identificar:
 
-- participating users;
-- information required;
-- operational steps;
-- failure points;
-- detection points;
-- rework;
-- consequences;
-- opportunities for early validation.
+- usuarios participantes;
+- información requerida;
+- pasos operativos;
+- puntos de falla;
+- puntos de detección;
+- retrabajo;
+- consecuencias;
+- oportunidades de validación temprana.
 
-## Process scope
+## Alcance del proceso
 
-The workflow focuses on the operational close involving:
+El flujo se concentra en el cierre operativo relacionado con:
 
-- income;
-- expenses;
-- discounts;
-- cancellations;
-- supporting documents;
-- management authorizations;
-- physical cash;
-- digital system records.
+- ingresos;
+- egresos;
+- descuentos;
+- anulaciones;
+- documentos de soporte;
+- autorizaciones de gerencia;
+- efectivo físico;
+- registros digitales del sistema.
 
-It does not describe the complete accounting close or fiscal reporting process.
+No describe el cierre contable completo ni el proceso de declaración fiscal.
 
-## Trigger
+## Disparador
 
-The process begins at the end of the operational day or shift, when the responsible user must reconcile the registered movements and prepare the information for accounting.
+El proceso comienza al finalizar la jornada o turno operativo, cuando el usuario responsable debe conciliar los movimientos registrados y preparar la información para contabilidad.
 
-## Participants
+## Participantes
 
-### Cash responsible user
+### Responsable de caja
 
-Responsible for:
+Responsable de:
 
-- receiving and managing physical cash;
-- registering operational movements;
-- counting the remaining cash;
-- collecting supporting documents;
-- identifying discrepancies.
+- recibir y administrar efectivo físico;
+- registrar movimientos operativos;
+- contar el efectivo restante;
+- recopilar documentos de soporte;
+- identificar discrepancias.
 
-### Administration responsible user
+### Responsable de administración
 
-Responsible for:
+Responsable de:
 
-- reviewing income and expenses;
-- auditing supporting documents;
-- comparing physical and digital information;
-- correcting operational records;
-- consolidating the close;
-- preparing the information for accounting.
+- revisar ingresos y egresos;
+- auditar documentos de soporte;
+- comparar información física y digital;
+- corregir registros operativos;
+- consolidar el cierre;
+- preparar la información para contabilidad.
 
-In some organizations, the cash and administration responsibilities may be performed by the same person.
+En algunas organizaciones, las responsabilidades de caja y administración pueden recaer en la misma persona.
 
-### Management
+### Gerencia
 
-Responsible for:
+Responsable de:
 
-- authorizing extraordinary expenses;
-- authorizing discounts;
-- authorizing cancellations;
-- approving exceptional operational decisions.
+- autorizar egresos extraordinarios;
+- autorizar descuentos;
+- autorizar anulaciones;
+- aprobar decisiones operativas excepcionales.
 
-### Accounting
+### Contabilidad
 
-Receives the consolidated information after the operational close.
+Recibe la información consolidada después del cierre operativo.
 
-Accounting is not normally involved in the initial event registration but may detect errors after submission.
+Contabilidad normalmente no participa en el registro inicial de eventos, pero puede detectar errores después del envío.
 
-## Required information
+## Información requerida
 
-The close requires access to:
+El cierre requiere acceso a:
 
-- initial cash balance;
-- registered income;
-- registered expenses;
-- discounts;
-- cancellations;
-- physical cash balance;
-- invoices;
-- receipts;
-- payment vouchers;
-- supporting documents;
-- management authorizations;
-- POS or payment reports;
-- bank or transfer information when applicable;
-- previous corrections or adjustments.
+- saldo inicial de caja;
+- ingresos registrados;
+- egresos registrados;
+- descuentos;
+- anulaciones;
+- saldo físico de efectivo;
+- facturas;
+- boletas;
+- recibos;
+- comprobantes de pago;
+- documentos de soporte;
+- autorizaciones de gerencia;
+- reportes de POS o pagos;
+- información bancaria o de transferencias cuando corresponda;
+- correcciones o ajustes previos.
 
-## Current workflow
+## Flujo actual
 
-### Step 1 — Collect operational evidence
+### Paso 1 — Recopilar evidencia operativa
 
-The responsible user gathers:
+El usuario responsable reúne:
 
-- invoices;
-- receipts;
-- vouchers;
-- expense documents;
-- discount evidence;
-- cancellation evidence;
-- management authorizations.
+- facturas;
+- boletas;
+- recibos;
+- comprobantes;
+- documentos de gastos;
+- evidencia de descuentos;
+- evidencia de anulaciones;
+- autorizaciones de gerencia.
 
-The information may exist in physical documents, messages, spreadsheets, or operational systems.
+La información puede encontrarse en documentos físicos, mensajes, hojas de cálculo o sistemas operativos.
 
-### Step 2 — Count physical cash
+### Paso 2 — Contar el efectivo físico
 
-The cash responsible user counts the physical money available at the end of the period.
+El responsable de caja cuenta el dinero físico disponible al finalizar el período.
 
-### Step 3 — Obtain the digital operational report
+### Paso 3 — Obtener el reporte operativo digital
 
-The administration responsible user obtains the system report containing:
+El responsable de administración obtiene el reporte del sistema que contiene:
 
-- income;
-- expenses;
-- discounts;
-- cancellations;
-- expected balance.
+- ingresos;
+- egresos;
+- descuentos;
+- anulaciones;
+- saldo esperado.
 
-### Step 4 — Compare physical and digital information
+### Paso 4 — Comparar la información física y digital
 
-The responsible user compares:
+El usuario responsable compara:
 
-- physical cash;
-- digital balance;
-- supporting documents;
-- authorized movements;
-- registered adjustments.
+- efectivo físico;
+- saldo digital;
+- documentos de soporte;
+- movimientos autorizados;
+- ajustes registrados.
 
-### Step 5 — Identify differences
+### Paso 5 — Identificar diferencias
 
-If the values do not match, the responsible user searches for:
+Si los valores no coinciden, el usuario responsable busca:
 
-- missing movements;
-- duplicate records;
-- incorrect amounts;
-- unsupported expenses;
-- informal authorizations;
-- missing receipts;
-- unregistered discounts;
-- unregistered cancellations.
+- movimientos faltantes;
+- registros duplicados;
+- montos incorrectos;
+- egresos sin soporte;
+- autorizaciones informales;
+- comprobantes faltantes;
+- descuentos no registrados;
+- anulaciones no registradas.
 
-### Step 6 — Contact responsible parties
+### Paso 6 — Contactar a los responsables
 
-The administration responsible user may need to contact:
+El responsable de administración puede necesitar comunicarse con:
 
-- management;
-- cash personnel;
-- suppliers;
-- employees who performed the expense;
-- other operational areas.
+- gerencia;
+- personal de caja;
+- proveedores;
+- trabajadores que realizaron el gasto;
+- otras áreas operativas.
 
-The communication normally occurs through calls, messages, or verbal confirmation.
+La comunicación normalmente se realiza mediante llamadas, mensajes o confirmaciones verbales.
 
-### Step 7 — Correct operational information
+### Paso 7 — Corregir la información operativa
 
-The responsible user:
+El usuario responsable:
 
-- adds missing movements;
-- corrects amounts;
-- attaches supporting evidence;
-- formalizes authorizations;
-- updates spreadsheets or operational systems.
+- agrega movimientos faltantes;
+- corrige montos;
+- adjunta evidencia de soporte;
+- formaliza autorizaciones;
+- actualiza hojas de cálculo o sistemas operativos.
 
-### Step 8 — Repeat the reconciliation
+### Paso 8 — Repetir la conciliación
 
-After making corrections, the user repeats the comparison between:
+Después de realizar las correcciones, el usuario repite la comparación entre:
 
-- physical cash;
-- digital records;
-- supporting documents;
-- authorizations.
+- efectivo físico;
+- registros digitales;
+- documentos de soporte;
+- autorizaciones.
 
-### Step 9 — Consolidate the close
+### Paso 9 — Consolidar el cierre
 
-When the information appears consistent, the user calculates:
+Cuando la información parece consistente, el usuario calcula:
 
-- total income;
-- total expenses;
-- expected balance;
-- actual balance;
-- differences or adjustments.
+- total de ingresos;
+- total de egresos;
+- saldo esperado;
+- saldo real;
+- diferencias o ajustes.
 
-### Step 10 — Send information to accounting
+### Paso 10 — Enviar información a contabilidad
 
-The consolidated close is sent to accounting.
+El cierre consolidado se envía a contabilidad.
 
-If accounting later detects an inconsistency, the information may be returned for correction.
+Si contabilidad detecta posteriormente una inconsistencia, la información puede devolverse para corrección.
 
-## Main failure point
+## Punto principal de falla
 
-The representative failure occurs when:
+> Gerencia autoriza un egreso, descuento, anulación o movimiento excepcional, pero el movimiento no se registra formalmente o no se comunica a administración antes del corte operativo.
 
-> Management authorizes an expense, discount, cancellation, or exceptional movement, but the movement is not formally registered or communicated to administration before the operational cutoff.
+El evento operativo existe en la realidad, pero su representación digital, evidencia de soporte o autorización está incompleta.
 
-The operational event exists in reality, but its digital representation, supporting evidence, or authorization is incomplete.
+## Punto de detección
 
-## Detection point
+La inconsistencia normalmente se detecta durante la conciliación final cuando:
 
-The inconsistency is normally detected during final reconciliation when:
+- el efectivo físico no coincide con el saldo digital;
+- los documentos de soporte no explican todos los movimientos;
+- el reporte del sistema no incluye un egreso autorizado;
+- un descuento o anulación carece de evidencia formal.
 
-- the physical cash does not match the digital balance;
-- the supporting documents do not explain all movements;
-- the system report does not include an authorized expense;
-- a discount or cancellation lacks formal evidence.
+La falla se detecta tarde, después de que el evento operativo ya ocurrió.
 
-The failure is therefore detected late, after the operational event has already occurred.
+## Secuencia de retrabajo
 
-## Rework sequence
+Cuando se detecta la discrepancia, el usuario responsable suele realizar el siguiente retrabajo:
 
-When the discrepancy is detected, the responsible user commonly performs the following rework:
+1. Detiene el proceso de cierre.
+2. Revisa las transacciones individualmente.
+3. Busca evidencia física o digital.
+4. Contacta al responsable.
+5. Confirma si el movimiento fue legítimo.
+6. Solicita el documento o autorización faltante.
+7. Corrige el registro operativo.
+8. Recalcula el saldo.
+9. Repite la conciliación.
+10. Envía la información corregida a contabilidad.
 
-1. Stops the closing process.
-2. Reviews transactions individually.
-3. Searches for physical or digital evidence.
-4. Contacts the responsible person.
-5. Confirms whether the movement was legitimate.
-6. Requests the missing document or authorization.
-7. Corrects the operational record.
-8. Recalculates the balance.
-9. Repeats the reconciliation.
-10. Submits corrected information to accounting.
+## Tiempo perdido estimado
 
-## Estimated time lost
+El incidente representativo observado generó aproximadamente tres horas de retrabajo.
 
-The observed representative incident generated approximately three hours of rework.
+Para el flujo general, la estimación provisional es:
 
-For the general workflow, the provisional estimate is:
+> Aproximadamente 1–3 horas de trabajo adicional por cierre afectado.
 
-> Approximately 1–3 hours of additional work per affected close.
+La duración real depende de:
 
-The actual duration depends on:
+- cantidad de movimientos;
+- disponibilidad de los responsables;
+- ubicación de los documentos;
+- complejidad de la discrepancia;
+- cantidad de sistemas que deben corregirse.
 
-- number of movements;
-- availability of the responsible parties;
-- location of supporting documents;
-- complexity of the discrepancy;
-- number of systems that must be corrected.
+## Consecuencias observadas
 
-## Observed consequences
+- interrupción del proceso de cierre;
+- auditoría repetida;
+- reingreso de datos;
+- consolidación tardía;
+- extensión del tiempo de trabajo;
+- envío tardío a contabilidad.
 
-Consequences supported by the observed workflow include:
+## Consecuencias inferidas
 
-- interruption of the closing process;
-- repeated auditing;
-- repeated data entry;
-- delayed consolidation;
-- extended working time;
-- delayed submission to accounting.
+Las siguientes consecuencias son plausibles, pero requieren evidencia adicional:
 
-## Inferred consequences
+- reducción de la confianza en la información operativa;
+- deterioro del ambiente laboral;
+- retraso en decisiones de gerencia;
+- exposición ante auditorías;
+- pérdidas financieras;
+- reducción de la confianza entre gerencia y administración.
 
-The following consequences are plausible but require additional evidence:
+## Mecanismo de control actual
 
-- reduced confidence in operational information;
-- deterioration of the working environment;
-- delayed management decisions;
-- audit exposure;
-- financial losses;
-- reduced trust between management and administration.
+El proceso actual depende principalmente del control humano:
 
-## Current control mechanism
+- memoria;
+- experiencia;
+- comparación manual;
+- revisión de documentos físicos;
+- llamadas y mensajes;
+- conciliación repetida.
 
-The current process relies primarily on human control:
+No existe un control temprano y consistente que garantice que cada evento operativo tenga un estado verificable antes de la consolidación.
 
-- memory;
-- experience;
-- manual comparison;
-- physical document review;
-- calls and messages;
-- repeated reconciliation.
+## Brecha operativa
 
-There is no consistent early control that ensures every operational event has a verifiable state before consolidation.
+> La organización no cuenta con un mecanismo compartido y verificable que confirme si cada evento operativo registrado tiene la evidencia, autorización e información consistente requeridas antes de iniciar el cierre.
 
-## Operational gap
+## Oportunidad de validación
 
-The principal gap is:
+El proceso presenta oportunidades para validar eventos durante:
 
-> The organization does not have a shared and verifiable mechanism that confirms whether every registered operational event has the required evidence, authorization, and consistent information before the close begins.
+- registro;
+- adjunto de documentos;
+- autorización;
+- modificación;
+- consolidación;
+- envío a contabilidad.
 
-## Validation opportunity
+## Flujo futuro propuesto
 
-The process presents an opportunity to validate events at the moment of:
+1. Registrar un evento operativo.
+2. Determinar la evidencia requerida.
+3. Aplicar las reglas de negocio correspondientes.
+4. Asignar un estado explícito.
+5. Generar una alerta cuando una regla falle.
+6. Impedir la validación final mientras existan inconsistencias bloqueantes.
+7. Corregir la causa.
+8. Ejecutar nuevamente la validación.
+9. Consolidar el cierre únicamente cuando se cumplan las condiciones requeridas.
 
-- registration;
-- document attachment;
-- authorization;
-- modification;
-- consolidation;
-- submission to accounting.
+## Concepto de dominio emergente
 
-## Proposed future workflow
+> **Evento Operativo**
 
-The proposed validation flow is:
+Un Evento Operativo representa cualquier acción o movimiento registrado que pueda afectar:
 
-1. Register an operational event.
-2. Determine its required evidence.
-3. Apply the corresponding business rules.
-4. Assign an explicit state.
-5. Generate an alert when a rule fails.
-6. Prevent final validation while blocking inconsistencies remain.
-7. Correct the cause.
-8. Execute the validation again.
-9. Consolidate the close only when the required conditions are satisfied.
+- caja;
+- documentación de soporte;
+- autorizaciones;
+- saldos;
+- cierre operativo.
 
-## Emerging domain concept
+Algunos ejemplos son:
 
-The workflow analysis identifies the following central concept:
+- ingreso;
+- egreso;
+- descuento;
+- anulación;
+- factura de proveedor;
+- corte bancario o POS;
+- ajuste manual.
 
-> **Operational Event**
+Cada evento debe mantener un estado verificable como:
 
-An Operational Event represents any registered action or movement that can affect:
+- Registrado;
+- Pendiente de soporte;
+- Pendiente de autorización;
+- Pendiente de conciliación externa;
+- Observado;
+- Validado.
 
-- cash;
-- supporting documentation;
-- authorizations;
-- balances;
-- the operational close.
+## Relación con el alcance del MVP
 
-Examples include:
+El dominio investigado contempla caja, documentos, stock y dependencias externas. Sin embargo, el MVP v0.3 se limita al cierre operativo de caja y a eventos de ingreso, egreso, descuento y anulación.
 
-- income;
-- expense;
-- discount;
-- cancellation;
-- supplier invoice;
-- bank or POS cut;
-- manual adjustment.
+Las facturas de proveedores, la conciliación bancaria o POS, el stock y el cierre provisional permanecen fuera del MVP.
 
-Each event should maintain a verifiable state such as:
+## Declaración principal de oportunidad
 
-- Registered;
-- Pending support;
-- Pending authorization;
-- Pending external reconciliation;
-- Observed;
-- Validated.
+> Validar los eventos operativos cuando ocurren, en lugar de auditarlos únicamente después de que el cierre falla.
 
-## Main opportunity statement
+## Confianza actual
 
-> Validate operational events when they occur instead of auditing them only after the close fails.
+**Confianza general:** Alta para el flujo representativo de cierre de caja.
 
-## Current confidence
-
-**Overall confidence:** High for the representative cash-close workflow.
-
-The exact frequency, organizational impact, and applicability to other companies require additional investigation.
+La frecuencia exacta, el impacto organizacional y la aplicabilidad a otras empresas requieren investigación adicional.

@@ -1,250 +1,252 @@
-# Product Thesis
+# Tesis del Producto
 
-**Version:** v0.2
-**Status:** Approved baseline
-**Product:** Operational Close Validator
+**Versión:** v0.2
+**Estado:** Baseline aprobado
+**Producto:** Operational Close Validator
 
-## Purpose
+## Propósito
 
-This document defines the central product hypothesis derived from the initial problem discovery process.
+Este documento define la hipótesis central del producto derivada del proceso inicial de descubrimiento del problema.
 
-The thesis describes the user, operational problem, expected outcome, product boundary, principal risks, and evidence required to validate the opportunity.
+La tesis describe al usuario, el problema operativo, el resultado esperado, los límites del producto, los riesgos principales y la evidencia necesaria para validar la oportunidad.
 
-It does not define the technical architecture or implementation strategy.
+No define la arquitectura técnica ni la estrategia de implementación.
 
-## Main thesis
+## Tesis principal
 
-Organizations lose time and confidence in their operational information because existing systems register transactions but do not consistently validate missing evidence, informal authorizations, or data inconsistencies before critical closing processes.
+Las organizaciones pierden tiempo y confianza en su información operativa porque los sistemas existentes registran transacciones, pero no validan de manera consistente la falta de evidencia, las autorizaciones informales o las inconsistencias de datos antes de los procesos críticos de cierre.
 
-The product opportunity is to create an early operational validation layer that detects these inconsistencies before they become closing rework.
+La oportunidad de producto consiste en crear una capa de validación operativa temprana que detecte estas inconsistencias antes de que se conviertan en retrabajo de cierre.
 
-## Target user
+## Usuario objetivo
 
-### Primary user
+### Usuario principal
 
-The primary user is the person responsible for administration or cash operations who:
+El usuario principal es la persona responsable de administración o caja que:
 
-- registers income and expenses;
-- collects supporting documents;
-- reviews operational movements;
-- reconciles physical and digital information;
-- consolidates the operational close;
-- prepares information for accounting.
+- registra ingresos y egresos;
+- recopila documentos de soporte;
+- revisa movimientos operativos;
+- concilia información física y digital;
+- consolida el cierre operativo;
+- prepara información para contabilidad.
 
-### Secondary users
+### Usuarios secundarios
 
-Secondary users may include:
+Los usuarios secundarios pueden incluir:
 
-- finance personnel preparing balances;
-- logistics personnel reconciling stock before dispatch;
-- management personnel authorizing extraordinary movements;
-- accounting personnel receiving validated closing information.
+- personal de finanzas que prepara balances;
+- personal de logística que concilia stock antes del despacho;
+- personal de gerencia que autoriza movimientos extraordinarios;
+- personal de contabilidad que recibe información de cierre validada.
 
-The MVP focuses only on the administration or cash-responsible user.
+El MVP se concentra únicamente en el usuario responsable de administración o caja.
 
-## Jobs to be done
+## Trabajos por realizar
 
-### Administration and cash operations
+### Administración y caja
 
-> When preparing the operational close, I need every registered movement to have the required evidence and authorization so that I can consolidate the period without repeating the audit manually.
+> Cuando preparo el cierre operativo, necesito que cada movimiento registrado tenga la evidencia y autorización requeridas para poder consolidar el período sin repetir manualmente la auditoría.
 
-### Finance
+### Finanzas
 
-> When preparing balances, I need the operational information to be complete and validated so that I do not have to return the close for correction.
+> Cuando preparo balances, necesito que la información operativa esté completa y validada para no devolver el cierre por correcciones.
 
-### Logistics
+### Logística
 
-> When preparing a dispatch, I need digital information to reflect the operational reality so that the route is not delayed by late inconsistencies.
+> Cuando preparo un despacho, necesito que la información digital refleje la realidad operativa para evitar que la ruta se retrase por inconsistencias tardías.
 
-## User pain
+## Dolor del usuario
 
-The main pain is the lack of agreement between:
+El dolor principal es la falta de concordancia entre:
 
-- registered operational movements;
-- physical or digital supporting documents;
-- formal authorizations;
-- physical cash;
-- system balances;
-- stock information;
-- external information received after the operational cutoff.
+- movimientos operativos registrados;
+- documentos físicos o digitales de soporte;
+- autorizaciones formales;
+- efectivo físico;
+- saldos del sistema;
+- información de stock;
+- información externa recibida después del corte operativo.
 
-The failure is commonly detected during final consolidation rather than when the event is registered.
+La falla normalmente se detecta durante la consolidación final, no cuando se registra el evento.
 
-## Current workaround
+## Solución actual
 
-Organizations commonly compensate for these failures through:
+Las organizaciones suelen compensar estas fallas mediante:
 
-- manual reviews;
-- transaction-by-transaction comparison;
-- spreadsheets;
-- calls and messages;
-- verbal confirmations;
-- searches for physical documents;
-- overtime;
-- reopening of previously consolidated information;
-- resubmission to accounting.
+- revisiones manuales;
+- comparación transacción por transacción;
+- hojas de cálculo;
+- llamadas y mensajes;
+- confirmaciones verbales;
+- búsqueda de documentos físicos;
+- horas extra;
+- reapertura de información previamente consolidada;
+- reenvío a contabilidad.
 
-## Why the current workaround is insufficient
+## Por qué la solución actual es insuficiente
 
-The current approach is reactive and depends heavily on individual effort.
+El enfoque actual es reactivo y depende en gran medida del esfuerzo individual.
 
-It does not reliably prevent:
+No previene de manera confiable:
 
-- unsupported expenses;
-- informal discounts or cancellations;
-- duplicate or incorrect amounts;
-- missing supplier documents;
-- late external reconciliations;
-- operational events without a verifiable state.
+- egresos sin soporte;
+- descuentos o anulaciones informales;
+- montos duplicados o incorrectos;
+- documentos faltantes de proveedores;
+- conciliaciones externas tardías;
+- eventos operativos sin un estado verificable.
 
-The process also becomes more fragile when experienced employees leave or when operational volume increases.
+El proceso también se vuelve más frágil cuando los trabajadores experimentados dejan la organización o aumenta el volumen operativo.
 
-## Desired outcome
+## Resultado deseado
 
-The desired outcome is an operational closing process where:
+El resultado esperado es un proceso de cierre operativo donde:
 
-- every registered event has an explicit state;
-- missing evidence is detected early;
-- required authorizations are verifiable;
-- inconsistencies generate visible alerts;
-- blocking issues prevent the close from advancing;
-- corrections trigger a new validation;
-- the information sent to accounting has passed a final quality gate.
+- cada evento registrado tenga un estado explícito;
+- la falta de evidencia se detecte temprano;
+- las autorizaciones requeridas sean verificables;
+- las inconsistencias generen alertas visibles;
+- los problemas bloqueantes impidan que el cierre avance;
+- las correcciones provoquen una nueva validación;
+- la información enviada a contabilidad haya superado un control final de calidad.
 
-## Product hypothesis
+## Hipótesis del producto
 
-> If registered operational events are validated when they are created or modified, and unresolved inconsistencies remain visible through explicit states and alerts, organizations can reduce closing rework and prevent unsupported or unauthorized movements from being ignored during consolidation.
+> Si los eventos operativos registrados se validan cuando se crean o modifican, y las inconsistencias no resueltas permanecen visibles mediante estados y alertas explícitos, las organizaciones pueden reducir el retrabajo de cierre y evitar que movimientos sin soporte o autorización sean ignorados durante la consolidación.
 
-## Core product principle
+## Principio central del producto
 
-> The principal problem is not registering information. The principal problem is validating its operational consistency before the close.
+> El problema principal no es registrar información. El problema principal es validar su consistencia operativa antes del cierre.
 
-## Proposed product
+## Producto propuesto
 
-The proposed product is:
+> Una capa de validación operativa temprana que evalúa eventos registrados, aplica reglas de negocio, genera alertas y controla si un cierre operativo puede avanzar.
 
-> An early operational validation layer that evaluates registered events, applies fixed or configurable business rules, generates alerts, and controls whether an operational close can advance.
+En el MVP, las reglas pertenecen a un catálogo interno fijo y no son configurables por el usuario.
 
-The product initially focuses on:
+Inicialmente, el producto se concentra en:
 
-- income;
-- expenses;
-- discounts;
-- cancellations;
-- supporting documents;
-- authorizations;
-- validations;
-- alerts;
-- operational close states.
+- ingresos;
+- egresos;
+- descuentos;
+- anulaciones;
+- documentos de soporte;
+- autorizaciones;
+- validaciones;
+- alertas;
+- estados del cierre operativo.
 
-## Product boundary
+## Límite del producto
 
-The product is not intended to replace:
+El producto no pretende reemplazar:
 
-- an ERP;
-- a POS;
-- an accounting platform;
-- electronic invoicing;
-- complete inventory management;
-- banking systems;
-- complete supplier management;
-- physical control procedures.
+- un ERP;
+- un POS;
+- una plataforma contable;
+- la facturación electrónica;
+- la gestión completa de inventario;
+- los sistemas bancarios;
+- la gestión completa de proveedores;
+- los procedimientos de control físico.
 
-It operates as a validation and control layer over operational information that has already been registered.
+Opera como una capa de validación y control sobre información operativa ya registrada.
 
-## Explicit non-goals
+## Objetivos explícitamente excluidos
 
-The product will not initially provide:
+El producto no proporcionará inicialmente:
 
-- complete accounting;
-- tax calculation;
-- electronic invoice issuance;
-- complete inventory management;
-- payroll;
-- banking reconciliation automation;
-- supplier portals;
-- multi-branch administration;
-- advanced financial reporting.
+- contabilidad completa;
+- cálculo tributario;
+- emisión de comprobantes electrónicos;
+- gestión completa de inventario;
+- planillas;
+- automatización de conciliación bancaria;
+- portales de proveedores;
+- administración multisucursal;
+- reportes financieros avanzados.
 
-## Initial value proposition
+## Propuesta de valor inicial
 
-> Detect unsupported, unauthorized, or inconsistent operational events before they become closing rework.
+> Detectar eventos operativos sin soporte, sin autorización o inconsistentes antes de que se conviertan en retrabajo de cierre.
 
-## Primary risk
+## Riesgo principal
 
-The principal operational risk is:
+> El producto solo puede validar eventos que hayan sido registrados.
 
-> The product can only validate events that have been registered.
+Si un movimiento real ocurre, pero nunca se ingresa al sistema, la capa de validación no puede detectarlo por sí sola.
 
-If a real-world movement occurs but is never entered into the system, the validation layer cannot detect it by itself.
+Esto permanece como un riesgo operativo residual fuera del control del producto inicial.
 
-This remains a residual operational risk outside the control of the initial product.
+## Riesgos adicionales
 
-## Additional risks
+- Resistencia al cambio de hábitos operativos.
+- Registro incompleto o tardío de eventos.
+- Exceso de alertas que los usuarios comiencen a ignorar.
+- Reglas de validación definidas incorrectamente.
+- Reglas bloqueantes que interrumpan operaciones legítimas.
+- Evidencia insuficiente sobre la frecuencia real del problema.
+- Dificultad futura de integración con sistemas existentes.
 
-- Resistance to changing current operational habits.
-- Incomplete or delayed event registration.
-- Excessive alerts that users begin to ignore.
-- Incorrectly configured validation rules.
-- Blocking rules that interrupt legitimate operations.
-- Insufficient evidence about the actual frequency of the problem.
-- Difficulty integrating with existing systems in later versions.
+## Evidencia requerida
 
-## Evidence required
+La tesis del producto debe validarse con evidencia adicional como:
 
-The product thesis should be validated with additional evidence such as:
+- tiempo entre un evento operativo y su registro;
+- tiempo entre recepción de un documento y su conciliación;
+- frecuencia de comprobantes faltantes;
+- frecuencia de autorizaciones informales;
+- número de cierres reabiertos;
+- número de correcciones solicitadas por contabilidad;
+- horas extra asociadas al cierre;
+- tiempo promedio para resolver una discrepancia;
+- porcentaje de inconsistencias detectadas antes de la consolidación final.
 
-- time between an operational event and its registration;
-- time between document receipt and reconciliation;
-- frequency of missing receipts;
-- frequency of informal authorizations;
-- number of closes reopened;
-- number of corrections requested by accounting;
-- overtime associated with closing activities;
-- average time required to resolve a discrepancy;
-- percentage of inconsistencies detected before final consolidation.
+## Indicadores de éxito
 
-## Success indicators
+Los posibles indicadores de éxito incluyen:
 
-Potential success indicators include:
+- reducción del tiempo dedicado a auditar el cierre;
+- porcentaje de inconsistencias bloqueantes detectadas antes de consolidar;
+- porcentaje de eventos registrados con evidencia completa;
+- reducción de cierres reabiertos;
+- reducción de devoluciones por parte de contabilidad;
+- reducción de llamadas o mensajes necesarios para resolver discrepancias;
+- tiempo necesario para llevar un evento desde pendiente u observado hasta validado.
 
-- reduction in time spent auditing the close;
-- percentage of blocking inconsistencies detected before consolidation;
-- percentage of registered events with complete supporting evidence;
-- reduction in reopened closes;
-- reduction in accounting returns;
-- reduction in manual calls or messages required to resolve discrepancies;
-- time required to move an event from pending or observed to validated.
+## Hipótesis del MVP
 
-## MVP hypothesis
+> Un egreso registrado sin el comprobante o autorización requeridos puede detectarse automáticamente, generar una alerta bloqueante, impedir que el cierre operativo sea validado y permitir que el cierre avance únicamente después de corregir la causa y revalidarla exitosamente.
 
-The MVP will test the following narrower hypothesis:
+## Condición de éxito del MVP
 
-> A registered expense without a required receipt or authorization can be detected automatically, generate a blocking alert, prevent the operational close from being validated, and allow the close to advance only after the cause is corrected and successfully revalidated.
+La hipótesis se considerará demostrada técnicamente cuando el MVP pueda:
 
-## MVP success condition
+1. Registrar un evento operativo.
+2. Detectar evidencia o autorización faltante.
+3. Generar una alerta bloqueante.
+4. Bloquear el cierre operativo.
+5. Aceptar la evidencia o autorización faltante.
+6. Revalidar el evento exitosamente.
+7. Resolver la alerta mediante la revalidación.
+8. Validar el cierre operativo.
+9. Enviar el cierre a contabilidad como una transición interna de estado.
 
-The hypothesis will be considered technically demonstrated when the MVP can:
+## Relación con el alcance del MVP
 
-1. Register an operational event.
-2. Detect missing evidence or authorization.
-3. Generate a blocking alert.
-4. Block the operational close.
-5. Accept the missing evidence or authorization.
-6. Revalidate the event successfully.
-7. Resolve the alert through revalidation.
-8. Validate the operational close.
-9. Submit the close to accounting as an internal state transition.
+El dominio investigado contempla caja, documentos, stock y dependencias externas. Sin embargo, el MVP v0.3 se limita al cierre operativo de caja y a eventos de ingreso, egreso, descuento y anulación.
 
-## Current confidence
+Las facturas de proveedores, la conciliación bancaria o POS, el stock y el cierre provisional permanecen fuera del MVP.
 
-**Overall confidence:** Medium–high
+## Confianza actual
 
-The operational problem is supported by direct observation and investigated cases.
+**Confianza general:** Media–alta
 
-However:
+El problema operativo está respaldado por observación directa y casos investigados.
 
-- the estimated economic impact requires additional measurement;
-- the behavior of users has not yet been validated through a working prototype;
-- the effectiveness of the validation approach remains a product hypothesis;
-- the scalability of the approach beyond cash closing has not yet been demonstrated.
+Sin embargo:
+
+- el impacto económico estimado requiere mediciones adicionales;
+- el comportamiento de los usuarios todavía no fue validado mediante un prototipo funcional;
+- la eficacia del enfoque de validación continúa siendo una hipótesis de producto;
+- la escalabilidad del enfoque más allá del cierre de caja todavía no ha sido demostrada.
