@@ -1,6 +1,6 @@
 # Operational Close Validator
 
-Early validation system for detecting unsupported, unauthorized, or inconsistent operational events before accounting close.
+Early validation system for detecting unsupported, unauthorized, or inconsistent operational events before operational close and submission to accounting.
 
 ## Problem
 
@@ -29,17 +29,36 @@ Demonstrate that a registered operational event without the required evidence ca
 
 ## Project status
 
-Product discovery, domain analysis, behavioral modeling, use cases, and MVP scope have been completed.
+Product discovery, domain analysis, system behavior, MVP scope, and the first architectural decision record have been approved and incorporated into the repository.
 
-The approved documentation is being incorporated into the repository. Application implementation has not started yet.
+The approved documentation baseline is complete. Technical design and application implementation have not started yet.
 
 ## Documentation
 
 Project documentation is organized under the `docs/` directory.
 
-## Current approved baselines
+### Product discovery
 
-- Domain Model v0.3
-- State Machine v0.3
-- Use Cases v0.2
-- MVP Scope v0.3
+- [Problem Map v0.2.1](docs/01-product-discovery/problem-map.md)
+- [Problem Statement v0.2](docs/01-product-discovery/problem-statement.md)
+- [Product Thesis v0.2](docs/01-product-discovery/product-thesis.md)
+- [Current Workflow v0.2](docs/01-product-discovery/current-workflow.md)
+
+### Domain analysis
+
+- [Failure Mode Analysis v0.1](docs/02-domain-analysis/failure-mode-analysis.md)
+- [Validation Rules v0.2](docs/02-domain-analysis/validation-rules.md)
+- [Domain Model v0.3](docs/02-domain-analysis/domain-model.md)
+
+### System behavior
+
+- [State Machine v0.3](docs/03-system-behavior/state-machine.md)
+- [Use Cases v0.2](docs/03-system-behavior/use-cases.md)
+
+### Product scope
+
+- [MVP Scope v0.3](docs/04-product-scope/mvp-scope.md)
+
+### Decision records
+
+- [ADR-0001 — Final validation can return a validated close to blocked](docs/decisions/ADR-0001-final-validation-blocks-close.md)
