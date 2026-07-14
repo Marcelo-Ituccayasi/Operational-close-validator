@@ -74,6 +74,7 @@ Los datos mínimos requeridos son:
 - tipo de evento;
 - monto;
 - fecha y hora de ocurrencia;
+- fecha y hora de registro;
 - responsable;
 - motivo o descripción;
 - Cierre Operativo relacionado.
@@ -143,27 +144,47 @@ Obliga a implementar un ciclo de vida completo de alertas, con reglas claras par
 ### FR-ARCH-005 — Invalidación y revalidación
 
 **Descripción:**
-Cuando un Evento Operativo es modificado en datos relevantes, Evidencia de  Soporte o Autorización, los Resultados de Validación dependientes deben quedar no vigentes.
 
-Si el evento estaba Validado, deja de estarlo y pasa al estado que corresponda según la condición resultante y la máquina de estados aprobada.
+Cuando un Evento Operativo es modificado en datos relevantes, Evidencia de
+Soporte o Autorización, los Resultados de Validación dependientes deben quedar
+no vigentes.
 
-Si el Cierre Operativo estaba Validado y la modificación invalida una condición obligatoria, pasa a Bloqueado.
+Si el evento estaba Validado, pasa a Registrado porque debe ejecutar nuevamente
+sus validaciones aplicables.
+
+Si el Cierre Operativo relacionado estaba Validado, pasa a Bloqueado.
+
+La consolidación afectada queda no vigente. La revalidación determina el nuevo
+estado real del Evento Operativo.
 
 **Impacto arquitectónico:**
-Obliga a gestionar dependencias entre entidades, controlar vigencia de resultados y consolidaciones, y garantizar consistencia ante cambios.
+
+Obliga a gestionar dependencias entre entidades, controlar la vigencia de
+resultados y consolidaciones, y garantizar consistencia ante modificaciones.
 
 **Trazabilidad:**
+
 - UC-003.
 - UC-004.
 - UC-007.
 - State Machine v0.3.
+- MVP Scope v0.3.
 
 ### FR-ARCH-006 — Consolidación del Cierre Operativo
 
 **Descripción:**
-El sistema debe consolidar un Cierre Operativo calculando los agregados aprobados para sus Eventos Operativos y conservando el resultado y su vigencia.
 
-La consolidación solo puede completarse cuando todos los Eventos Operativos están Validados, no existen Alertas bloqueantes activas, y todos los resultados aplicables están vigentes y satisfechos.
+El sistema debe consolidar un Cierre Operativo calculando y conservando, como mínimo:
+
+- totales por tipo de Evento Operativo;
+- saldo inicial;
+- saldo esperado;
+- saldo real;
+- diferencia;
+- fecha y hora de consolidación;
+- usuario responsable.
+
+La consolidación solo puede completarse cuando todos los Eventos Operativos están Validados, no existen Alertas bloqueantes activas y todos los Resultados de Validación aplicables están vigentes y satisfechos.
 
 La consolidación debe quedar no vigente cuando cambios posteriores afecten sus datos de origen.
 
@@ -185,11 +206,8 @@ Si VR-008 falla:
 - el cierre pasa de Validado a Bloqueado;
 - se conserva la causa y las entidades afectadas;
 - se exige corrección y revalidación;
-- si la causa afectó una consolidación existente, esta queda no vigente y debe ejecutarse nuevamente.
-
-Si VR-008 es exitosa:
-- se registra fecha, hora y responsable;
-- el cierre pasa a Enviado a contabilidad.
+- se exige ejecutar nuevamente la consolidación antes de que el cierre pueda
+  volver a Validado.
 
 **Impacto arquitectónico:**
 Obliga a implementar un mecanismo que garantice la atomicidad de la operación: validación final + transición + registro de envío, sin posibilidad de que el cierre quede en estado inconsistente.
@@ -313,7 +331,7 @@ MVP Scope v0.3.
 
 ### CON-003 — Catálogo fijo de reglas
 
-Las reglas de validación del MVP pertenecen a un catálogo interno fijo y no son configurables por el usuario.
+Las reglas de validación del MVP pertenecen a un catálogo interno, fijo y versionado. El usuario no puede crear, editar, habilitar ni deshabilitar reglas.
 
 **Origen:**
 Validation Rules v0.2 y MVP Scope v0.3.
