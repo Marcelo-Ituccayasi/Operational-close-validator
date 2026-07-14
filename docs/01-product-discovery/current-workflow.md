@@ -172,7 +172,7 @@ El usuario responsable:
 - corrige montos;
 - adjunta evidencia de soporte;
 - formaliza autorizaciones;
-- actualiza hojas de cálculo o sistemas operativos.
+- actualiza hojas de cálculo o sistemas empresariales.
 
 ### Paso 8 — Repetir la conciliación
 
@@ -335,7 +335,7 @@ Cada evento debe mantener un estado verificable como:
 - Pendiente de soporte;
 - Pendiente de autorización;
 - Pendiente de conciliación externa;
-- Observado;
+- Con observaciones;
 - Validado.
 
 ## Relación con el alcance del MVP

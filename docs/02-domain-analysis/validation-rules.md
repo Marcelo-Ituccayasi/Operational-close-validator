@@ -188,7 +188,10 @@ Las reglas describen comportamiento de dominio. No definen interfaz, persistenci
 
 ### VR-008 — Control final antes del envío
 
-**Regla:** Un cierre no puede enviarse a contabilidad si contiene al menos un evento pendiente, con observaciones o una alerta bloqueante activa.
+**Regla:** Un cierre solo puede enviarse a contabilidad cuando todos sus
+eventos se encuentran en estado Validado, no existen alertas bloqueantes
+activas, todos los resultados de validación aplicables están vigentes y
+satisfechos, y la consolidación está completa.
 
 **Datos requeridos:**
 - estado de todos los eventos;
@@ -198,7 +201,7 @@ Las reglas describen comportamiento de dominio. No definen interfaz, persistenci
 
 **Severidad:** Crítica.
 
-**Efecto de falla:** bloquea el envío y coloca el cierre en estado Bloqueado.
+**Efecto de falla:** rechaza el envío y coloca el cierre en estado Bloqueado.
 
 **Estado resultante del cierre:** Bloqueado.
 
