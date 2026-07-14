@@ -160,7 +160,7 @@ A2. El cierre está Enviado a contabilidad.
 
 - Existe un Evento Operativo en estado Registrado y vinculado al cierre, o la operación fue rechazada sin crear datos parciales.
 
-## UC-003 — Adjuntar Evidencia de Soporte VR-001, VR-002 y VR-003.
+## UC-003 — Adjuntar Evidencia de Soporte
 
 ### Objetivo
 
@@ -554,18 +554,18 @@ Falla:
 
 - UC-001 → Usuario y autenticación básica del MVP.
 - UC-002 → Evento Operativo y Cierre Operativo.
-- UC-003 → Evidencia de Soporte; VR-002 y VR-003.
+- UC-003 → Evidencia de Soporte; VR-001, VR-002 y VR-003.
 - UC-004 → Autorización; VR-001 y VR-006.
 - UC-005 → Resultado de Validación, Alerta y estados del Evento Operativo.
 - UC-006 → estados Activa, Reconocida, En revisión, Resuelta y Descartada.
 - UC-007 → invalidación de resultados, revalidación y resolución de Alertas.
-- UC-008 → Consolidación y transición Preparación o Bloqueado → Validado.
+- UC-008 → Consolidación y transición Preparación o Bloqueado → Validado.S
 - UC-009 → VR-008, FM-008 y transiciones Validado → Enviado a contabilidad o Validado → Bloqueado.
 
 ## Reglas de aceptación transversal
 
 1. Ninguna acción protegida se ejecuta sin autenticación.
-2. Un Evento Operativo no puede quedar Validado si algún Resultado de validación aplicable tiene valor Fallida o no está vigente.
+2. Un Evento Operativo no puede quedar Validado si algún Resultado de Validación aplicable tiene valor Fallida o no está vigente.
 3. Ninguna Alerta queda Resuelta sin revalidación exitosa.
 4. Ninguna Alerta queda Descartada sin autorización y justificación.
 5. Ningún Cierre Operativo queda Validado con un evento cuyo estado no sea Validado.
