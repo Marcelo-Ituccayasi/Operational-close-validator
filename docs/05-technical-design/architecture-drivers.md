@@ -68,18 +68,21 @@ Esta descripción establece el contexto aprobado, pero no determina todavía la 
 ### FR-ARCH-001 — Registro de Eventos Operativos
 
 **Descripción:**
-El sistema debe permitir registrar Eventos Operativos de tipo Ingreso, Egreso, Descuento y Anulación, asociados a un Cierre Operativo en estado Preparación.
+El sistema debe permitir registrar Eventos Operativos de tipo Ingreso, Egreso, Descuento y Anulación, asociados a un Cierre Operativo en estado Preparación o Bloqueado.
 
-Los datos mínimos requeridos son:
+Los datos mínimos proporcionados para el registro son:
+
 - tipo de evento;
 - monto;
 - fecha y hora de ocurrencia;
-- fecha y hora de registro;
 - responsable;
 - motivo o descripción;
 - Cierre Operativo relacionado.
 
-El registro debe conservar trazabilidad de quién lo creó y cuándo.
+El sistema debe registrar automáticamente:
+
+- fecha y hora de registro;
+- usuario autenticado que realizó la acción.
 
 **Impacto arquitectónico:**
 Obliga a definir una estructura de persistencia para eventos, una interfaz para su captura, y un mecanismo que garantice que el evento queda asociado correctamente al Cierre Operativo relacionado.
@@ -123,8 +126,11 @@ Obliga a diseñar una estructura de persistencia que relacione reglas, entidades
 **Trazabilidad:**
 - Domain Model v0.3.
 - State Machine v0.3.
+- Validation Rules v0.2: VR-008.
 - UC-005.
 - UC-007.
+- UC-009.
+- ADR-0001.
 
 ### FR-ARCH-004 — Gestión de Alertas
 
@@ -209,6 +215,13 @@ Si VR-008 falla:
 - se exige ejecutar nuevamente la consolidación antes de que el cierre pueda
   volver a Validado.
 
+Si VR-008 es exitosa:
+
+- VR-008 queda Satisfecha;
+- se registran fecha, hora y responsable del envío;
+- el cierre pasa a Enviado a contabilidad;
+- no se admiten modificaciones posteriores dentro del MVP.
+
 **Impacto arquitectónico:**
 Obliga a implementar un mecanismo que garantice la atomicidad de la operación: validación final + transición + registro de envío, sin posibilidad de que el cierre quede en estado inconsistente.
 
@@ -258,9 +271,10 @@ Un usuario necesita investigar por qué un Cierre Operativo quedó Bloqueado o p
 
 **Medida verificable:**
 El sistema debe conservar fecha, hora, responsable, causa y detalle de:
-- cada transición de estado de Evento Operativo;
-- cada transición de estado de Cierre Operativo;
-- cada transición de estado de Alerta;
+
+- las transiciones relevantes de estado de los Eventos Operativos;
+- las transiciones relevantes de estado de los Cierres Operativos;
+- las transiciones relevantes de estado de las Alertas;
 - cada Resultado de Validación y su vigencia;
 - cada consolidación y su vigencia;
 - cada intento de envío y su resultado.
@@ -462,6 +476,8 @@ Las alternativas de arquitectura y stack se evaluarán con los siguientes criter
 | DEC-010 | Adecuación al aprendizaje | Valor técnico y profesional del stack para el proyecto | Media |
 
 ## 10. Priorización de impulsores
+
+Las restricciones CON-001 a CON-007 son obligatorias para el MVP y no se clasifican por prioridad. Toda alternativa técnica debe cumplirlas.
 
 ### Prioridad crítica
 
