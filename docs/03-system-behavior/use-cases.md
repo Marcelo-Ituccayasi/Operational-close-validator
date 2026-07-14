@@ -559,7 +559,7 @@ Falla:
 - UC-005 → Resultado de Validación, Alerta y estados del Evento Operativo.
 - UC-006 → estados Activa, Reconocida, En revisión, Resuelta y Descartada.
 - UC-007 → invalidación de resultados, revalidación y resolución de Alertas.
-- UC-008 → Consolidación y transición Preparación o Bloqueado → Validado.S
+- UC-008 → Consolidación y transición Preparación o Bloqueado → Validado.
 - UC-009 → VR-008, FM-008 y transiciones Validado → Enviado a contabilidad o Validado → Bloqueado.
 
 ## Reglas de aceptación transversal
