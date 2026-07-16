@@ -1,8 +1,8 @@
 # ADR-0004: Estrategia de persistencia y control de concurrencia
 
-**Estado:** Propuesta
+**Estado:** Aceptada
 
-**Estado documental:** Borrador
+**Estado documental:** Línea base aprobada
 
 **Fecha:** 2026-07-16
 
