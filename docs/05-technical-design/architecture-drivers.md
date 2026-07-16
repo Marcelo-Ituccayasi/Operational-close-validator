@@ -2,7 +2,7 @@
 
 **Versión:** v0.1
 
-**Estado:** Borrador
+**Estado:** Línea base aprobada
 
 **Fase:** 05 — Diseño técnico
 
