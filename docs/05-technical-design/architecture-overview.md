@@ -73,7 +73,7 @@ Estos elementos se documentarán en `data-model.md`, `api-design.md`, `security-
 
 | Decisión | Resultado integrado |
 |---|---|
-| ADR-0001 | Una falla de VR-008 inmediatamente antes del envío rechaza la operación y puede devolver el cierre de Validado a Bloqueado. |
+| ADR-0001 | Una falla de VR-008 inmediatamente antes del envío rechaza la operación y devuelve el cierre de Validado a Bloqueado. |
 | ADR-0002 | La aplicación es un monolito modular por capacidades con puertos y adaptadores, desplegado como una sola unidad. |
 | ADR-0003 | El stack del MVP es Java, Spring Boot, Spring MVC, Thymeleaf y Maven. |
 | ADR-0004 | La persistencia utiliza PostgreSQL, Spring Data JPA con Hibernate, Flyway, transacciones explícitas y bloqueo pesimista por Cierre Operativo. |
@@ -634,10 +634,12 @@ username
 
 Gestión del Cierre Operativo utiliza `userId` para:
 
-- autorización mínima;
-- responsabilidad;
-- trazabilidad;
-- registro de acciones.
+- identificar al usuario responsable;
+- atribuir responsabilidad;
+- mantener trazabilidad;
+- registrar acciones.
+
+La autorización mínima se verifica en el límite de Aplicación mediante la presencia de un `AuthenticatedPrincipal` válido. `userId` no representa un rol ni un permiso.
 
 El módulo no conoce:
 
@@ -653,46 +655,43 @@ El módulo no conoce:
 ## 11. Diagrama de componentes
 
 ```mermaid
-flowchart TB
-    Browser["Navegador web"]
-    Database[("PostgreSQL")]
-    Evidence["Almacenamiento físico de evidencias<br/>(pendiente)"]
+sequenceDiagram
+    actor User as Usuario responsable
+    participant Web as Presentación
+    participant App as Aplicación
+    participant Tx as TransactionRunner
+    participant Repo as Adaptador JPA
+    participant Domain as Dominio
+    participant DB as PostgreSQL
 
-    subgraph Deployable["Unidad desplegable Spring Boot"]
-        subgraph Presentation["Presentación"]
-            Controllers["Controladores Spring MVC"]
-            Views["Vistas Thymeleaf"]
-            SecurityEntry["Filtros y adaptadores de entrada de seguridad"]
-        end
+    User->>Web: Solicita enviar el cierre
+    Web->>App: sendClose(closeId, principal)
+    App->>Tx: execute(callback)
+    activate Tx
+    Tx->>App: ejecutar callback transaccional
 
-        subgraph Closing["Gestión del Cierre Operativo"]
-            ClosingApplication["Aplicación<br/>Casos de uso + puertos + AuthenticatedPrincipal"]
-            ClosingDomain["Dominio<br/>Entidades + reglas + invariantes"]
-            ClosingInfrastructure["Adaptadores de Infraestructura<br/>JPA + TransactionRunner + reloj + evidencias"]
-        end
+    App->>Repo: bloquear Cierre Operativo
+    Repo->>DB: SELECT ... FOR UPDATE
+    App->>Repo: recargar estado evaluable
+    Repo->>DB: leer eventos, resultados, alertas y consolidación
+    App->>Domain: ejecutar VR-008
 
-        subgraph Identity["Identidad y Acceso"]
-            IdentityInfrastructure["Infraestructura y soporte<br/>Spring Security + sesión + credenciales"]
-        end
-
-        Assembly["Configuración y ensamblaje"]
-        Migrations["Migraciones Flyway"]
+    alt VR-008 falla
+        Domain-->>App: Fallida + causas
+        App->>Repo: guardar resultado y transición a Bloqueado
+        Repo->>DB: persistir rechazo y trazabilidad
+        App-->>Tx: resultado de negocio rechazado
+    else VR-008 satisfecha
+        Domain-->>App: Satisfecha
+        App->>Repo: guardar resultado, envío y transición terminal
+        Repo->>DB: persistir envío y trazabilidad
+        App-->>Tx: resultado de negocio exitoso
     end
 
-    Browser --> Controllers
-    Browser --> SecurityEntry
-    SecurityEntry --> IdentityInfrastructure
-    IdentityInfrastructure -. "contexto autenticado" .-> Controllers
-    Controllers --> ClosingApplication
-    ClosingApplication --> ClosingDomain
-    ClosingInfrastructure -. "implementa puertos" .-> ClosingApplication
-    IdentityInfrastructure --> Database
-    ClosingInfrastructure --> Database
-    ClosingInfrastructure -. "implementa puerto" .-> Evidence
-    Migrations --> Database
-    Assembly --> Controllers
-    Assembly --> ClosingInfrastructure
-    Assembly --> IdentityInfrastructure
+    Tx->>DB: COMMIT
+    deactivate Tx
+    Tx-->>App: resultado confirmado
+    App-->>Web: resultado del intento de envío
 ```
 
 Las flechas de implementación no permiten que Aplicación dependa de clases concretas de Infraestructura.
@@ -848,7 +847,8 @@ El orden obligatorio es:
 7. Recargar la consolidación.
 8. Ejecutar VR-008.
 9. Persistir el resultado, la transición y la trazabilidad.
-10. Confirmar o revertir la transacción completa.
+10. Confirmar el resultado de negocio, tanto exitoso como rechazado.
+11. Revertir la transacción únicamente ante un error técnico o un conflicto que impida persistir el resultado de forma consistente.
 ```
 
 ### 14.2. Resultado fallido
@@ -926,8 +926,8 @@ Cuando cambia información relevante de un Evento Operativo:
 2. un evento previamente Validado pasa a Registrado;
 3. un cierre previamente Validado pasa a Bloqueado;
 4. la consolidación afectada queda no vigente;
-5. se ejecutan nuevamente las reglas aplicables;
-6. la revalidación determina el nuevo estado real;
+5. las reglas aplicables deben ejecutarse nuevamente mediante el flujo de revalidación;
+6. la revalidación determina el nuevo estado real del Evento Operativo;
 7. el cierre solo puede regresar a Validado cuando todas las condiciones vuelven a cumplirse.
 
 Información relevante incluye:
