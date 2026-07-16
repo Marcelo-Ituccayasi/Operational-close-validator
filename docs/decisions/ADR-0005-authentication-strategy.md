@@ -339,6 +339,7 @@ Se adopta:
 | Mecanismo de autenticación | Form login |
 | Persistencia del contexto | Sesión HTTP del servidor |
 | Repositorio de sesión | Memoria del proceso Servlet |
+| Registro de sesiones concurrentes | `SessionRegistry` en memoria + `HttpSessionEventPublisher` |
 | Cookie de sesión | `JSESSIONID` |
 | Fuente de usuario | PostgreSQL mediante adaptador de Identidad y Acceso |
 | Identificador estable | `responsible-user` |
@@ -393,7 +394,9 @@ No se crean:
 
 La base de datos debe impedir nombres de usuario duplicados.
 
-La aplicación falla al iniciar si detecta más de un usuario activo.
+La aplicación falla al iniciar si existe más de un registro de usuario o si el registro existente utiliza un identificador interno diferente de `responsible-user`.
+
+El MVP no conserva usuarios inactivos adicionales.
 
 ### 9.3. Aprovisionamiento
 
@@ -423,13 +426,14 @@ La contraseña en texto plano:
 
 Antes de declarar la aplicación lista para recibir tráfico, Identidad y Acceso ejecuta una operación transaccional que:
 
-1. valida que exista como máximo el usuario interno `responsible-user`;
-2. exige las dos variables de configuración;
-3. crea el registro cuando la base está vacía;
-4. sincroniza el nombre de usuario y el hash configurados;
-5. incrementa la versión de credencial cuando cambia el hash;
-6. invalida sesiones anteriores cuando la versión de credencial cambia;
-7. falla el arranque ante datos incompatibles o configuración ausente.
+1. valida que la tabla contenga cero o un registro;
+2. verifica que cualquier registro existente tenga el identificador interno `responsible-user`;
+3. exige las dos variables de configuración;
+4. crea el registro cuando la base está vacía;
+5. sincroniza el nombre de usuario y el hash configurados;
+6. incrementa la versión de credencial cuando cambia el hash;
+7. registra la actualización para trazabilidad;
+8. falla el arranque ante datos incompatibles o configuración ausente.
 
 La configuración externa es la fuente de verdad de la credencial del usuario preconfigurado.
 
@@ -440,9 +444,11 @@ La contraseña se rota mediante:
 1. generación externa de un nuevo hash;
 2. actualización segura de `OCV_AUTH_PASSWORD_HASH`;
 3. nuevo despliegue o reinicio controlado;
-4. sincronización del hash;
-5. invalidación de sesiones previas;
+4. invalidación de las sesiones en memoria como consecuencia del reinicio;
+5. sincronización del hash y de la versión de credencial;
 6. verificación del nuevo acceso.
+
+La recarga dinámica de credenciales sin reiniciar la aplicación queda fuera del MVP.
 
 El MVP no contiene una pantalla para cambiar contraseña.
 
@@ -547,15 +553,11 @@ Dentro del MVP:
 - Gestión y contabilidad continúan representadas en el mismo flujo;
 - la autorización se expresa como “usuario responsable autenticado”.
 
-Puede existir una autoridad técnica única:
+No se define una autoridad técnica `ROLE_RESPONSIBLE` dentro del MVP.
 
-```text
-ROLE_RESPONSIBLE
-```
+La autorización web utiliza únicamente la condición de usuario autenticado. El identificador `responsible-user` se utiliza para identidad y trazabilidad, no como rol o permiso.
 
-Su función es identificar al usuario preconfigurado, no modelar una jerarquía de roles.
-
-Las reglas de negocio no dependen de esa cadena.
+Las reglas de negocio no dependen de cadenas de autoridades.
 
 ---
 
@@ -632,6 +634,10 @@ Un nuevo inicio de sesión válido:
 - invalida la sesión anterior;
 - registra el reemplazo de sesión.
 
+El control se implementa mediante un `SessionRegistry` en memoria y un `HttpSessionEventPublisher` que mantiene actualizado el ciclo de vida de las sesiones.
+
+La implementación de `UserDetails` utilizada como principal técnico define `equals` y `hashCode` de manera estable a partir de `userId`, para que el registro de sesiones identifique correctamente al único usuario.
+
 No se bloquea indefinidamente el acceso por conservar una sesión anterior.
 
 ### 13.4. Fijación de sesión
@@ -703,6 +709,8 @@ Un endpoint solo puede excluirse de CSRF cuando:
 
 El MVP no requiere exclusiones para operaciones de negocio.
 
+Los formularios `multipart/form-data` utilizados para cargar Evidencias de Soporte deben incluir el token CSRF en el cuerpo del formulario o en un encabezado protegido. El token no se incluye en la URL. La integración se valida mediante pruebas contra el flujo real de carga de archivos.
+
 ---
 
 ## 16. Cierre de sesión
@@ -749,8 +757,10 @@ Valor inicial propuesto:
 
 ```text
 10 intentos fallidos por 5 minutos
-por combinación de origen y nombre de usuario
+por combinación de dirección IP confiable y nombre de usuario normalizado
 ```
+
+La dirección IP se obtiene de la conexión directa. Los encabezados reenviados solo se aceptan cuando la aplicación está detrás de un proxy explícitamente confiable; nunca se confía en encabezados aportados directamente por un cliente público.
 
 Al superar el límite:
 
@@ -855,29 +865,35 @@ El Dominio puede recibir el identificador del responsable como dato de auditorí
 5. Logout utiliza `POST`.
 6. Remember-me permanece deshabilitado.
 7. Solo existe el usuario interno `responsible-user`.
-8. Las credenciales provienen de configuración externa.
-9. El repositorio no contiene contraseñas ni hashes reales.
-10. El hash utiliza el formato de `DelegatingPasswordEncoder`.
-11. BCrypt es el algoritmo de nuevas credenciales.
-12. No se utiliza `NoOpPasswordEncoder`.
-13. El identificador de sesión cambia después del login.
-14. Solo existe una sesión activa.
-15. Una sesión nueva invalida la anterior.
-16. La sesión expira por inactividad.
-17. La cookie pública utiliza `HttpOnly`, `Secure` y `SameSite=Lax`.
-18. El principal se adapta a un contrato propio antes de llegar a Aplicación.
-19. El Dominio no importa Spring Security.
-20. No se almacena estado de negocio en la sesión.
-21. No se utilizan JWT.
-22. No se integran proveedores de identidad externos.
-23. Los mensajes de error no permiten enumerar usuarios.
-24. Los intentos de login están limitados.
-25. Las sesiones se conservan en memoria en el MVP.
-26. Un reinicio invalida las sesiones existentes.
-27. Una rotación de credencial invalida sesiones anteriores.
-28. Los eventos de seguridad no registran secretos.
-29. Las pruebas verifican autenticación, sesión, CSRF y logout.
-30. La seguridad no amplía el alcance funcional del MVP.
+8. No existen registros adicionales de usuarios activos o inactivos.
+9. Las credenciales provienen de configuración externa.
+10. El repositorio no contiene contraseñas ni hashes reales.
+11. El hash utiliza el formato de `DelegatingPasswordEncoder`.
+12. BCrypt es el algoritmo de nuevas credenciales.
+13. No se utiliza `NoOpPasswordEncoder`.
+14. El identificador de sesión cambia después del login.
+15. Solo existe una sesión activa.
+16. Una sesión nueva invalida la anterior.
+17. El control de concurrencia de sesiones utiliza `SessionRegistry` y `HttpSessionEventPublisher`.
+18. El principal técnico implementa `equals` y `hashCode` estables mediante `userId`.
+19. La sesión expira por inactividad.
+20. La cookie pública utiliza `HttpOnly`, `Secure` y `SameSite=Lax`.
+21. El principal se adapta a un contrato propio antes de llegar a Aplicación.
+22. El Dominio no importa Spring Security.
+23. No se almacena estado de negocio en la sesión.
+24. No se utilizan JWT.
+25. No se integran proveedores de identidad externos.
+26. No se definen roles técnicos dentro del MVP.
+27. Los mensajes de error no permiten enumerar usuarios.
+28. Los intentos de login están limitados.
+29. Los encabezados reenviados solo se confían desde proxies explícitamente configurados.
+30. Las sesiones se conservan en memoria en el MVP.
+31. Un reinicio invalida las sesiones existentes.
+32. Una rotación de credencial requiere reinicio e invalida las sesiones.
+33. Los eventos de seguridad no registran secretos.
+34. Los formularios multipart de Evidencias de Soporte mantienen protección CSRF.
+35. Las pruebas verifican autenticación, sesión, CSRF y logout.
+36. La seguridad no amplía el alcance funcional del MVP.
 
 ---
 
@@ -912,6 +928,8 @@ Debe verificarse que:
 - el identificador cambia al autenticar;
 - la sesión expira;
 - una nueva sesión invalida la anterior;
+- el `SessionRegistry` elimina sesiones cerradas o expiradas;
+- el ciclo de vida se propaga mediante `HttpSessionEventPublisher`;
 - logout invalida la sesión;
 - el reinicio invalida las sesiones en memoria;
 - remember-me no crea cookies persistentes.
@@ -924,7 +942,9 @@ Debe verificarse que:
 - una operación sin token es rechazada;
 - logout sin token es rechazado;
 - los endpoints de negocio no están excluidos;
-- Thymeleaf incorpora el token en formularios de escritura.
+- Thymeleaf incorpora el token en formularios de escritura;
+- la carga multipart de Evidencias de Soporte conserva la protección CSRF;
+- el token CSRF no aparece en la URL.
 
 ### 21.5. Cookies
 
@@ -966,7 +986,7 @@ Debe verificarse que:
 
 ## 23. Consecuencias y costos
 
-- El despliegue debe administrar dos secretos de autenticación.
+- El despliegue debe administrar dos valores de configuración de autenticación; el hash es sensible y el nombre de usuario no se trata como secreto.
 - El hash configurado debe sincronizarse con PostgreSQL.
 - Una configuración incorrecta puede impedir el arranque.
 - Las sesiones se pierden al reiniciar.
@@ -1013,28 +1033,35 @@ La decisión se considera correctamente implementada cuando:
 1. Spring Security protege todas las rutas de negocio;
 2. el usuario accede mediante form login;
 3. HTTP Basic está deshabilitado;
-4. existe exactamente un usuario interno;
-5. las credenciales provienen de configuración externa;
-6. no existen secretos reales en Git;
-7. la contraseña está almacenada mediante BCrypt con prefijo;
-8. `DelegatingPasswordEncoder` valida la credencial;
-9. CSRF está habilitado;
-10. logout requiere `POST` y token;
-11. la sesión cambia de identificador al autenticar;
-12. existe como máximo una sesión activa;
-13. la sesión expira por inactividad;
-14. remember-me está deshabilitado;
-15. la cookie pública tiene atributos seguros;
-16. el principal llega a Aplicación mediante un contrato propio;
-17. el Dominio no depende de Spring Security;
-18. los intentos de login están limitados;
-19. una rotación invalida sesiones previas;
-20. los eventos no registran secretos;
-21. las pruebas cubren los escenarios de la sección 21;
-22. el esquema de identidad se administra con Flyway;
-23. las entidades JPA de identidad permanecen en Infraestructura;
-24. no se introducen múltiples roles ni gestión de usuarios;
-25. el despliegue público utiliza HTTPS.
+4. existe exactamente un registro con identificador `responsible-user`;
+5. no existen usuarios adicionales activos o inactivos;
+6. las credenciales provienen de configuración externa;
+7. no existen secretos reales en Git;
+8. la contraseña está almacenada mediante BCrypt con prefijo;
+9. `DelegatingPasswordEncoder` valida la credencial;
+10. CSRF está habilitado;
+11. logout requiere `POST` y token;
+12. los formularios multipart mantienen protección CSRF;
+13. la sesión cambia de identificador al autenticar;
+14. existe como máximo una sesión activa;
+15. la sesión anterior se invalida cuando comienza una nueva;
+16. `SessionRegistry` y `HttpSessionEventPublisher` mantienen el ciclo de vida de sesiones;
+17. el principal técnico posee igualdad estable mediante `userId`;
+18. la sesión expira por inactividad;
+19. remember-me está deshabilitado;
+20. la cookie pública tiene atributos seguros;
+21. el principal llega a Aplicación mediante un contrato propio;
+22. el Dominio no depende de Spring Security;
+23. no se definen roles ni permisos configurables;
+24. los intentos de login están limitados;
+25. la clave de limitación utiliza una dirección IP obtenida de forma confiable;
+26. una rotación requiere reinicio e invalida sesiones previas;
+27. los eventos no registran secretos;
+28. las pruebas cubren los escenarios de la sección 21;
+29. el esquema de identidad se administra con Flyway;
+30. las entidades JPA de identidad permanecen en Infraestructura;
+31. no se introduce gestión de usuarios;
+32. el despliegue público utiliza HTTPS.
 
 ---
 
@@ -1088,4 +1115,4 @@ La sesión se conservará en memoria dentro de la única instancia del MVP. Un r
 
 Esta estrategia satisface el alcance de un único usuario preconfigurado, protege las operaciones web y conserva la independencia del Dominio aprobada en ADR-0002.
 
-El documento permanece como propuesta hasta completar su revisión de coherencia con ADR-0004 y con el futuro `security-design.md`.
+El documento permanece como propuesta hasta completar su revisión final. `security-design.md` deberá materializar esta decisión y no constituye una condición previa para aceptarla.
