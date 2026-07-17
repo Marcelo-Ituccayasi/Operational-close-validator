@@ -4,7 +4,7 @@
 
 **Estado:** Candidata a línea base
 
-**Estado documental:** Versión validada; integración y verificación remota pendientes
+**Estado documental:** Incorporada en el repositorio; revisión final y aprobación pendientes
 
 **Fase:** 05 — Diseño técnico
 
@@ -244,7 +244,7 @@ Los secretos:
 - no se muestran en logs;
 - no se comparten entre Staging y Production.
 
-Una configuración ausente o insegura impide Readiness.
+Una configuración obligatoria ausente, inválida o insegura detiene el arranque. No existe fallback silencioso.
 
 ---
 
@@ -584,7 +584,7 @@ No se requiere APM externo en el MVP.
 | Certificado inválido | Servicio no publicado |
 | Smoke test fallido | No habilitar tráfico o rollback |
 | Backup fallido | Bloquear migración destructiva |
-| Volumen sin capacidad | Rechazar nuevas cargas antes de agotamiento |
+| Volumen sin capacidad suficiente | La carga falla de forma segura, se intenta la compensación y no se crea una Evidencia activa |
 
 Los errores técnicos no generan Alertas de negocio.
 
