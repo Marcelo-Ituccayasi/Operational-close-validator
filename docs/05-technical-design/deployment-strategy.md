@@ -4,8 +4,6 @@
 
 **Estado:** Línea base aprobada
 
-**Estado documental:** Incorporada en el repositorio; revisión final y aprobación pendientes
-
 **Fase:** 05 — Diseño técnico
 
 **Producto:** Operational Close Validator
