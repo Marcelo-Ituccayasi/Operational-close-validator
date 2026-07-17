@@ -4,7 +4,7 @@
 
 **Estado:** Candidata a línea base
 
-**Estado documental:** Versión validada; integración y revisión remota pendientes
+**Estado documental:** Incorporada en el repositorio; revisión final y aprobación pendientes
 
 **Fase:** 06 — Implementación
 
@@ -382,8 +382,8 @@ Implementar el único usuario responsable y la sesión segura.
 - timeout configurable de 30 minutos;
 - `SessionRegistry`;
 - `HttpSessionEventPublisher`;
-- cookie `JSESSIONID`, HttpOnly, Secure en público, SameSite=Lax, Path `/`;
-- rate limit 10 fallos/5 minutos;
+- cookie `JSESSIONID`, HttpOnly, Secure en público, SameSite=Lax, Path `/`, Domain no configurado y cookie de sesión;
+- limitador en memoria: 10 fallos en 5 minutos por IP confiable y username normalizado, bloqueo de 5 minutos y sin bloqueo persistente de cuenta;
 - fail-fast;
 - eventos de seguridad aprobados.
 
@@ -399,7 +399,7 @@ Múltiples cuentas, roles, MFA, OAuth, JWT, remember-me o recuperación de contr
 - logout;
 - expiración;
 - segundo login reemplaza al primero;
-- rate limit;
+- rate limit por IP confiable y username normalizado, bloqueo y desbloqueo después de 5 minutos;
 - proxy confiable;
 - configuración inválida detiene arranque;
 - logs sin secretos.
