@@ -4,7 +4,7 @@
 
 **Estado:** Candidata a línea base
 
-**Estado documental:** Versión corregida y coherente; revisión del diff e incorporación pendientes
+**Estado documental:** Incorporada en el repositorio; correcciones finales y aprobación pendientes
 
 **Fase:** 05 — Diseño técnico
 
@@ -775,6 +775,17 @@ Una corrección relevante:
 6. cambia un cierre previamente Validado a Bloqueado;
 7. deja el evento pendiente de una nueva validación.
 
+Si el evento corregido ya está referenciado por una Anulación, la misma operación transaccional:
+
+8. verifica que el evento original continúe siendo no cancelatorio;
+9. recalcula el monto y `balanceEffect` de la Anulación dependiente;
+10. incrementa la revisión de la Anulación;
+11. invalida los Resultados de Validación de ambos eventos;
+12. invalida la consolidación vigente;
+13. deja ambos eventos pendientes de validación cuando corresponda.
+
+Un evento referenciado por una Anulación no puede cambiar su tipo a `CANCELLATION`. Si la modificación no permite conservar una Anulación coherente, la operación se rechaza sin cambios parciales.
+
 Resultado exitoso:
 
 ```text
@@ -928,12 +939,15 @@ La operación final:
 |---|---|---|
 | `/supporting-evidence/{evidenceId}/deactivate` | `POST` | Retirar la evidencia de las validaciones actuales |
 
-Campo adicional:
+El formulario envía únicamente:
 
 | Campo | Obligatorio |
 |---|---:|
-| `reason` | Sí |
 | `_csrf` | Sí |
+
+El identificador se obtiene de la ruta. El actor y la fecha de desactivación se obtienen del principal autenticado y del reloj del servidor.
+
+El MVP no exige una justificación textual para desactivar una Evidencia de Soporte.
 
 No existe eliminación física mediante HTTP.
 
@@ -1000,16 +1014,15 @@ La operación conserva ambos registros y deja uno solo activo para el flujo actu
 
 ### 12.4. Desactivar Autorización
 
-| Ruta | Método | Propósito |
-|---|---|---|
-| `/authorizations/{authorizationId}/deactivate` | `POST` | Retirar la Autorización vigente |
-
-Campos:
+El formulario envía únicamente:
 
 | Campo | Obligatorio |
 |---|---:|
-| `reason` | Sí |
 | `_csrf` | Sí |
+
+El identificador se obtiene de la ruta. El actor y la fecha de desactivación se obtienen del principal autenticado y del reloj del servidor.
+
+El MVP no exige una justificación textual para desactivar una Autorización.
 
 No existe eliminación física mediante HTTP.
 
@@ -1815,4 +1828,4 @@ El contrato:
 - protege las mutaciones con CSRF y bloqueo del cierre;
 - no introduce JSON, roles, eliminación funcional, reapertura ni integración externa.
 
-Esta línea base proporciona el contrato necesario para diseñar seguridad, pruebas e implementación sin ampliar el alcance aprobado del MVP.
+Este diseño proporciona el contrato necesario para diseñar seguridad, pruebas e implementación sin ampliar el alcance aprobado del MVP.
