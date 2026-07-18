@@ -29,9 +29,20 @@ Demonstrate that a registered operational event without the required evidence ca
 
 ## Project status
 
-Product discovery, domain analysis, system behavior, MVP scope, and the first architectural decision record have been approved and incorporated into the repository.
+Product discovery, domain analysis, system behavior, MVP scope, technical design, and the implementation plan are approved and incorporated into the repository.
 
-The approved documentation baseline is complete. Technical design and application implementation have not started yet.
+Application implementation is in progress. IP-00 establishes the reproducible Spring Boot build, PostgreSQL integration testing, Flyway migration pipeline, architecture checks, coverage reporting, and CI gates.
+
+## Development verification
+
+Prerequisites:
+
+- Java 25
+- A Docker Engine capable of running Linux containers
+
+Run `.\mvnw.cmd verify` on Windows or `./mvnw verify` on Linux and macOS.
+
+The verification starts PostgreSQL through Testcontainers and executes Flyway, the automated test suite, ArchUnit, and JaCoCo. IP-00 verification does not require real application secrets.
 
 ## Documentation
 
