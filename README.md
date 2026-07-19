@@ -31,7 +31,26 @@ Demonstrate that a registered operational event without the required evidence ca
 
 Product discovery, domain analysis, system behavior, MVP scope, technical design, and the implementation plan are approved and incorporated into the repository.
 
-Application implementation is in progress. IP-00 establishes the reproducible Spring Boot build, PostgreSQL integration testing, Flyway migration pipeline, architecture checks, coverage reporting, and CI gates.
+Application implementation is in progress.
+
+- IP-00 established the reproducible Spring Boot build, PostgreSQL integration testing, Flyway migration pipeline, coverage reporting, and CI gates.
+- IP-01 establishes the modular architecture skeleton, framework-independent application contracts, explicit transaction execution, persistence boundaries, and executable architecture rules.
+
+## Architecture
+
+The application is organized as a modular monolith by business capability:
+
+- `operationalclose` — Operational Close Management
+- `identityaccess` — Identity and Access
+
+The permitted dependency direction is:
+
+```text
+Presentation → Application → Domain
+Infrastructure → Application ports
+```
+
+Domain and Application remain independent of JPA, Hibernate, Spring MVC, Spring Security, and persistence implementations. JPA entities, repositories, mappers, and adapters remain inside Infrastructure.
 
 ## Development verification
 
@@ -42,7 +61,7 @@ Prerequisites:
 
 Run `.\mvnw.cmd verify` on Windows or `./mvnw verify` on Linux and macOS.
 
-The verification starts PostgreSQL through Testcontainers and executes Flyway, the automated test suite, ArchUnit, and JaCoCo. IP-00 verification does not require real application secrets.
+The verification starts PostgreSQL through Testcontainers and executes Flyway, transaction integration tests, the automated test suite, ArchUnit, and JaCoCo. Current verification does not require real application secrets.
 
 ## Documentation
 

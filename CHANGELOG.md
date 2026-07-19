@@ -23,7 +23,17 @@ All notable changes to this project will be documented in this file.
 - ArchUnit architecture verification and JaCoCo coverage reporting.
 - GitHub Actions CI workflow running Maven verification on pull requests and `main`.
 
+- Modular package boundaries for Operational Close Management and Identity and Access.
+- Framework-independent `AuthenticatedPrincipal` application contract.
+- Application ports for clock, current actor, transaction execution, and future repositories.
+- System clock and Spring `TransactionTemplate` infrastructure adapters.
+- Explicit `READ_COMMITTED` transaction configuration with integration tests for commit and rollback.
+- Dedicated persistence packages for JPA entities, Spring Data repositories, mappers, and adapters.
+- ArchUnit rules enforcing module, layer, application contract, and persistence boundaries.
+
 ### Changed
+
+- Disabled JPA Open EntityManager in View so persistence access remains inside explicit application boundaries.
 
 - Clarified the product description and its boundary with accounting submission.
 - Aligned close, event, validation result, alert, and consolidation terminology.
