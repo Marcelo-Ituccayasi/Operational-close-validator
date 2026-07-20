@@ -14,6 +14,12 @@
             <strong th:text="${username}">usuario</strong>.
         </p>
 
+        <p>
+            <a th:href="@{/dashboard}">
+                Ir al panel de cierres operativos
+            </a>
+        </p>
+
         <form method="post" th:action="@{/logout}">
             <button type="submit">Cerrar sesión</button>
         </form>

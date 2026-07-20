@@ -412,7 +412,7 @@ El usuario puede autenticar, mantener una sola sesión y cerrar sesión.
 
 ### Objetivo
 
-Implementar el primer vertical slice funcional completo.
+Implementar el primer vertical slice funcional completo del Cierre Operativo.
 
 ### Primer vertical slice
 
@@ -422,36 +422,63 @@ login → crear Cierre → persistir → visualizar → listar
 
 ### Incluye
 
-- UUID;
-- período;
+- UUID generado por la aplicación;
+- fecha inicial y fecha final del período;
 - moneda;
-- responsable;
+- usuario responsable autenticado;
 - saldo inicial;
-- saldo real cuando corresponda;
-- estado `PREPARATION`;
-- revisión;
-- timestamps y actor;
-- creación, listado, detalle y edición permitida;
+- estado inicial `PREPARATION`;
+- transición inicial de estado;
+- timestamps y actor de auditoría;
+- creación, listado y detalle;
 - rutas HTML aprobadas;
 - PRG `303`;
-- errores `400`, `404` y `409`.
+- errores `400`, `404` y `409`;
+- persistencia en PostgreSQL.
 
 ### Restricciones
 
 - importes con `BigDecimal`;
 - máximo cuatro decimales;
 - saldos no negativos;
-- no introducir estado Provisional;
-- no implementar envío.
+- moneda con tres letras mayúsculas;
+- el período final no puede ser anterior al inicial;
+- no introducir estado `PROVISIONAL`;
+- no implementar saldo real;
+- no implementar consolidación;
+- no implementar edición general del encabezado del cierre;
+- no implementar Eventos Operativos;
+- no implementar envío a contabilidad.
 
 ### Pruebas
 
-Creación válida, entrada inválida, UUID inválido, entidad inexistente, edición permitida, edición rechazada, persistencia PostgreSQL, CSRF y PRG.
+- creación válida;
+- entrada inválida;
+- período inválido;
+- moneda inválida;
+- saldo inválido;
+- período duplicado;
+- UUID inválido;
+- entidad inexistente;
+- persistencia PostgreSQL;
+- transición inicial;
+- auditoría;
+- listado;
+- detalle;
+- autenticación;
+- CSRF;
+- PRG.
 
 ### Salida
 
-El sistema demuestra el flujo completo Presentation–Application–Domain–Infrastructure–PostgreSQL.
+El sistema demuestra el flujo completo:
 
+```text
+Presentation → Application → Domain → Infrastructure → PostgreSQL
+```
+
+El usuario autenticado puede crear un Cierre Operativo en estado
+`PREPARATION`, consultar su detalle y visualizarlo en el listado.
 ---
 
 ## 13. IP-04 — Eventos Operativos

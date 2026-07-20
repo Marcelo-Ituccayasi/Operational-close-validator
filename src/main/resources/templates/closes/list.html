@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cierres operativos | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Cierres operativos</h1>
+
+        <p>
+            <a th:href="@{/closes/new}">
+                Crear cierre operativo
+            </a>
+        </p>
+
+        <p th:if="${#lists.isEmpty(closes)}">
+            No existen cierres operativos registrados.
+        </p>
+
+        <table th:unless="${#lists.isEmpty(closes)}">
+            <thead>
+                <tr>
+                    <th>Período</th>
+                    <th>Moneda</th>
+                    <th>Saldo inicial</th>
+                    <th>Estado</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="close : ${closes}">
+                    <td>
+                        <span th:text="${close.periodStart}">
+                            2026-07-01
+                        </span>
+                        a
+                        <span th:text="${close.periodEnd}">
+                            2026-07-31
+                        </span>
+                    </td>
+                    <td th:text="${close.currencyCode}">
+                        PEN
+                    </td>
+                    <td th:text="${close.initialBalance}">
+                        0.0000
+                    </td>
+                    <td th:text="${close.state}">
+                        PREPARATION
+                    </td>
+                    <td>
+                        <a
+                            th:href="@{/closes/{id}(id=${close.id})}">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <a th:href="@{/dashboard}">
+                Volver al panel
+            </a>
+        </p>
+    </main>
+</body>
+</html>

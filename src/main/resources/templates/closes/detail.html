@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle del cierre | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Detalle del cierre operativo</h1>
+
+        <dl>
+            <dt>Identificador</dt>
+            <dd th:text="${close.id}">UUID</dd>
+
+            <dt>Inicio del período</dt>
+            <dd th:text="${close.periodStart}">2026-07-01</dd>
+
+            <dt>Fin del período</dt>
+            <dd th:text="${close.periodEnd}">2026-07-31</dd>
+
+            <dt>Moneda</dt>
+            <dd th:text="${close.currencyCode}">PEN</dd>
+
+            <dt>Saldo inicial</dt>
+            <dd th:text="${close.initialBalance}">0.0000</dd>
+
+            <dt>Estado</dt>
+            <dd th:text="${close.state}">PREPARATION</dd>
+
+            <dt>Creado por</dt>
+            <dd th:text="${close.createdByUsername}">
+                responsible
+            </dd>
+
+            <dt>Fecha de creación</dt>
+            <dd th:text="${close.createdAt}">
+                2026-07-20T00:00:00Z
+            </dd>
+
+            <dt>Última actualización</dt>
+            <dd th:text="${close.updatedAt}">
+                2026-07-20T00:00:00Z
+            </dd>
+        </dl>
+
+        <p>
+            <a th:href="@{/closes}">
+                Volver al listado
+            </a>
+        </p>
+    </main>
+</body>
+</html>

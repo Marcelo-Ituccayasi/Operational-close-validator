@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Panel de cierres operativos</h1>
+
+        <p>
+            Sesión autenticada como
+            <strong th:text="${username}">usuario</strong>.
+        </p>
+
+        <nav aria-label="Acciones principales">
+            <ul>
+                <li>
+                    <a th:href="@{/closes}">
+                        Ver cierres operativos
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/closes/new}">
+                        Crear cierre operativo
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <form method="post" th:action="@{/logout}">
+            <button type="submit">Cerrar sesión</button>
+        </form>
+    </main>
+</body>
+</html>

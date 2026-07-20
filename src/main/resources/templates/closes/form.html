@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crear cierre | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Crear cierre operativo</h1>
+
+        <p
+            role="alert"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}">
+            Los datos ingresados no son válidos.
+        </p>
+
+        <form
+            method="post"
+            th:action="@{/closes}"
+            th:object="${closeForm}">
+
+            <div>
+                <label for="periodStart">
+                    Inicio del período
+                </label>
+                <input
+                    id="periodStart"
+                    type="date"
+                    th:field="*{periodStart}"
+                    required>
+            </div>
+
+            <div>
+                <label for="periodEnd">
+                    Fin del período
+                </label>
+                <input
+                    id="periodEnd"
+                    type="date"
+                    th:field="*{periodEnd}"
+                    required>
+            </div>
+
+            <div>
+                <label for="currencyCode">
+                    Moneda
+                </label>
+                <input
+                    id="currencyCode"
+                    type="text"
+                    th:field="*{currencyCode}"
+                    minlength="3"
+                    maxlength="3"
+                    pattern="[A-Z]{3}"
+                    placeholder="PEN"
+                    required>
+            </div>
+
+            <div>
+                <label for="initialBalance">
+                    Saldo inicial
+                </label>
+                <input
+                    id="initialBalance"
+                    type="number"
+                    th:field="*{initialBalance}"
+                    min="0"
+                    step="0.0001"
+                    required>
+            </div>
+
+            <button type="submit">
+                Crear cierre
+            </button>
+        </form>
+
+        <p>
+            <a th:href="@{/closes}">
+                Volver al listado
+            </a>
+        </p>
+    </main>
+</body>
+</html>
