@@ -6,7 +6,9 @@ package com.marceloituccayasi.ocv.identityaccess.application;
  * @param userId stable internal user identifier
  * @param username authenticated username
  */
-public record AuthenticatedPrincipal(String userId, String username) {
+public record AuthenticatedPrincipal(
+        String userId,
+        String username) implements AuthenticatedIdentity {
 
     public AuthenticatedPrincipal {
         requireNonBlank(userId, "userId");
@@ -15,7 +17,8 @@ public record AuthenticatedPrincipal(String userId, String username) {
 
     private static void requireNonBlank(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " must not be blank");
+            throw new IllegalArgumentException(
+                    fieldName + " must not be blank");
         }
     }
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inicio | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Operational Close Validator</h1>
+
+        <p>
+            Sesión autenticada como
+            <strong th:text="${username}">usuario</strong>.
+        </p>
+
+        <form method="post" th:action="@{/logout}">
+            <button type="submit">Cerrar sesión</button>
+        </form>
+    </main>
+</body>
+</html>

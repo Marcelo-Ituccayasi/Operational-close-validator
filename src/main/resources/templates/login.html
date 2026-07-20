@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Operational Close Validator</h1>
+        <h2>Iniciar sesión</h2>
+
+        <p th:if="${param.error}">
+            Credenciales inválidas.
+        </p>
+
+        <p th:if="${param.logout}">
+            Sesión cerrada.
+        </p>
+
+        <p th:if="${param.replaced}">
+            La sesión anterior fue reemplazada por un nuevo inicio de sesión.
+        </p>
+
+        <p th:if="${param.expired}">
+            La sesión expiró. Inicia sesión nuevamente.
+        </p>
+
+        <form method="post" th:action="@{/login}">
+            <div>
+                <label for="username">Usuario</label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    autofocus>
+            </div>
+
+            <div>
+                <label for="password">Contraseña</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required>
+            </div>
+
+            <button type="submit">Ingresar</button>
+        </form>
+    </main>
+</body>
+</html>
