@@ -646,6 +646,7 @@ class UpdateOperationalEventFailureTest {
 
         @Override
         public Optional<OperationalEvent> findByIdForUpdate(
+                OperationalCloseId closeId,
                 OperationalEventId eventId) {
 
             operations.add(
@@ -659,6 +660,7 @@ class UpdateOperationalEventFailureTest {
         @Override
         public Optional<OperationalEvent>
                 findCancellationByReversedEventIdForUpdate(
+                        OperationalCloseId closeId,
                         OperationalEventId reversedEventId) {
 
             operations.add(

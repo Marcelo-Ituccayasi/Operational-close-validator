@@ -30,19 +30,26 @@ public interface OperationalEventJpaRepository
     @Query("""
             select operationalEvent
             from OperationalEventEntity operationalEvent
-            where operationalEvent.id = :eventId
+            where operationalEvent.closeId = :closeId
+              and operationalEvent.id = :eventId
             """)
     Optional<OperationalEventEntity> findByIdForUpdate(
-            @Param("eventId") UUID eventId);
+            @Param("closeId")
+            UUID closeId,
+            @Param("eventId")
+            UUID eventId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             select operationalEvent
             from OperationalEventEntity operationalEvent
-            where operationalEvent.reversedEventId = :reversedEventId
+            where operationalEvent.closeId = :closeId
+              and operationalEvent.reversedEventId = :reversedEventId
             """)
     Optional<OperationalEventEntity>
             findCancellationByReversedEventIdForUpdate(
+                    @Param("closeId")
+                    UUID closeId,
                     @Param("reversedEventId")
                     UUID reversedEventId);
 

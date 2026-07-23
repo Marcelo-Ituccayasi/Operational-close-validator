@@ -41,6 +41,10 @@ class OperationalEventRevisionPersistenceIntegrationTest {
             UUID.fromString(
                     "c0e350ce-804d-4d97-bfd6-53e703100001");
 
+    private static final UUID OTHER_CLOSE_ID =
+            UUID.fromString(
+                    "c0e350ce-804d-4d97-bfd6-53e703100008");
+
     private static final UUID ORIGINAL_EVENT_ID =
             UUID.fromString(
                     "c0e350ce-804d-4d97-bfd6-53e703100002");
@@ -98,77 +102,60 @@ class OperationalEventRevisionPersistenceIntegrationTest {
     }
 
     @Test
-    void locksAndPersistsRegularEventRevision() {
+    void closeScopedLocksDoNotReturnEventsFromAnotherClose() {
         OperationalEvent originalEvent =
                 originalExpense(
                         "80.0000");
 
-        persistNewEvent(
-                originalEvent,
-                ORIGINAL_TRANSITION_ID);
+        OperationalEvent cancellation =
+                OperationalEvent.createCancellation(
+                        new OperationalEventId(
+                                CANCELLATION_EVENT_ID),
+                        new OperationalCloseId(
+                                CLOSE_ID),
+                        originalEvent,
+                        CREATED_AT.plusSeconds(120),
+                        "Caja principal",
+                        "Anulación inicial",
+                        false,
+                        false,
+                        CREATED_AT.plusSeconds(180),
+                        actor());
 
         transactionRunner.execute(
                 () -> {
-                    OperationalEvent lockedEvent =
-                            revisionRepository
-                                    .findByIdForUpdate(
-                                            originalEvent.id())
-                                    .orElseThrow();
+                    eventRepository.saveNew(
+                            originalEvent,
+                            initialTransition(
+                                    originalEvent,
+                                    ORIGINAL_TRANSITION_ID));
 
-                    OperationalEvent revisedEvent =
-                            lockedEvent.reviseRegular(
-                                    OperationalEventType.EXPENSE,
-                                    new OperationalEventAmount(
-                                            new BigDecimal(
-                                                    "95.5000")),
-                                    REVISED_AT.minusSeconds(300),
-                                    "Caja revisada",
-                                    "Gasto operativo revisado",
-                                    false,
-                                    false,
-                                    REVISED_AT,
-                                    actor());
-
-                    revisionRepository.saveRevision(
-                            revisedEvent);
+                    eventRepository.saveNew(
+                            cancellation,
+                            initialTransition(
+                                    cancellation,
+                                    CANCELLATION_TRANSITION_ID));
                 });
 
-        OperationalEvent persistedEvent =
-                transactionRunner.execute(
-                        () -> eventRepository
-                                .findById(
-                                        originalEvent.id())
-                                .orElseThrow());
+        OperationalCloseId otherCloseId =
+                new OperationalCloseId(
+                        OTHER_CLOSE_ID);
 
-        assertThat(persistedEvent.id())
-                .isEqualTo(
-                        originalEvent.id());
+        transactionRunner.execute(
+                () -> {
+                    assertThat(
+                            revisionRepository.findByIdForUpdate(
+                                    otherCloseId,
+                                    originalEvent.id()))
+                            .isEmpty();
 
-        assertThat(persistedEvent.eventType())
-                .isEqualTo(
-                        OperationalEventType.EXPENSE);
-
-        assertThat(persistedEvent.amount().value())
-                .isEqualByComparingTo(
-                        "95.5000");
-
-        assertThat(persistedEvent.balanceEffect())
-                .isEqualByComparingTo(
-                        "-95.5000");
-
-        assertThat(persistedEvent.dataRevision())
-                .isEqualTo(2L);
-
-        assertThat(persistedEvent.updatedAt())
-                .isEqualTo(REVISED_AT);
-
-        assertThat(persistedEvent.updatedBy())
-                .isEqualTo(actor());
-
-        assertThat(
-                countRows(
-                        "ocv.event_state_transition"))
-                .isEqualTo(1L);
+                    assertThat(
+                            revisionRepository
+                                    .findCancellationByReversedEventIdForUpdate(
+                                            otherCloseId,
+                                            originalEvent.id()))
+                            .isEmpty();
+                });
     }
 
     @Test
@@ -212,12 +199,14 @@ class OperationalEventRevisionPersistenceIntegrationTest {
                     OperationalEvent lockedOriginal =
                             revisionRepository
                                     .findByIdForUpdate(
+                                            new OperationalCloseId(CLOSE_ID),
                                             originalEvent.id())
                                     .orElseThrow();
 
                     OperationalEvent lockedCancellation =
                             revisionRepository
                                     .findCancellationByReversedEventIdForUpdate(
+                                            new OperationalCloseId(CLOSE_ID),
                                             originalEvent.id())
                                     .orElseThrow();
 
@@ -320,7 +309,8 @@ class OperationalEventRevisionPersistenceIntegrationTest {
                             OperationalEvent lockedEvent =
                                     revisionRepository
                                             .findByIdForUpdate(
-                                                    originalEvent.id())
+                                            new OperationalCloseId(CLOSE_ID),
+                                            originalEvent.id())
                                             .orElseThrow();
 
                             OperationalEvent revisedEvent =

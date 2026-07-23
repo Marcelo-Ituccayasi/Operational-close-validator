@@ -55,7 +55,8 @@ public class OperationalEventPersistenceAdapter
                         transitionJpaRepository);
 
         this.mapper =
-                Objects.requireNonNull(mapper);
+                Objects.requireNonNull(
+                        mapper);
     }
 
     @Override
@@ -72,10 +73,12 @@ public class OperationalEventPersistenceAdapter
                 "initialTransition must not be null");
 
         OperationalEventEntity operationalEventEntity =
-                mapper.toEntity(operationalEvent);
+                mapper.toEntity(
+                        operationalEvent);
 
         EventStateTransitionEntity transitionEntity =
-                mapper.toEntity(initialTransition);
+                mapper.toEntity(
+                        initialTransition);
 
         try {
             operationalEventJpaRepository.saveAndFlush(
@@ -85,7 +88,8 @@ public class OperationalEventPersistenceAdapter
                     transitionEntity);
         }
         catch (DataIntegrityViolationException exception) {
-            translateCancellationConflict(exception);
+            translateCancellationConflict(
+                    exception);
         }
     }
 
@@ -98,8 +102,10 @@ public class OperationalEventPersistenceAdapter
                 "eventId must not be null");
 
         return operationalEventJpaRepository
-                .findById(eventId.value())
-                .map(mapper::toDomain);
+                .findById(
+                        eventId.value())
+                .map(
+                        mapper::toDomain);
     }
 
     @Override
@@ -115,7 +121,8 @@ public class OperationalEventPersistenceAdapter
                 .findAllByCloseIdOrderByOccurredAtDescRegisteredAtDescIdDesc(
                         closeId.value())
                 .stream()
-                .map(mapper::toDomain)
+                .map(
+                        mapper::toDomain)
                 .toList();
     }
 
@@ -134,7 +141,12 @@ public class OperationalEventPersistenceAdapter
 
     @Override
     public Optional<OperationalEvent> findByIdForUpdate(
+            OperationalCloseId closeId,
             OperationalEventId eventId) {
+
+        Objects.requireNonNull(
+                closeId,
+                "closeId must not be null");
 
         Objects.requireNonNull(
                 eventId,
@@ -142,14 +154,21 @@ public class OperationalEventPersistenceAdapter
 
         return operationalEventJpaRepository
                 .findByIdForUpdate(
+                        closeId.value(),
                         eventId.value())
-                .map(mapper::toDomain);
+                .map(
+                        mapper::toDomain);
     }
 
     @Override
     public Optional<OperationalEvent>
             findCancellationByReversedEventIdForUpdate(
+                    OperationalCloseId closeId,
                     OperationalEventId reversedEventId) {
+
+        Objects.requireNonNull(
+                closeId,
+                "closeId must not be null");
 
         Objects.requireNonNull(
                 reversedEventId,
@@ -157,8 +176,10 @@ public class OperationalEventPersistenceAdapter
 
         return operationalEventJpaRepository
                 .findCancellationByReversedEventIdForUpdate(
+                        closeId.value(),
                         reversedEventId.value())
-                .map(mapper::toDomain);
+                .map(
+                        mapper::toDomain);
     }
 
     @Override
@@ -175,7 +196,8 @@ public class OperationalEventPersistenceAdapter
                             operationalEvent));
         }
         catch (DataIntegrityViolationException exception) {
-            translateCancellationConflict(exception);
+            translateCancellationConflict(
+                    exception);
         }
     }
 

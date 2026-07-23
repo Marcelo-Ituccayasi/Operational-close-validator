@@ -201,6 +201,7 @@ public final class UpdateOperationalEvent {
 
         Optional<OperationalEvent> lockedEvent =
                 eventRevisionRepository.findByIdForUpdate(
+                        input.closeId(),
                         input.eventId());
 
         if (lockedEvent.isEmpty()) {
@@ -219,9 +220,10 @@ public final class UpdateOperationalEvent {
         }
 
         Optional<OperationalEvent> dependentCancellation =
-                eventRevisionRepository
-                        .findCancellationByReversedEventIdForUpdate(
-                                currentEvent.id());
+        eventRevisionRepository
+                .findCancellationByReversedEventIdForUpdate(
+                        input.closeId(),
+                        currentEvent.id());
 
         Instant revisedAt =
                 Objects.requireNonNull(
@@ -261,9 +263,10 @@ public final class UpdateOperationalEvent {
                 }
 
                 Optional<OperationalEvent> reversedEvent =
-                        eventRevisionRepository
-                                .findByIdForUpdate(
-                                        input.reversedEventId());
+                eventRevisionRepository
+                .findByIdForUpdate(
+                        input.closeId(),
+                        input.reversedEventId());
 
                 if (reversedEvent.isEmpty()) {
                     return UpdateOperationalEventResult
@@ -274,10 +277,11 @@ public final class UpdateOperationalEvent {
                         reversedEvent.orElseThrow();
 
                 Optional<OperationalEvent>
-                        existingCancellation =
-                                eventRevisionRepository
-                                        .findCancellationByReversedEventIdForUpdate(
-                                                lockedReversedEvent.id());
+                    existingCancellation =
+                            eventRevisionRepository
+                            .findCancellationByReversedEventIdForUpdate(
+                                    input.closeId(),
+                                    lockedReversedEvent.id());
 
                 if (existingCancellation.isPresent()
                         && !existingCancellation
