@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.marceloituccayasi.ocv.operationalclose.application.port.TransactionRunner;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalEventRepository;
+import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 
 /**
@@ -25,13 +26,16 @@ public final class ListOperationalEvents {
             TransactionRunner transactionRunner) {
 
         this.closeRepository =
-                Objects.requireNonNull(closeRepository);
+                Objects.requireNonNull(
+                        closeRepository);
 
         this.eventRepository =
-                Objects.requireNonNull(eventRepository);
+                Objects.requireNonNull(
+                        eventRepository);
 
         this.transactionRunner =
-                Objects.requireNonNull(transactionRunner);
+                Objects.requireNonNull(
+                        transactionRunner);
     }
 
     public ListOperationalEventsResult execute(
@@ -42,7 +46,8 @@ public final class ListOperationalEvents {
                 "closeId must not be null");
 
         return transactionRunner.execute(
-                () -> executeInsideTransaction(closeId));
+                () -> executeInsideTransaction(
+                        closeId));
     }
 
     private ListOperationalEventsResult
@@ -53,20 +58,25 @@ public final class ListOperationalEvents {
                 new OperationalCloseId(
                         closeUuid);
 
-        if (closeRepository
-                .findById(closeId)
-                .isEmpty()) {
+        OperationalClose operationalClose =
+                closeRepository
+                        .findById(
+                                closeId)
+                        .orElse(null);
 
+        if (operationalClose == null) {
             return ListOperationalEventsResult
                     .closeNotFound();
         }
 
         return ListOperationalEventsResult.found(
+                operationalClose,
                 eventRepository
                         .findAllByCloseIdOrderByOccurredAtDescending(
                                 closeId)
                         .stream()
-                        .map(OperationalEventView::fromDomain)
+                        .map(
+                                OperationalEventView::fromDomain)
                         .toList());
     }
 

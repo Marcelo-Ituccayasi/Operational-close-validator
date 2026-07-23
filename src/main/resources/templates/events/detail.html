@@ -9,6 +9,10 @@
     <main>
         <h1>Detalle del evento operativo</h1>
 
+        <p th:unless="${closeEditable}">
+            El cierre fue enviado a contabilidad y ya no admite modificaciones.
+        </p>
+
         <dl>
             <dt>Identificador</dt>
             <dd th:text="${event.id}">
@@ -18,6 +22,11 @@
             <dt>Cierre</dt>
             <dd th:text="${event.closeId}">
                 UUID
+            </dd>
+
+            <dt>Estado del cierre</dt>
+            <dd th:text="${closeState}">
+                PREPARATION
             </dd>
 
             <dt>Tipo</dt>
@@ -112,7 +121,7 @@
             </dd>
         </dl>
 
-        <p>
+        <p th:if="${closeEditable}">
             <a
                 th:href="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${event.id})}">
                 Modificar evento operativo

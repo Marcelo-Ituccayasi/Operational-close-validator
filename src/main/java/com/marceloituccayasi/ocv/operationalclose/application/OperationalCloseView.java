@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
+import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseState;
 
 /**
  * Framework-independent application view of an Operational Close.
@@ -42,6 +43,13 @@ public record OperationalCloseView(
                 operationalClose.updatedAt(),
                 operationalClose.updatedBy().userId(),
                 operationalClose.updatedBy().username());
+    }
+
+    public boolean editable() {
+        return !OperationalCloseState
+                .SENT_TO_ACCOUNTING
+                .name()
+                .equals(state);
     }
 
 }
