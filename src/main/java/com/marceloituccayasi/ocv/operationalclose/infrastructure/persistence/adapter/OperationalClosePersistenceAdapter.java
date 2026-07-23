@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.marceloituccayasi.ocv.operationalclose.application.DuplicateOperationalClosePeriodException;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseLockRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
+import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRevisionRepository;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
@@ -26,7 +27,8 @@ import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.rep
 @Repository
 public class OperationalClosePersistenceAdapter
         implements OperationalCloseRepository,
-        OperationalCloseLockRepository {
+        OperationalCloseLockRepository,
+        OperationalCloseRevisionRepository {
 
     private static final String UNIQUE_PERIOD_CONSTRAINT =
             "uq_operational_close_period";
@@ -55,7 +57,8 @@ public class OperationalClosePersistenceAdapter
                         transitionJpaRepository);
 
         this.mapper =
-                Objects.requireNonNull(mapper);
+                Objects.requireNonNull(
+                        mapper);
     }
 
     @Override
@@ -86,10 +89,12 @@ public class OperationalClosePersistenceAdapter
                 "initialTransition must not be null");
 
         OperationalCloseEntity operationalCloseEntity =
-                mapper.toEntity(operationalClose);
+                mapper.toEntity(
+                        operationalClose);
 
         CloseStateTransitionEntity transitionEntity =
-                mapper.toEntity(initialTransition);
+                mapper.toEntity(
+                        initialTransition);
 
         try {
             operationalCloseJpaRepository.saveAndFlush(
@@ -120,8 +125,10 @@ public class OperationalClosePersistenceAdapter
                 "closeId must not be null");
 
         return operationalCloseJpaRepository
-                .findById(closeId.value())
-                .map(mapper::toDomain);
+                .findById(
+                        closeId.value())
+                .map(
+                        mapper::toDomain);
     }
 
     @Override
@@ -133,8 +140,36 @@ public class OperationalClosePersistenceAdapter
                 "closeId must not be null");
 
         return operationalCloseJpaRepository
-                .findByIdForUpdate(closeId.value())
-                .map(mapper::toDomain);
+                .findByIdForUpdate(
+                        closeId.value())
+                .map(
+                        mapper::toDomain);
+    }
+
+    @Override
+    public void saveRevision(
+            OperationalClose operationalClose) {
+
+        Objects.requireNonNull(
+                operationalClose,
+                "operationalClose must not be null");
+
+        operationalCloseJpaRepository.saveAndFlush(
+                mapper.toEntity(
+                        operationalClose));
+    }
+
+    @Override
+    public void appendStateTransition(
+            CloseStateTransition stateTransition) {
+
+        Objects.requireNonNull(
+                stateTransition,
+                "stateTransition must not be null");
+
+        transitionJpaRepository.saveAndFlush(
+                mapper.toEntity(
+                        stateTransition));
     }
 
     @Override
@@ -144,7 +179,8 @@ public class OperationalClosePersistenceAdapter
         return operationalCloseJpaRepository
                 .findAllByOrderByPeriodEndDescPeriodStartDesc()
                 .stream()
-                .map(mapper::toDomain)
+                .map(
+                        mapper::toDomain)
                 .toList();
     }
 
@@ -152,18 +188,22 @@ public class OperationalClosePersistenceAdapter
             Throwable throwable,
             String constraintName) {
 
-        Throwable current = throwable;
+        Throwable current =
+                throwable;
 
         while (current != null) {
-            String message = current.getMessage();
+            String message =
+                    current.getMessage();
 
             if (message != null
-                    && message.contains(constraintName)) {
+                    && message.contains(
+                            constraintName)) {
 
                 return true;
             }
 
-            current = current.getCause();
+            current =
+                    current.getCause();
         }
 
         return false;
