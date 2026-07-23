@@ -407,6 +407,8 @@ class OperationalEventEditabilityWebIntegrationTest {
         jdbcTemplate.execute(
                 """
                 TRUNCATE TABLE
+                    ocv.supporting_evidence,
+                    ocv.event_authorization,
                     ocv.event_state_transition,
                     ocv.operational_event,
                     ocv.close_state_transition,
