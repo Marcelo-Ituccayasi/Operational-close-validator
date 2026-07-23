@@ -89,11 +89,16 @@ public class EventAuthorizationPersistenceAdapter
     @Override
     public Optional<EventAuthorization> findByIdForUpdate(
             OperationalCloseId closeId,
+            OperationalEventId eventId,
             EventAuthorizationId authorizationId) {
 
         Objects.requireNonNull(
                 closeId,
                 "closeId must not be null");
+
+        Objects.requireNonNull(
+                eventId,
+                "eventId must not be null");
 
         Objects.requireNonNull(
                 authorizationId,
@@ -102,6 +107,7 @@ public class EventAuthorizationPersistenceAdapter
         return eventAuthorizationJpaRepository
                 .findByIdForUpdate(
                         closeId.value(),
+                        eventId.value(),
                         authorizationId.value())
                 .map(
                         mapper::toDomain);

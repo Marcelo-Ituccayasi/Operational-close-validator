@@ -28,17 +28,19 @@ public interface EventAuthorizationJpaRepository
             select eventAuthorization
             from EventAuthorizationEntity eventAuthorization
             where eventAuthorization.id = :authorizationId
+              and eventAuthorization.eventId = :eventId
               and exists (
                   select operationalEvent.id
                   from OperationalEventEntity operationalEvent
-                  where operationalEvent.id =
-                        eventAuthorization.eventId
+                  where operationalEvent.id = :eventId
                     and operationalEvent.closeId = :closeId
               )
             """)
     Optional<EventAuthorizationEntity> findByIdForUpdate(
             @Param("closeId")
             UUID closeId,
+            @Param("eventId")
+            UUID eventId,
             @Param("authorizationId")
             UUID authorizationId);
 

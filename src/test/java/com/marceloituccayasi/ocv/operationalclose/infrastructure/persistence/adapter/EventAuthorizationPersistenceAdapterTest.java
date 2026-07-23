@@ -177,16 +177,17 @@ class EventAuthorizationPersistenceAdapterTest {
     }
 
     @Test
-    void scopesAuthorizationLockByCloseAndAuthorizationId() {
+    void scopesAuthorizationLockByCloseEventAndAuthorizationId() {
         EventAuthorization expected =
                 authorization(
                         FIRST_AUTHORIZATION_ID,
-                        NOW.minusSeconds(
-                                60));
+                        java.time.Instant.parse(
+                                "2026-07-23T17:55:00Z"));
 
         when(
                 eventAuthorizationJpaRepository.findByIdForUpdate(
                         CLOSE_ID,
+                        EVENT_ID,
                         FIRST_AUTHORIZATION_ID))
                 .thenReturn(
                         Optional.of(
@@ -197,6 +198,8 @@ class EventAuthorizationPersistenceAdapterTest {
                 adapter.findByIdForUpdate(
                         new OperationalCloseId(
                                 CLOSE_ID),
+                        new OperationalEventId(
+                                EVENT_ID),
                         new EventAuthorizationId(
                                 FIRST_AUTHORIZATION_ID));
 
@@ -207,6 +210,7 @@ class EventAuthorizationPersistenceAdapterTest {
                 eventAuthorizationJpaRepository)
                 .findByIdForUpdate(
                         CLOSE_ID,
+                        EVENT_ID,
                         FIRST_AUTHORIZATION_ID);
     }
 
@@ -234,6 +238,8 @@ class EventAuthorizationPersistenceAdapterTest {
         assertThatThrownBy(
                 () -> adapter.findByIdForUpdate(
                         null,
+                        new OperationalEventId(
+                                EVENT_ID),
                         new EventAuthorizationId(
                                 FIRST_AUTHORIZATION_ID)))
                 .isInstanceOf(
@@ -243,6 +249,18 @@ class EventAuthorizationPersistenceAdapterTest {
                 () -> adapter.findByIdForUpdate(
                         new OperationalCloseId(
                                 CLOSE_ID),
+                        null,
+                        new EventAuthorizationId(
+                                FIRST_AUTHORIZATION_ID)))
+                .isInstanceOf(
+                        NullPointerException.class);
+
+        assertThatThrownBy(
+                () -> adapter.findByIdForUpdate(
+                        new OperationalCloseId(
+                                CLOSE_ID),
+                        new OperationalEventId(
+                                EVENT_ID),
                         null))
                 .isInstanceOf(
                         NullPointerException.class);

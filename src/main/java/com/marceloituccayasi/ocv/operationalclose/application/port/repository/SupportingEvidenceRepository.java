@@ -11,8 +11,8 @@ import com.marceloituccayasi.ocv.operationalclose.domain.SupportingEvidenceId;
 /**
  * Persistence contract required by Supporting Evidence use cases.
  *
- * <p>Mutation use cases must lock the owning Operational Close before
- * invoking {@link #findByIdForUpdate(OperationalCloseId, SupportingEvidenceId)}.
+ * <p>Mutation use cases must lock the owning Operational Close and
+ * Operational Event before locking Supporting Evidence.
  */
 public interface SupportingEvidenceRepository {
 
@@ -28,6 +28,7 @@ public interface SupportingEvidenceRepository {
 
     Optional<SupportingEvidence> findByIdForUpdate(
             OperationalCloseId closeId,
+            OperationalEventId eventId,
             SupportingEvidenceId evidenceId);
 
     void saveRevision(

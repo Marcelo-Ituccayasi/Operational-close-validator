@@ -77,6 +77,10 @@ class EventAuthorizationPersistenceAdapterIntegrationTest {
             UUID.fromString(
                     "04a9293e-9d45-4028-87b0-469414100008");
 
+    private static final UUID OTHER_EVENT_ID =
+            UUID.fromString(
+                    "04a9293e-9d45-4028-87b0-469414100009");
+
     private static final Instant CREATED_AT =
             Instant.parse(
                     "2026-07-23T18:00:00Z");
@@ -330,7 +334,7 @@ class EventAuthorizationPersistenceAdapterIntegrationTest {
     }
 
     @Test
-    void scopesPessimisticLookupToOwningClose() {
+    void scopesPessimisticLookupToOwningCloseAndEvent() {
         persistParentGraph();
 
         EventAuthorization authorization =
@@ -345,12 +349,14 @@ class EventAuthorizationPersistenceAdapterIntegrationTest {
                         authorizationRepository.saveNew(
                                 authorization));
 
-        Optional<EventAuthorization> owningCloseResult =
+        Optional<EventAuthorization> owningResult =
                 transactionRunner.execute(
                         () -> authorizationRepository
                                 .findByIdForUpdate(
                                         new OperationalCloseId(
                                                 FIRST_CLOSE_ID),
+                                        new OperationalEventId(
+                                                EVENT_ID),
                                         authorization.id()));
 
         Optional<EventAuthorization> otherCloseResult =
@@ -359,12 +365,27 @@ class EventAuthorizationPersistenceAdapterIntegrationTest {
                                 .findByIdForUpdate(
                                         new OperationalCloseId(
                                                 SECOND_CLOSE_ID),
+                                        new OperationalEventId(
+                                                EVENT_ID),
                                         authorization.id()));
 
-        assertThat(owningCloseResult)
+        Optional<EventAuthorization> otherEventResult =
+                transactionRunner.execute(
+                        () -> authorizationRepository
+                                .findByIdForUpdate(
+                                        new OperationalCloseId(
+                                                FIRST_CLOSE_ID),
+                                        new OperationalEventId(
+                                                OTHER_EVENT_ID),
+                                        authorization.id()));
+
+        assertThat(owningResult)
                 .isPresent();
 
         assertThat(otherCloseResult)
+                .isEmpty();
+
+        assertThat(otherEventResult)
                 .isEmpty();
     }
 

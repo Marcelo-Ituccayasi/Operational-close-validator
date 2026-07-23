@@ -78,6 +78,10 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
             UUID.fromString(
                     "e8b93e46-ea44-4ef7-8d34-7cc975100008");
 
+    private static final UUID OTHER_EVENT_ID =
+            UUID.fromString(
+                    "e8b93e46-ea44-4ef7-8d34-7cc975100009");
+
     private static final Instant CREATED_AT =
             Instant.parse(
                     "2026-07-23T18:00:00Z");
@@ -348,7 +352,7 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
     }
 
     @Test
-    void scopesPessimisticLookupToOwningClose() {
+    void scopesPessimisticLookupToOwningCloseAndEvent() {
         persistParentGraph();
 
         SupportingEvidence evidence =
@@ -366,11 +370,13 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
                         evidenceRepository.saveNew(
                                 evidence));
 
-        Optional<SupportingEvidence> owningCloseResult =
+        Optional<SupportingEvidence> owningResult =
                 transactionRunner.execute(
                         () -> evidenceRepository.findByIdForUpdate(
                                 new OperationalCloseId(
                                         FIRST_CLOSE_ID),
+                                new OperationalEventId(
+                                        EVENT_ID),
                                 evidence.id()));
 
         Optional<SupportingEvidence> otherCloseResult =
@@ -378,12 +384,26 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
                         () -> evidenceRepository.findByIdForUpdate(
                                 new OperationalCloseId(
                                         SECOND_CLOSE_ID),
+                                new OperationalEventId(
+                                        EVENT_ID),
                                 evidence.id()));
 
-        assertThat(owningCloseResult)
+        Optional<SupportingEvidence> otherEventResult =
+                transactionRunner.execute(
+                        () -> evidenceRepository.findByIdForUpdate(
+                                new OperationalCloseId(
+                                        FIRST_CLOSE_ID),
+                                new OperationalEventId(
+                                        OTHER_EVENT_ID),
+                                evidence.id()));
+
+        assertThat(owningResult)
                 .isPresent();
 
         assertThat(otherCloseResult)
+                .isEmpty();
+
+        assertThat(otherEventResult)
                 .isEmpty();
     }
 

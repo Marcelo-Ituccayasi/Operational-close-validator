@@ -28,17 +28,19 @@ public interface SupportingEvidenceJpaRepository
             select supportingEvidence
             from SupportingEvidenceEntity supportingEvidence
             where supportingEvidence.id = :evidenceId
+              and supportingEvidence.eventId = :eventId
               and exists (
                   select operationalEvent.id
                   from OperationalEventEntity operationalEvent
-                  where operationalEvent.id =
-                        supportingEvidence.eventId
+                  where operationalEvent.id = :eventId
                     and operationalEvent.closeId = :closeId
               )
             """)
     Optional<SupportingEvidenceEntity> findByIdForUpdate(
             @Param("closeId")
             UUID closeId,
+            @Param("eventId")
+            UUID eventId,
             @Param("evidenceId")
             UUID evidenceId);
 

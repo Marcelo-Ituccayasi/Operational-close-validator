@@ -89,11 +89,16 @@ public class SupportingEvidencePersistenceAdapter
     @Override
     public Optional<SupportingEvidence> findByIdForUpdate(
             OperationalCloseId closeId,
+            OperationalEventId eventId,
             SupportingEvidenceId evidenceId) {
 
         Objects.requireNonNull(
                 closeId,
                 "closeId must not be null");
+
+        Objects.requireNonNull(
+                eventId,
+                "eventId must not be null");
 
         Objects.requireNonNull(
                 evidenceId,
@@ -102,6 +107,7 @@ public class SupportingEvidencePersistenceAdapter
         return supportingEvidenceJpaRepository
                 .findByIdForUpdate(
                         closeId.value(),
+                        eventId.value(),
                         evidenceId.value())
                 .map(
                         mapper::toDomain);

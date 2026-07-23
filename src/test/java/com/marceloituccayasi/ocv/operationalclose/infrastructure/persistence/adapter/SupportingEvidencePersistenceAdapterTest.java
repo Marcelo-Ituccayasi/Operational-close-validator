@@ -188,7 +188,7 @@ class SupportingEvidencePersistenceAdapterTest {
     }
 
     @Test
-    void scopesEvidenceLockByCloseAndEvidenceId() {
+    void scopesEvidenceLockByCloseEventAndEvidenceId() {
         SupportingEvidence expected =
                 evidence(
                         FIRST_EVIDENCE_ID,
@@ -200,6 +200,7 @@ class SupportingEvidencePersistenceAdapterTest {
         when(
                 supportingEvidenceJpaRepository.findByIdForUpdate(
                         CLOSE_ID,
+                        EVENT_ID,
                         FIRST_EVIDENCE_ID))
                 .thenReturn(
                         Optional.of(
@@ -210,6 +211,8 @@ class SupportingEvidencePersistenceAdapterTest {
                 adapter.findByIdForUpdate(
                         new OperationalCloseId(
                                 CLOSE_ID),
+                        new OperationalEventId(
+                                EVENT_ID),
                         new SupportingEvidenceId(
                                 FIRST_EVIDENCE_ID));
 
@@ -220,6 +223,7 @@ class SupportingEvidencePersistenceAdapterTest {
                 supportingEvidenceJpaRepository)
                 .findByIdForUpdate(
                         CLOSE_ID,
+                        EVENT_ID,
                         FIRST_EVIDENCE_ID);
     }
 
@@ -247,6 +251,8 @@ class SupportingEvidencePersistenceAdapterTest {
         assertThatThrownBy(
                 () -> adapter.findByIdForUpdate(
                         null,
+                        new OperationalEventId(
+                                EVENT_ID),
                         new SupportingEvidenceId(
                                 FIRST_EVIDENCE_ID)))
                 .isInstanceOf(
@@ -256,6 +262,18 @@ class SupportingEvidencePersistenceAdapterTest {
                 () -> adapter.findByIdForUpdate(
                         new OperationalCloseId(
                                 CLOSE_ID),
+                        null,
+                        new SupportingEvidenceId(
+                                FIRST_EVIDENCE_ID)))
+                .isInstanceOf(
+                        NullPointerException.class);
+
+        assertThatThrownBy(
+                () -> adapter.findByIdForUpdate(
+                        new OperationalCloseId(
+                                CLOSE_ID),
+                        new OperationalEventId(
+                                EVENT_ID),
                         null))
                 .isInstanceOf(
                         NullPointerException.class);
