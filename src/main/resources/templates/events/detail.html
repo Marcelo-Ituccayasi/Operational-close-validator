@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle del evento | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Detalle del evento operativo</h1>
+
+        <dl>
+            <dt>Identificador</dt>
+            <dd th:text="${event.id}">
+                UUID
+            </dd>
+
+            <dt>Cierre</dt>
+            <dd th:text="${event.closeId}">
+                UUID
+            </dd>
+
+            <dt>Tipo</dt>
+            <dd th:text="${event.eventType}">
+                INCOME
+            </dd>
+
+            <dt>Importe nominal</dt>
+            <dd th:text="${event.amount}">
+                0.0000
+            </dd>
+
+            <dt>Efecto sobre el saldo</dt>
+            <dd th:text="${event.balanceEffect}">
+                0.0000
+            </dd>
+
+            <dt>Evento anulado</dt>
+            <dd
+                th:if="${event.reversedEventId != null}"
+                th:text="${event.reversedEventId}">
+                UUID
+            </dd>
+
+            <dd th:unless="${event.reversedEventId != null}">
+                No aplica
+            </dd>
+
+            <dt>Fecha de ocurrencia</dt>
+            <dd th:text="${event.occurredAt}">
+                2026-07-22T15:30:00Z
+            </dd>
+
+            <dt>Fecha de registro</dt>
+            <dd th:text="${event.registeredAt}">
+                2026-07-22T15:35:00Z
+            </dd>
+
+            <dt>Responsable</dt>
+            <dd th:text="${event.responsibleName}">
+                Caja principal
+            </dd>
+
+            <dt>Descripción</dt>
+            <dd th:text="${event.description}">
+                Descripción del evento
+            </dd>
+
+            <dt>Estado</dt>
+            <dd th:text="${event.state}">
+                REGISTERED
+            </dd>
+
+            <dt>Evidencia requerida</dt>
+            <dd th:text="${event.evidenceRequired ? 'Sí' : 'No'}">
+                No
+            </dd>
+
+            <dt>Autorización requerida</dt>
+            <dd th:text="${event.authorizationRequired ? 'Sí' : 'No'}">
+                No
+            </dd>
+
+            <dt>Revisión de datos</dt>
+            <dd th:text="${event.dataRevision}">
+                1
+            </dd>
+
+            <dt>Último cambio de estado</dt>
+            <dd th:text="${event.stateChangedAt}">
+                2026-07-22T15:35:00Z
+            </dd>
+
+            <dt>Creado por</dt>
+            <dd th:text="${event.createdByUsername}">
+                responsible
+            </dd>
+
+            <dt>Fecha de creación</dt>
+            <dd th:text="${event.createdAt}">
+                2026-07-22T15:35:00Z
+            </dd>
+
+            <dt>Última actualización</dt>
+            <dd th:text="${event.updatedAt}">
+                2026-07-22T15:35:00Z
+            </dd>
+
+            <dt>Actualizado por</dt>
+            <dd th:text="${event.updatedByUsername}">
+                responsible
+            </dd>
+        </dl>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${event.id})}">
+                Modificar evento operativo
+            </a>
+        </p>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events(closeId=${closeId})}">
+                Volver al listado de eventos
+            </a>
+        </p>
+
+        <p>
+            <a th:href="@{/closes/{closeId}(closeId=${closeId})}">
+                Volver al cierre
+            </a>
+        </p>
+    </main>
+</body>
+</html>

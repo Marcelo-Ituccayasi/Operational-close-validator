@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modificar evento | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Modificar evento operativo</h1>
+
+        <p>
+            Cierre:
+            <span th:text="${closeId}">
+                UUID
+            </span>
+        </p>
+
+        <p>
+            Evento:
+            <span th:text="${eventId}">
+                UUID
+            </span>
+        </p>
+
+        <p
+            role="alert"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}">
+            Los datos ingresados no son válidos.
+        </p>
+
+        <form
+            method="post"
+            th:action="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${eventId})}"
+            th:object="${eventForm}">
+
+            <div>
+                <label for="eventType">
+                    Tipo de evento
+                </label>
+
+                <select
+                    id="eventType"
+                    th:field="*{eventType}"
+                    required>
+
+                    <option value="">
+                        Seleccionar
+                    </option>
+
+                    <option value="INCOME">
+                        Ingreso
+                    </option>
+
+                    <option value="EXPENSE">
+                        Gasto
+                    </option>
+
+                    <option value="DISCOUNT">
+                        Descuento
+                    </option>
+
+                    <option value="CANCELLATION">
+                        Anulación
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="amount">
+                    Importe nominal
+                </label>
+
+                <input
+                    id="amount"
+                    type="number"
+                    th:field="*{amount}"
+                    min="0.0001"
+                    step="0.0001"
+                    required>
+            </div>
+
+            <div>
+                <label for="reversedEventId">
+                    Identificador del evento que se anula
+                </label>
+
+                <input
+                    id="reversedEventId"
+                    type="text"
+                    th:field="*{reversedEventId}"
+                    placeholder="Solo para eventos de tipo CANCELLATION">
+
+                <small>
+                    Debe permanecer vacío para ingresos, gastos y descuentos.
+                </small>
+            </div>
+
+            <div>
+                <label for="occurredAt">
+                    Fecha y hora de ocurrencia
+                </label>
+
+                <input
+                    id="occurredAt"
+                    type="text"
+                    th:field="*{occurredAt}"
+                    placeholder="2026-07-22T15:30:00Z"
+                    required>
+
+                <small>
+                    Utiliza formato ISO-8601 con zona u offset.
+                </small>
+            </div>
+
+            <div>
+                <label for="responsibleName">
+                    Responsable
+                </label>
+
+                <input
+                    id="responsibleName"
+                    type="text"
+                    th:field="*{responsibleName}"
+                    maxlength="200"
+                    required>
+            </div>
+
+            <div>
+                <label for="description">
+                    Descripción
+                </label>
+
+                <textarea
+                    id="description"
+                    th:field="*{description}"
+                    rows="5"
+                    required>
+                </textarea>
+            </div>
+
+            <button type="submit">
+                Guardar cambios
+            </button>
+        </form>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${eventId})}">
+                Cancelar y volver al detalle
+            </a>
+        </p>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events(closeId=${closeId})}">
+                Volver al listado de eventos
+            </a>
+        </p>
+    </main>
+</body>
+</html>

@@ -17,10 +17,13 @@ import com.marceloituccayasi.ocv.operationalclose.application.port.TransactionRu
 
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(
+        properties =
+                "ocv.persistence.pessimistic-lock-timeout-ms=275")
 class SpringTransactionRunnerIntegrationTest {
 
-    private static final String CREATE_PROBE_TABLE = """
+    private static final String CREATE_PROBE_TABLE =
+            """
             CREATE TABLE IF NOT EXISTS ip01_transaction_probe (
                 id INTEGER PRIMARY KEY,
                 description VARCHAR(100) NOT NULL
@@ -35,61 +38,134 @@ class SpringTransactionRunnerIntegrationTest {
 
     @BeforeEach
     void prepareProbeTable() {
-        jdbcTemplate.execute(CREATE_PROBE_TABLE);
-        jdbcTemplate.execute("TRUNCATE TABLE ip01_transaction_probe");
+        jdbcTemplate.execute(
+                CREATE_PROBE_TABLE);
+
+        jdbcTemplate.execute(
+                "TRUNCATE TABLE ip01_transaction_probe");
     }
 
     @Test
     void opensReadCommittedTransactionAndCommitsChanges() {
-        Boolean transactionActive = transactionRunner.execute(
-                TransactionSynchronizationManager::isActualTransactionActive);
+        Boolean transactionActive =
+                transactionRunner.execute(
+                        TransactionSynchronizationManager
+                                ::isActualTransactionActive);
 
-        String isolationLevel = transactionRunner.execute(
-                () -> jdbcTemplate.queryForObject(
-                        "SHOW transaction_isolation",
-                        String.class));
+        String isolationLevel =
+                transactionRunner.execute(
+                        () -> jdbcTemplate.queryForObject(
+                                "SHOW transaction_isolation",
+                                String.class));
 
-        transactionRunner.execute((Runnable) () ->
-                jdbcTemplate.update(
+        transactionRunner.execute(
+                (Runnable) () ->
+                        jdbcTemplate.update(
+                                """
+                                INSERT INTO ip01_transaction_probe (
+                                    id,
+                                    description
+                                )
+                                VALUES (?, ?)
+                                """,
+                                1,
+                                "committed"));
+
+        Long persistedRows =
+                jdbcTemplate.queryForObject(
                         """
-                        INSERT INTO ip01_transaction_probe (id, description)
-                        VALUES (?, ?)
+                        SELECT COUNT(*)
+                        FROM ip01_transaction_probe
                         """,
-                        1,
-                        "committed"));
+                        Long.class);
 
-        Long persistedRows = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM ip01_transaction_probe",
-                Long.class);
+        assertThat(transactionActive)
+                .isTrue();
 
-        assertThat(transactionActive).isTrue();
-        assertThat(isolationLevel).isEqualTo("read committed");
-        assertThat(persistedRows).isEqualTo(1L);
+        assertThat(isolationLevel)
+                .isEqualTo(
+                        "read committed");
+
+        assertThat(persistedRows)
+                .isEqualTo(1L);
+    }
+
+    @Test
+    void appliesExternalizedFiniteLockTimeoutInsideTransaction() {
+        String lockTimeout =
+                transactionRunner.execute(
+                        () -> jdbcTemplate.queryForObject(
+                                "SHOW lock_timeout",
+                                String.class));
+
+        assertThat(lockTimeout)
+                .isEqualTo(
+                        "275ms");
+    }
+
+    @Test
+    void restoresSessionLockTimeoutAfterTransaction() {
+        transactionRunner.execute(
+                () -> {
+                    String transactionalTimeout =
+                            jdbcTemplate.queryForObject(
+                                    "SHOW lock_timeout",
+                                    String.class);
+
+                    assertThat(transactionalTimeout)
+                            .isEqualTo(
+                                    "275ms");
+
+                    return null;
+                });
+
+        String sessionTimeout =
+                jdbcTemplate.queryForObject(
+                        "SHOW lock_timeout",
+                        String.class);
+
+        assertThat(sessionTimeout)
+                .isEqualTo(
+                        "0");
     }
 
     @Test
     void rollsBackChangesWhenOperationThrowsRuntimeException() {
-        Runnable failingOperation = () -> {
-            jdbcTemplate.update(
-                    """
-                    INSERT INTO ip01_transaction_probe (id, description)
-                    VALUES (?, ?)
-                    """,
-                    2,
-                    "rolled back");
+        Runnable failingOperation =
+                () -> {
+                    jdbcTemplate.update(
+                            """
+                            INSERT INTO ip01_transaction_probe (
+                                id,
+                                description
+                            )
+                            VALUES (?, ?)
+                            """,
+                            2,
+                            "rolled back");
 
-            throw new IllegalStateException("rollback probe");
-        };
+                    throw new IllegalStateException(
+                            "rollback probe");
+                };
 
-        assertThatThrownBy(() -> transactionRunner.execute(failingOperation))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("rollback probe");
+        assertThatThrownBy(
+                () -> transactionRunner.execute(
+                        failingOperation))
+                .isInstanceOf(
+                        IllegalStateException.class)
+                .hasMessage(
+                        "rollback probe");
 
-        Long persistedRows = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM ip01_transaction_probe",
-                Long.class);
+        Long persistedRows =
+                jdbcTemplate.queryForObject(
+                        """
+                        SELECT COUNT(*)
+                        FROM ip01_transaction_probe
+                        """,
+                        Long.class);
 
-        assertThat(persistedRows).isZero();
+        assertThat(persistedRows)
+                .isZero();
     }
 
 }

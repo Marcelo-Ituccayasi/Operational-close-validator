@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Eventos operativos | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Eventos operativos</h1>
+
+        <p>
+            Cierre:
+            <span th:text="${closeId}">
+                UUID
+            </span>
+        </p>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events/new(closeId=${closeId})}">
+                Registrar evento operativo
+            </a>
+        </p>
+
+        <p th:if="${#lists.isEmpty(events)}">
+            No existen eventos operativos registrados para este cierre.
+        </p>
+
+        <table th:unless="${#lists.isEmpty(events)}">
+            <thead>
+                <tr>
+                    <th>Ocurrencia</th>
+                    <th>Tipo</th>
+                    <th>Importe</th>
+                    <th>Efecto</th>
+                    <th>Estado</th>
+                    <th>Revisión</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="event : ${events}">
+                    <td th:text="${event.occurredAt}">
+                        2026-07-22T15:30:00Z
+                    </td>
+
+                    <td th:text="${event.eventType}">
+                        INCOME
+                    </td>
+
+                    <td th:text="${event.amount}">
+                        0.0000
+                    </td>
+
+                    <td th:text="${event.balanceEffect}">
+                        0.0000
+                    </td>
+
+                    <td th:text="${event.state}">
+                        REGISTERED
+                    </td>
+
+                    <td th:text="${event.dataRevision}">
+                        1
+                    </td>
+
+                    <td>
+                        <a
+                            th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${event.id})}">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <a th:href="@{/closes/{closeId}(closeId=${closeId})}">
+                Volver al cierre
+            </a>
+        </p>
+    </main>
+</body>
+</html>

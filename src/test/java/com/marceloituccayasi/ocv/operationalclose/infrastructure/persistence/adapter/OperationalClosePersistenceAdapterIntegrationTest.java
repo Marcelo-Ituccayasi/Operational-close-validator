@@ -282,13 +282,15 @@ class OperationalClosePersistenceAdapterIntegrationTest {
     }
 
     private void cleanOperationalCloseTables() {
-        jdbcTemplate.execute(
-                """
-                TRUNCATE TABLE
-                    ocv.close_state_transition,
-                    ocv.operational_close
-                """);
-    }
+    jdbcTemplate.execute(
+            """
+            TRUNCATE TABLE
+                ocv.event_state_transition,
+                ocv.operational_event,
+                ocv.close_state_transition,
+                ocv.operational_close
+            """);
+        }
 
     private Long countRows(
             String qualifiedTableName) {

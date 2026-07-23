@@ -13,7 +13,8 @@ import com.marceloituccayasi.ocv.operationalclose.domain.OperationalPeriod;
  */
 public interface OperationalCloseRepository {
 
-    boolean existsByPeriod(OperationalPeriod period);
+    boolean existsByPeriod(
+            OperationalPeriod period);
 
     void saveNew(
             OperationalClose operationalClose,

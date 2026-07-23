@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import com.marceloituccayasi.ocv.operationalclose.application.DuplicateOperationalClosePeriodException;
+import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseLockRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
@@ -20,11 +21,12 @@ import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.rep
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.repository.OperationalCloseJpaRepository;
 
 /**
- * JPA implementation of the Operational Close repository port.
+ * JPA implementation of the Operational Close persistence ports.
  */
 @Repository
 public class OperationalClosePersistenceAdapter
-        implements OperationalCloseRepository {
+        implements OperationalCloseRepository,
+        OperationalCloseLockRepository {
 
     private static final String UNIQUE_PERIOD_CONSTRAINT =
             "uq_operational_close_period";
@@ -119,6 +121,19 @@ public class OperationalClosePersistenceAdapter
 
         return operationalCloseJpaRepository
                 .findById(closeId.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<OperationalClose> findByIdForUpdate(
+            OperationalCloseId closeId) {
+
+        Objects.requireNonNull(
+                closeId,
+                "closeId must not be null");
+
+        return operationalCloseJpaRepository
+                .findByIdForUpdate(closeId.value())
                 .map(mapper::toDomain);
     }
 

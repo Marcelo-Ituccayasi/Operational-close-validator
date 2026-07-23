@@ -11,22 +11,34 @@
 
         <dl>
             <dt>Identificador</dt>
-            <dd th:text="${close.id}">UUID</dd>
+            <dd th:text="${close.id}">
+                UUID
+            </dd>
 
             <dt>Inicio del período</dt>
-            <dd th:text="${close.periodStart}">2026-07-01</dd>
+            <dd th:text="${close.periodStart}">
+                2026-07-01
+            </dd>
 
             <dt>Fin del período</dt>
-            <dd th:text="${close.periodEnd}">2026-07-31</dd>
+            <dd th:text="${close.periodEnd}">
+                2026-07-31
+            </dd>
 
             <dt>Moneda</dt>
-            <dd th:text="${close.currencyCode}">PEN</dd>
+            <dd th:text="${close.currencyCode}">
+                PEN
+            </dd>
 
             <dt>Saldo inicial</dt>
-            <dd th:text="${close.initialBalance}">0.0000</dd>
+            <dd th:text="${close.initialBalance}">
+                0.0000
+            </dd>
 
             <dt>Estado</dt>
-            <dd th:text="${close.state}">PREPARATION</dd>
+            <dd th:text="${close.state}">
+                PREPARATION
+            </dd>
 
             <dt>Creado por</dt>
             <dd th:text="${close.createdByUsername}">
@@ -43,6 +55,20 @@
                 2026-07-20T00:00:00Z
             </dd>
         </dl>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events(closeId=${close.id})}">
+                Ver eventos operativos
+            </a>
+        </p>
+
+        <p th:if="${close.state == 'PREPARATION' or close.state == 'BLOCKED'}">
+            <a
+                th:href="@{/closes/{closeId}/events/new(closeId=${close.id})}">
+                Registrar evento operativo
+            </a>
+        </p>
 
         <p>
             <a th:href="@{/closes}">
