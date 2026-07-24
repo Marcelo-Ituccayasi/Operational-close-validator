@@ -248,6 +248,13 @@
 
         <p th:if="${closeEditable}">
             <a
+                th:href="@{/closes/{closeId}/events/{eventId}/authorizations/new(closeId=${closeId},eventId=${event.id})}">
+                Registrar autorización
+            </a>
+        </p>
+
+        <p th:if="${closeEditable}">
+            <a
                 th:href="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${event.id})}">
                 Modificar evento operativo
             </a>
