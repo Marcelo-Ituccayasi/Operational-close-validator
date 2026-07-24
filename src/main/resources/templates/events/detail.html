@@ -241,6 +241,13 @@
 
         <p th:if="${closeEditable}">
             <a
+                th:href="@{/closes/{closeId}/events/{eventId}/supporting-evidence/new(closeId=${closeId},eventId=${event.id})}">
+                Registrar evidencia por referencia
+            </a>
+        </p>
+
+        <p th:if="${closeEditable}">
+            <a
                 th:href="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${event.id})}">
                 Modificar evento operativo
             </a>
