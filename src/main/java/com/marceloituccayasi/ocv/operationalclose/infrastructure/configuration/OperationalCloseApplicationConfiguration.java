@@ -28,6 +28,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.port.repository.Op
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalEventRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalEventRevisionRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.SupportingEvidenceRepository;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventSupportingInformation;
 
 /**
  * Assembles Operational Close application use cases.
@@ -242,4 +243,18 @@ public class OperationalCloseApplicationConfiguration {
                 transactionRunner);
     }
 
+    @Bean
+    GetOperationalEventSupportingInformation
+            getOperationalEventSupportingInformation(
+                    OperationalEventRepository eventRepository,
+                    SupportingEvidenceRepository evidenceRepository,
+                    EventAuthorizationRepository authorizationRepository,
+                    TransactionRunner transactionRunner) {
+
+        return new GetOperationalEventSupportingInformation(
+                eventRepository,
+                evidenceRepository,
+                authorizationRepository,
+                transactionRunner);
+    }
 }
