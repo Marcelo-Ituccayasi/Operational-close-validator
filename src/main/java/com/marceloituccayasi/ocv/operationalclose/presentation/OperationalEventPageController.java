@@ -17,6 +17,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalClos
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalCloseResult;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventDetail;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventResult;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventSupportingInformation;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEvents;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEventsResult;
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEvent;
@@ -47,7 +48,9 @@ public class OperationalEventPageController {
             UpdateOperationalEvent updateOperationalEvent,
             GetOperationalCloseDetail getOperationalCloseDetail,
             ListOperationalEvents listOperationalEvents,
-            GetOperationalEventDetail getOperationalEventDetail) {
+            GetOperationalEventDetail getOperationalEventDetail,
+            GetOperationalEventSupportingInformation
+                    getOperationalEventSupportingInformation) {
 
         this.createOperationalEvent =
                 Objects.requireNonNull(
