@@ -5,8 +5,11 @@ import org.springframework.context.annotation.Configuration;
 
 import com.marceloituccayasi.ocv.operationalclose.application.CreateSupportingEvidence;
 import com.marceloituccayasi.ocv.operationalclose.application.CreateSupportingEvidenceWithStoredContent;
+import com.marceloituccayasi.ocv.operationalclose.application.GetSupportingEvidenceContent;
 import com.marceloituccayasi.ocv.operationalclose.application.port.SupportingEvidenceContentStorage;
+import com.marceloituccayasi.ocv.operationalclose.application.port.TransactionRunner;
 import com.marceloituccayasi.ocv.operationalclose.application.port.UuidGenerator;
+import com.marceloituccayasi.ocv.operationalclose.application.port.repository.SupportingEvidenceRepository;
 
 /**
  * Registers application orchestration for managed Supporting Evidence content.
@@ -25,6 +28,18 @@ public class SupportingEvidenceContentApplicationConfiguration {
                 uuidGenerator,
                 contentStorage,
                 createSupportingEvidence);
+    }
+
+    @Bean
+    GetSupportingEvidenceContent getSupportingEvidenceContent(
+            SupportingEvidenceRepository evidenceRepository,
+            SupportingEvidenceContentStorage contentStorage,
+            TransactionRunner transactionRunner) {
+
+        return new GetSupportingEvidenceContent(
+                evidenceRepository,
+                contentStorage,
+                transactionRunner);
     }
 
 }
