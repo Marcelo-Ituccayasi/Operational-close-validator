@@ -107,12 +107,32 @@ public final class CreateSupportingEvidence {
 
         return transactionRunner.execute(
                 () -> executeInsideTransaction(
-                        command));
+                        command,
+                        null));
+    }
+
+    CreateSupportingEvidenceResult executeWithEvidenceId(
+            CreateSupportingEvidenceCommand command,
+            UUID evidenceUuid) {
+
+        Objects.requireNonNull(
+                command,
+                "command must not be null");
+
+        Objects.requireNonNull(
+                evidenceUuid,
+                "evidenceUuid must not be null");
+
+        return transactionRunner.execute(
+                () -> executeInsideTransaction(
+                        command,
+                        evidenceUuid));
     }
 
     private CreateSupportingEvidenceResult
             executeInsideTransaction(
-                    CreateSupportingEvidenceCommand command) {
+                    CreateSupportingEvidenceCommand command,
+                    UUID preassignedEvidenceUuid) {
 
         AuthenticatedPrincipal principal =
                 Objects.requireNonNull(
@@ -180,9 +200,14 @@ public final class CreateSupportingEvidence {
                         "application time must not be null");
 
         UUID evidenceUuid =
-                Objects.requireNonNull(
-                        uuidGenerator.next(),
-                        "generated evidence UUID must not be null");
+                preassignedEvidenceUuid;
+
+        if (evidenceUuid == null) {
+            evidenceUuid =
+                    Objects.requireNonNull(
+                            uuidGenerator.next(),
+                            "generated evidence UUID must not be null");
+        }
 
         SupportingEvidence evidence;
 
