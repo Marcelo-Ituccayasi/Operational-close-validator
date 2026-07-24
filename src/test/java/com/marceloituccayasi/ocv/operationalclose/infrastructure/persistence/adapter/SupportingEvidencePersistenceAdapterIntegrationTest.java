@@ -1,4 +1,4 @@
-﻿package com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.adapter;
+package com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
