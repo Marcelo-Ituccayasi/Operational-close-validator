@@ -1,4 +1,4 @@
-package com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.adapter;
+﻿package com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -349,6 +349,62 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
         assertThat(loaded.deactivatedAt())
                 .isEqualTo(
                         UPDATED_AT);
+    }
+
+    @Test
+    void scopesReadLookupToOwningCloseAndEvent() {
+        persistParentGraph();
+
+        SupportingEvidence evidence =
+                activeEvidence(
+                        FIRST_EVIDENCE_ID,
+                        LocalDate.of(
+                                2026,
+                                7,
+                                23),
+                        "reference:read-scope",
+                        SupportingEvidenceLegibilityStatus.UNVERIFIED);
+
+        transactionRunner.execute(
+                (Runnable) () ->
+                        evidenceRepository.saveNew(
+                                evidence));
+
+        Optional<SupportingEvidence> owningResult =
+                transactionRunner.execute(
+                        () -> evidenceRepository.findById(
+                                new OperationalCloseId(
+                                        FIRST_CLOSE_ID),
+                                new OperationalEventId(
+                                        EVENT_ID),
+                                evidence.id()));
+
+        Optional<SupportingEvidence> otherCloseResult =
+                transactionRunner.execute(
+                        () -> evidenceRepository.findById(
+                                new OperationalCloseId(
+                                        SECOND_CLOSE_ID),
+                                new OperationalEventId(
+                                        EVENT_ID),
+                                evidence.id()));
+
+        Optional<SupportingEvidence> otherEventResult =
+                transactionRunner.execute(
+                        () -> evidenceRepository.findById(
+                                new OperationalCloseId(
+                                        FIRST_CLOSE_ID),
+                                new OperationalEventId(
+                                        OTHER_EVENT_ID),
+                                evidence.id()));
+
+        assertThat(owningResult)
+                .isPresent();
+
+        assertThat(otherCloseResult)
+                .isEmpty();
+
+        assertThat(otherEventResult)
+                .isEmpty();
     }
 
     @Test

@@ -22,6 +22,11 @@ public interface SupportingEvidenceRepository {
     Optional<SupportingEvidence> findById(
             SupportingEvidenceId evidenceId);
 
+    Optional<SupportingEvidence> findById(
+            OperationalCloseId closeId,
+            OperationalEventId eventId,
+            SupportingEvidenceId evidenceId);
+
     List<SupportingEvidence>
             findAllByEventIdOrderByEvidenceDateDescending(
                     OperationalEventId eventId);

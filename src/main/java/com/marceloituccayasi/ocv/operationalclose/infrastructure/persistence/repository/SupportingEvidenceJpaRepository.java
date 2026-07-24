@@ -23,6 +23,26 @@ public interface SupportingEvidenceJpaRepository
             findAllByEventIdOrderByEvidenceDateDescCreatedAtDescIdDesc(
                     UUID eventId);
 
+    @Query("""
+            select supportingEvidence
+            from SupportingEvidenceEntity supportingEvidence
+            where supportingEvidence.id = :evidenceId
+              and supportingEvidence.eventId = :eventId
+              and exists (
+                  select operationalEvent.id
+                  from OperationalEventEntity operationalEvent
+                  where operationalEvent.id = :eventId
+                    and operationalEvent.closeId = :closeId
+              )
+            """)
+    Optional<SupportingEvidenceEntity> findById(
+            @Param("closeId")
+            UUID closeId,
+            @Param("eventId")
+            UUID eventId,
+            @Param("evidenceId")
+            UUID evidenceId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             select supportingEvidence
