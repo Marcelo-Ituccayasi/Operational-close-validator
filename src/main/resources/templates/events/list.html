@@ -17,6 +17,17 @@
         </p>
 
         <p>
+            Estado del cierre:
+            <span th:text="${closeState}">
+                PREPARATION
+            </span>
+        </p>
+
+        <p th:unless="${closeEditable}">
+            El cierre fue enviado a contabilidad y ya no admite modificaciones.
+        </p>
+
+        <p th:if="${closeEditable}">
             <a
                 th:href="@{/closes/{closeId}/events/new(closeId=${closeId})}">
                 Registrar evento operativo

@@ -20,6 +20,11 @@
                 UUID
             </dd>
 
+            <dt>Estado del cierre</dt>
+            <dd th:text="${closeState}">
+                PREPARATION
+            </dd>
+
             <dt>Tipo</dt>
             <dd th:text="${event.eventType}">
                 INCOME
@@ -112,7 +117,173 @@
             </dd>
         </dl>
 
-        <p>
+        <p th:unless="${closeEditable}">
+            El cierre fue enviado a contabilidad y ya no admite modificaciones.
+        </p>
+
+        <section aria-labelledby="supporting-evidence-heading">
+            <h2 id="supporting-evidence-heading">
+                Evidencias de soporte
+            </h2>
+
+            <p th:if="${#lists.isEmpty(supportingEvidence)}">
+                No existen evidencias registradas.
+            </p>
+
+            <table th:unless="${#lists.isEmpty(supportingEvidence)}">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Importe soportado</th>
+                        <th>Legibilidad</th>
+                        <th>Estado</th>
+                        <th>Revisión</th>
+                        <th>Contenido o referencia</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="evidence : ${supportingEvidence}">
+                        <td th:text="${evidence.evidenceType}">
+                            RECEIPT
+                        </td>
+
+                        <td th:text="${evidence.evidenceDate}">
+                            2026-07-24
+                        </td>
+
+                        <td
+                            th:text="${evidence.supportedAmount != null ? evidence.supportedAmount : 'No informado'}">
+                            0.0000
+                        </td>
+
+                        <td th:text="${evidence.legibilityStatus}">
+                            UNVERIFIED
+                        </td>
+
+                        <td th:text="${evidence.active ? 'Activa' : 'Histórica'}">
+                            Activa
+                        </td>
+
+                        <td th:text="${evidence.revision}">
+                            1
+                        </td>
+
+                        <td>
+                            <a
+                                th:if="${evidence.managedContent}"
+                                th:href="@{/closes/{closeId}/events/{eventId}/supporting-evidence/{evidenceId}/content(closeId=${closeId},eventId=${event.id},evidenceId=${evidence.id})}">
+                                Consultar contenido
+                            </a>
+
+                            <span
+                                th:unless="${evidence.managedContent}"
+                                th:text="${evidence.contentReference}">
+                                    <td>
+                                        <form
+                                            th:if="${closeEditable and evidence.active}"
+                                            method="post"
+                                            th:action="@{/closes/{closeId}/events/{eventId}/supporting-evidence/{evidenceId}/deactivate(closeId=${closeId},eventId=${event.id},evidenceId=${evidence.id})}">
+                                            <button type="submit">
+                                                Desactivar evidencia
+                                            </button>
+                                        </form>
+
+                                        <span th:unless="${closeEditable and evidence.active}">
+                                            No disponible
+                                        </span>
+                                    </td>
+                                reference:documento
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section aria-labelledby="authorizations-heading">
+            <h2 id="authorizations-heading">
+                Autorizaciones
+            </h2>
+
+            <p th:if="${#lists.isEmpty(authorizations)}">
+                No existen autorizaciones registradas.
+            </p>
+
+            <table th:unless="${#lists.isEmpty(authorizations)}">
+                <thead>
+                    <tr>
+                        <th>Autorizado por</th>
+                        <th>Fecha</th>
+                        <th>Motivo</th>
+                        <th>Referencia formal</th>
+                        <th>Estado</th>
+                        <th>Revisión</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="authorization : ${authorizations}">
+                        <td th:text="${authorization.authorizedByName}">
+                            Supervisor
+                        </td>
+
+                        <td th:text="${authorization.authorizedAt}">
+                            2026-07-24T08:00:00Z
+                        </td>
+
+                        <td th:text="${authorization.reason}">
+                            Motivo
+                        </td>
+
+                        <td th:text="${authorization.formalReference}">
+                            AUTH-001
+                        </td>
+
+                        <td th:text="${authorization.active ? 'Activa' : 'Histórica'}">
+                            Activa
+                        </td>
+
+                        <td th:text="${authorization.revision}">
+                            1
+                        </td>
+                        <td>
+                            <form
+                                th:if="${closeEditable and authorization.active}"
+                                method="post"
+                                th:action="@{/closes/{closeId}/events/{eventId}/authorizations/{authorizationId}/deactivate(closeId=${closeId},eventId=${event.id},authorizationId=${authorization.id})}">
+                                <button type="submit">
+                                    Desactivar autorización
+                                </button>
+                            </form>
+
+                            <span th:unless="${closeEditable and authorization.active}">
+                                No disponible
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <p th:if="${closeEditable}">
+            <a
+                th:href="@{/closes/{closeId}/events/{eventId}/supporting-evidence/new(closeId=${closeId},eventId=${event.id})}">
+                Registrar evidencia por referencia
+            </a>
+        </p>
+
+        <p th:if="${closeEditable}">
+            <a
+                th:href="@{/closes/{closeId}/events/{eventId}/authorizations/new(closeId=${closeId},eventId=${event.id})}">
+                Registrar autorización
+            </a>
+        </p>
+
+        <p th:if="${closeEditable}">
             <a
                 th:href="@{/closes/{closeId}/events/{eventId}/edit(closeId=${closeId},eventId=${event.id})}">
                 Modificar evento operativo

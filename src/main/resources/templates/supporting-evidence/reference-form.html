@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar evidencia | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Registrar evidencia de soporte por referencia</h1>
+
+        <p>
+            Cierre:
+            <span th:text="${closeId}">
+                UUID
+            </span>
+        </p>
+
+        <p>
+            Evento:
+            <span th:text="${eventId}">
+                UUID
+            </span>
+        </p>
+
+        <p th:if="${closeState != null}">
+            Estado del cierre:
+            <span th:text="${closeState}">
+                PREPARATION
+            </span>
+        </p>
+
+        <p>
+            La referencia se conservará como texto opaco. El sistema no
+            accederá a direcciones web, rutas locales ni recursos externos.
+        </p>
+
+        <p
+            th:if="${errorMessage != null}"
+            th:text="${errorMessage}">
+            Los datos ingresados no son válidos.
+        </p>
+
+        <form
+            method="post"
+            th:action="@{/closes/{closeId}/events/{eventId}/supporting-evidence(closeId=${closeId},eventId=${eventId})}"
+            th:object="${evidenceForm}">
+
+            <p>
+                <label for="evidenceType">
+                    Tipo de evidencia
+                </label>
+
+                <input
+                    id="evidenceType"
+                    name="evidenceType"
+                    type="text"
+                    maxlength="40"
+                    required
+                    th:field="*{evidenceType}">
+            </p>
+
+            <p>
+                <label for="contentReference">
+                    Referencia
+                </label>
+
+                <input
+                    id="contentReference"
+                    name="contentReference"
+                    type="text"
+                    maxlength="490"
+                    required
+                    th:field="*{contentReference}">
+            </p>
+
+            <p>
+                <label for="supportedAmount">
+                    Importe soportado
+                </label>
+
+                <input
+                    id="supportedAmount"
+                    name="supportedAmount"
+                    type="text"
+                    inputmode="decimal"
+                    th:field="*{supportedAmount}">
+            </p>
+
+            <p>
+                <label for="evidenceDate">
+                    Fecha de la evidencia
+                </label>
+
+                <input
+                    id="evidenceDate"
+                    name="evidenceDate"
+                    type="date"
+                    required
+                    th:field="*{evidenceDate}">
+            </p>
+
+            <p>
+                <label for="legibilityStatus">
+                    Estado de legibilidad
+                </label>
+
+                <select
+                    id="legibilityStatus"
+                    name="legibilityStatus"
+                    required
+                    th:field="*{legibilityStatus}">
+
+                    <option value="">
+                        Seleccionar
+                    </option>
+
+                    <option value="UNVERIFIED">
+                        Sin verificar
+                    </option>
+
+                    <option value="LEGIBLE">
+                        Legible
+                    </option>
+
+                    <option value="ILLEGIBLE">
+                        Ilegible
+                    </option>
+                </select>
+            </p>
+
+            <button type="submit">
+                Registrar evidencia
+            </button>
+        </form>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${eventId})}">
+                Volver al evento
+            </a>
+        </p>
+    </main>
+</body>
+</html>

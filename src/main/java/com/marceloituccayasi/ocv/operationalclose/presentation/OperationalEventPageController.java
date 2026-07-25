@@ -1,5 +1,4 @@
 package com.marceloituccayasi.ocv.operationalclose.presentation;
-
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,8 +13,11 @@ import org.springframework.web.servlet.ModelAndView;
 import com.marceloituccayasi.ocv.operationalclose.application.CreateOperationalEvent;
 import com.marceloituccayasi.ocv.operationalclose.application.CreateOperationalEventCommand;
 import com.marceloituccayasi.ocv.operationalclose.application.CreateOperationalEventResult;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalCloseDetail;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalCloseResult;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventDetail;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventResult;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventSupportingInformation;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEvents;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEventsResult;
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEvent;
@@ -33,6 +35,9 @@ public class OperationalEventPageController {
 
     private final UpdateOperationalEvent updateOperationalEvent;
 
+    private final GetOperationalCloseDetail
+            getOperationalCloseDetail;
+
     private final ListOperationalEvents listOperationalEvents;
 
     private final GetOperationalEventDetail
@@ -41,8 +46,11 @@ public class OperationalEventPageController {
     public OperationalEventPageController(
             CreateOperationalEvent createOperationalEvent,
             UpdateOperationalEvent updateOperationalEvent,
+            GetOperationalCloseDetail getOperationalCloseDetail,
             ListOperationalEvents listOperationalEvents,
-            GetOperationalEventDetail getOperationalEventDetail) {
+            GetOperationalEventDetail getOperationalEventDetail,
+            GetOperationalEventSupportingInformation
+                    getOperationalEventSupportingInformation) {
 
         this.createOperationalEvent =
                 Objects.requireNonNull(
@@ -51,6 +59,10 @@ public class OperationalEventPageController {
         this.updateOperationalEvent =
                 Objects.requireNonNull(
                         updateOperationalEvent);
+
+        this.getOperationalCloseDetail =
+                Objects.requireNonNull(
+                        getOperationalCloseDetail);
 
         this.listOperationalEvents =
                 Objects.requireNonNull(
@@ -66,7 +78,8 @@ public class OperationalEventPageController {
             @PathVariable String closeId) {
 
         UUID parsedCloseId =
-                parseUuid(closeId);
+                parseUuid(
+                        closeId);
 
         if (parsedCloseId == null) {
             return invalidIdentifier(
@@ -96,6 +109,14 @@ public class OperationalEventPageController {
                 "events",
                 result.operationalEvents());
 
+        modelAndView.addObject(
+                "closeState",
+                result.closeState());
+
+        modelAndView.addObject(
+                "closeEditable",
+                result.closeEditable());
+
         return modelAndView;
     }
 
@@ -104,22 +125,30 @@ public class OperationalEventPageController {
             @PathVariable String closeId) {
 
         UUID parsedCloseId =
-                parseUuid(closeId);
+                parseUuid(
+                        closeId);
 
         if (parsedCloseId == null) {
             return invalidIdentifier(
                     "El identificador del cierre no es válido.");
         }
 
-        ListOperationalEventsResult closeResult =
-                listOperationalEvents.execute(
+        GetOperationalCloseResult closeResult =
+                getOperationalCloseDetail.execute(
                         parsedCloseId);
 
         if (closeResult.status()
-                == ListOperationalEventsResult.Status
-                        .CLOSE_NOT_FOUND) {
+                == GetOperationalCloseResult.Status
+                        .NOT_FOUND) {
 
             return closeNotFound();
+        }
+
+        if (!closeResult
+                .operationalClose()
+                .editable()) {
+
+            return closeNotEditable();
         }
 
         ModelAndView modelAndView =
@@ -144,7 +173,8 @@ public class OperationalEventPageController {
             OperationalEventForm eventForm) {
 
         UUID parsedCloseId =
-                parseUuid(closeId);
+                parseUuid(
+                        closeId);
 
         if (parsedCloseId == null) {
             return invalidIdentifier(
@@ -228,6 +258,17 @@ public class OperationalEventPageController {
             return identifiers.error();
         }
 
+        GetOperationalCloseResult closeResult =
+                getOperationalCloseDetail.execute(
+                        identifiers.closeId());
+
+        if (closeResult.status()
+                == GetOperationalCloseResult.Status
+                        .NOT_FOUND) {
+
+            return closeNotFound();
+        }
+
         GetOperationalEventResult result =
                 getOperationalEventDetail.execute(
                         identifiers.closeId(),
@@ -251,6 +292,18 @@ public class OperationalEventPageController {
                 "event",
                 result.operationalEvent());
 
+        modelAndView.addObject(
+                "closeState",
+                closeResult
+                        .operationalClose()
+                        .state());
+
+        modelAndView.addObject(
+                "closeEditable",
+                closeResult
+                        .operationalClose()
+                        .editable());
+
         return modelAndView;
     }
 
@@ -269,15 +322,22 @@ public class OperationalEventPageController {
             return identifiers.error();
         }
 
-        ListOperationalEventsResult closeResult =
-                listOperationalEvents.execute(
+        GetOperationalCloseResult closeResult =
+                getOperationalCloseDetail.execute(
                         identifiers.closeId());
 
         if (closeResult.status()
-                == ListOperationalEventsResult.Status
-                        .CLOSE_NOT_FOUND) {
+                == GetOperationalCloseResult.Status
+                        .NOT_FOUND) {
 
             return closeNotFound();
+        }
+
+        if (!closeResult
+                .operationalClose()
+                .editable()) {
+
+            return closeNotEditable();
         }
 
         GetOperationalEventResult eventResult =
@@ -392,7 +452,8 @@ public class OperationalEventPageController {
                     String eventId) {
 
         UUID parsedCloseId =
-                parseUuid(closeId);
+                parseUuid(
+                        closeId);
 
         if (parsedCloseId == null) {
             return new ParsedEventIdentifiers(
@@ -403,7 +464,8 @@ public class OperationalEventPageController {
         }
 
         UUID parsedEventId =
-                parseUuid(eventId);
+                parseUuid(
+                        eventId);
 
         if (parsedEventId == null) {
             return new ParsedEventIdentifiers(
@@ -423,7 +485,8 @@ public class OperationalEventPageController {
             String value) {
 
         try {
-            return UUID.fromString(value);
+            return UUID.fromString(
+                    value);
         }
         catch (IllegalArgumentException exception) {
             return null;
@@ -520,6 +583,13 @@ public class OperationalEventPageController {
                 errorMessage);
 
         return modelAndView;
+    }
+
+    private static ModelAndView closeNotEditable() {
+        return statusError(
+                HttpStatus.CONFLICT,
+                "Cierre no editable",
+                "El cierre fue enviado a contabilidad y ya no admite modificaciones.");
     }
 
     private static ModelAndView closeNotFound() {
