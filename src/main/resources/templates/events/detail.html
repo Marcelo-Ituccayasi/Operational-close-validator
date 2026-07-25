@@ -140,6 +140,7 @@
                         <th>Estado</th>
                         <th>Revisión</th>
                         <th>Contenido o referencia</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
 
@@ -180,6 +181,20 @@
                             <span
                                 th:unless="${evidence.managedContent}"
                                 th:text="${evidence.contentReference}">
+                                    <td>
+                                        <form
+                                            th:if="${closeEditable and evidence.active}"
+                                            method="post"
+                                            th:action="@{/closes/{closeId}/events/{eventId}/supporting-evidence/{evidenceId}/deactivate(closeId=${closeId},eventId=${event.id},evidenceId=${evidence.id})}">
+                                            <button type="submit">
+                                                Desactivar evidencia
+                                            </button>
+                                        </form>
+
+                                        <span th:unless="${closeEditable and evidence.active}">
+                                            No disponible
+                                        </span>
+                                    </td>
                                 reference:documento
                             </span>
                         </td>
@@ -206,6 +221,7 @@
                         <th>Referencia formal</th>
                         <th>Estado</th>
                         <th>Revisión</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
 
@@ -233,6 +249,20 @@
 
                         <td th:text="${authorization.revision}">
                             1
+                        </td>
+                        <td>
+                            <form
+                                th:if="${closeEditable and authorization.active}"
+                                method="post"
+                                th:action="@{/closes/{closeId}/events/{eventId}/authorizations/{authorizationId}/deactivate(closeId=${closeId},eventId=${event.id},authorizationId=${authorization.id})}">
+                                <button type="submit">
+                                    Desactivar autorización
+                                </button>
+                            </form>
+
+                            <span th:unless="${closeEditable and authorization.active}">
+                                No disponible
+                            </span>
                         </td>
                     </tr>
                 </tbody>
