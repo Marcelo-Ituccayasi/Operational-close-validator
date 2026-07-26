@@ -45,6 +45,29 @@ class ValidationRuleVocabularyTest {
     }
 
     @Test
+    void associatesApprovedScopeAndSeverity() {
+        assertThat(
+                ValidationRuleCode.VR_001.scope())
+                .isEqualTo(
+                        ValidationRuleScope.EVENT);
+
+        assertThat(
+                ValidationRuleCode.VR_003.severity())
+                .isEqualTo(
+                        ValidationSeverity.HIGH);
+
+        assertThat(
+                ValidationRuleCode.VR_006.severity())
+                .isEqualTo(
+                        ValidationSeverity.CRITICAL);
+
+        assertThat(
+                ValidationRuleCode.VR_008.scope())
+                .isEqualTo(
+                        ValidationRuleScope.CLOSE);
+    }
+
+    @Test
     void rejectsUnsupportedOrMissingRuleCode() {
         assertThatThrownBy(
                 () -> ValidationRuleCode.fromPersistentValue(

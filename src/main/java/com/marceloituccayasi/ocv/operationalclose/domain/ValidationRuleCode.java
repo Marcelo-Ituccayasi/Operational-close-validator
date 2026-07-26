@@ -5,23 +5,60 @@ package com.marceloituccayasi.ocv.operationalclose.domain;
  */
 public enum ValidationRuleCode {
 
-    VR_001("VR-001"),
-    VR_002("VR-002"),
-    VR_003("VR-003"),
-    VR_006("VR-006"),
-    VR_008("VR-008");
+    VR_001(
+            "VR-001",
+            ValidationRuleScope.EVENT,
+            ValidationSeverity.CRITICAL),
+
+    VR_002(
+            "VR-002",
+            ValidationRuleScope.EVENT,
+            ValidationSeverity.CRITICAL),
+
+    VR_003(
+            "VR-003",
+            ValidationRuleScope.EVENT,
+            ValidationSeverity.HIGH),
+
+    VR_006(
+            "VR-006",
+            ValidationRuleScope.EVENT,
+            ValidationSeverity.CRITICAL),
+
+    VR_008(
+            "VR-008",
+            ValidationRuleScope.CLOSE,
+            ValidationSeverity.CRITICAL);
 
     private final String persistentValue;
+    private final ValidationRuleScope scope;
+    private final ValidationSeverity severity;
 
     ValidationRuleCode(
-            String persistentValue) {
+            String persistentValue,
+            ValidationRuleScope scope,
+            ValidationSeverity severity) {
 
         this.persistentValue =
                 persistentValue;
+
+        this.scope =
+                scope;
+
+        this.severity =
+                severity;
     }
 
     public String persistentValue() {
         return persistentValue;
+    }
+
+    public ValidationRuleScope scope() {
+        return scope;
+    }
+
+    public ValidationSeverity severity() {
+        return severity;
     }
 
     public static ValidationRuleCode fromPersistentValue(
