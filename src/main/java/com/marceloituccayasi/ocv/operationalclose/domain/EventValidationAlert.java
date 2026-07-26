@@ -5,10 +5,6 @@ import java.time.Instant;
 /**
  * Visible inconsistency produced by a failed Event Validation Result.
  *
- * <p>This record establishes the Alert identity, source and lifecycle
- * invariants. Lifecycle operations and append-only transitions are introduced
- * separately.</p>
- *
  * @param id stable alert identifier
  * @param eventId affected Operational Event
  * @param sourceValidationResultId failed result that originated the alert
@@ -208,6 +204,256 @@ public record EventValidationAlert(
                 createdBy,
                 createdAt,
                 null);
+    }
+
+    public EventValidationAlertChange acknowledge(
+            ValidationAlertTransitionId transitionId,
+            String transitionDetail,
+            Instant occurredAt,
+            AuditActor actor) {
+
+        if (state != ValidationAlertState.ACTIVE) {
+            throw new IllegalStateException(
+                    "only active validation alert can be acknowledged");
+        }
+
+        requireLifecycleInstant(
+                occurredAt);
+
+        EventValidationAlert updatedAlert =
+                new EventValidationAlert(
+                        id,
+                        eventId,
+                        sourceValidationResultId,
+                        causeRuleCode,
+                        severity,
+                        blocking,
+                        ValidationAlertState.ACKNOWLEDGED,
+                        detail,
+                        null,
+                        null,
+                        createdAt,
+                        createdBy,
+                        occurredAt,
+                        null);
+
+        ValidationAlertTransition transition =
+                ValidationAlertTransition.acknowledged(
+                        transitionId,
+                        id,
+                        transitionDetail,
+                        occurredAt,
+                        actor);
+
+        return new EventValidationAlertChange(
+                updatedAlert,
+                transition);
+    }
+
+    public EventValidationAlertChange startReview(
+            ValidationAlertTransitionId transitionId,
+            String transitionDetail,
+            Instant occurredAt,
+            AuditActor actor) {
+
+        if (state != ValidationAlertState.ACTIVE
+                && state
+                        != ValidationAlertState.ACKNOWLEDGED) {
+
+            throw new IllegalStateException(
+                    "validation alert review requires active or acknowledged state");
+        }
+
+        requireLifecycleInstant(
+                occurredAt);
+
+        EventValidationAlert updatedAlert =
+                new EventValidationAlert(
+                        id,
+                        eventId,
+                        sourceValidationResultId,
+                        causeRuleCode,
+                        severity,
+                        blocking,
+                        ValidationAlertState.UNDER_REVIEW,
+                        detail,
+                        null,
+                        null,
+                        createdAt,
+                        createdBy,
+                        occurredAt,
+                        null);
+
+        ValidationAlertTransition transition =
+                ValidationAlertTransition.underReview(
+                        transitionId,
+                        id,
+                        state,
+                        transitionDetail,
+                        occurredAt,
+                        actor);
+
+        return new EventValidationAlertChange(
+                updatedAlert,
+                transition);
+    }
+
+    public EventValidationAlertChange resolve(
+            ValidationAlertTransitionId transitionId,
+            EventValidationResult resolutionResult,
+            String transitionDetail,
+            Instant occurredAt,
+            AuditActor actor) {
+
+        requireOpenState();
+        requireNonNull(
+                resolutionResult,
+                "resolutionResult");
+
+        if (!resolutionResult.current()) {
+            throw new IllegalArgumentException(
+                    "resolution requires a current validation result");
+        }
+
+        if (resolutionResult.outcome()
+                != ValidationOutcome.SATISFIED) {
+
+            throw new IllegalArgumentException(
+                    "resolution requires a satisfied validation result");
+        }
+
+        if (!eventId.equals(
+                resolutionResult.eventId())) {
+
+            throw new IllegalArgumentException(
+                    "resolution result must evaluate the affected event");
+        }
+
+        if (causeRuleCode
+                != resolutionResult.ruleCode()) {
+
+            throw new IllegalArgumentException(
+                    "resolution result must satisfy the alert cause rule");
+        }
+
+        if (resolutionResult.evaluatedAt()
+                .isBefore(
+                        createdAt)) {
+
+            throw new IllegalArgumentException(
+                    "resolution result must not predate alert creation");
+        }
+
+        requireLifecycleInstant(
+                occurredAt);
+
+        if (occurredAt.isBefore(
+                resolutionResult.evaluatedAt())) {
+
+            throw new IllegalArgumentException(
+                    "alert resolution instant must not be before revalidation");
+        }
+
+        EventValidationAlert updatedAlert =
+                new EventValidationAlert(
+                        id,
+                        eventId,
+                        sourceValidationResultId,
+                        causeRuleCode,
+                        severity,
+                        blocking,
+                        ValidationAlertState.RESOLVED,
+                        detail,
+                        resolutionResult.id(),
+                        null,
+                        createdAt,
+                        createdBy,
+                        occurredAt,
+                        occurredAt);
+
+        ValidationAlertTransition transition =
+                ValidationAlertTransition.resolved(
+                        transitionId,
+                        id,
+                        state,
+                        transitionDetail,
+                        resolutionResult.id(),
+                        occurredAt,
+                        actor);
+
+        return new EventValidationAlertChange(
+                updatedAlert,
+                transition);
+    }
+
+    public EventValidationAlertChange discard(
+            ValidationAlertTransitionId transitionId,
+            String transitionDetail,
+            String justification,
+            Instant occurredAt,
+            AuditActor actor) {
+
+        requireOpenState();
+        requireLifecycleInstant(
+                occurredAt);
+
+        String normalizedJustification =
+                requireText(
+                        justification,
+                        "justification");
+
+        EventValidationAlert updatedAlert =
+                new EventValidationAlert(
+                        id,
+                        eventId,
+                        sourceValidationResultId,
+                        causeRuleCode,
+                        severity,
+                        blocking,
+                        ValidationAlertState.DISCARDED,
+                        detail,
+                        null,
+                        normalizedJustification,
+                        createdAt,
+                        createdBy,
+                        occurredAt,
+                        occurredAt);
+
+        ValidationAlertTransition transition =
+                ValidationAlertTransition.discarded(
+                        transitionId,
+                        id,
+                        state,
+                        transitionDetail,
+                        normalizedJustification,
+                        occurredAt,
+                        actor);
+
+        return new EventValidationAlertChange(
+                updatedAlert,
+                transition);
+    }
+
+    private void requireOpenState() {
+        if (state.terminal()) {
+            throw new IllegalStateException(
+                    "terminal validation alert cannot change state");
+        }
+    }
+
+    private void requireLifecycleInstant(
+            Instant occurredAt) {
+
+        requireNonNull(
+                occurredAt,
+                "occurredAt");
+
+        if (occurredAt.isBefore(
+                updatedAt)) {
+
+            throw new IllegalArgumentException(
+                    "alert lifecycle instant must not be before previous update");
+        }
     }
 
     private static String requireText(
