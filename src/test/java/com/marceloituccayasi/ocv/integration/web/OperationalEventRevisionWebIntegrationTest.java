@@ -718,6 +718,8 @@ class OperationalEventRevisionWebIntegrationTest {
     jdbcTemplate.execute(
             """
             TRUNCATE TABLE
+                ocv.alert_transition,
+                ocv.alert,
                 ocv.validation_result,
                 ocv.supporting_evidence,
                 ocv.event_authorization,
