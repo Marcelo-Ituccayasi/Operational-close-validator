@@ -511,6 +511,7 @@ class EventAuthorizationPersistenceAdapterIntegrationTest {
         jdbcTemplate.execute(
                 """
                 TRUNCATE TABLE
+                    ocv.validation_result,
                     ocv.supporting_evidence,
                     ocv.event_authorization,
                     ocv.event_state_transition,
