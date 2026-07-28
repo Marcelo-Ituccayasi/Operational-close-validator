@@ -3,11 +3,13 @@ package com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.ad
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.EventValidationResultRepository;
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationResult;
+import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalEventId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationResultId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationRuleCode;
@@ -102,6 +104,46 @@ public class EventValidationResultPersistenceAdapter
         return validationResultJpaRepository
                 .findAllByEventIdAndCurrentTrueOrderByRuleCodeAsc(
                         eventId.value())
+                .stream()
+                .map(
+                        mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<EventValidationResult>
+            findAllCurrentForInvalidation(
+                    OperationalCloseId closeId,
+                    List<OperationalEventId> eventIds) {
+
+        Objects.requireNonNull(
+                closeId,
+                "closeId must not be null");
+
+        Objects.requireNonNull(
+                eventIds,
+                "eventIds must not be null");
+
+        if (eventIds.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "eventIds must not be empty");
+        }
+
+        List<UUID> persistentEventIds =
+                eventIds.stream()
+                        .map(
+                                eventId -> Objects.requireNonNull(
+                                        eventId,
+                                        "eventIds must not contain null values"))
+                        .map(
+                                OperationalEventId::value)
+                        .distinct()
+                        .toList();
+
+        return validationResultJpaRepository
+                .findAllCurrentEventResultsForInvalidation(
+                        closeId.value(),
+                        persistentEventIds)
                 .stream()
                 .map(
                         mapper::toDomain)

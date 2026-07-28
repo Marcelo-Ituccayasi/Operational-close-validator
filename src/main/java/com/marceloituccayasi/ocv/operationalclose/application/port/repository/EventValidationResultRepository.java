@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationResult;
+import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalEventId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationResultId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationRuleCode;
@@ -30,6 +31,11 @@ public interface EventValidationResultRepository {
     List<EventValidationResult>
             findAllCurrentByEventIdOrderByRuleCode(
                     OperationalEventId eventId);
+
+    List<EventValidationResult>
+            findAllCurrentForInvalidation(
+                    OperationalCloseId closeId,
+                    List<OperationalEventId> eventIds);
 
     void saveInvalidation(
             EventValidationResult validationResult);

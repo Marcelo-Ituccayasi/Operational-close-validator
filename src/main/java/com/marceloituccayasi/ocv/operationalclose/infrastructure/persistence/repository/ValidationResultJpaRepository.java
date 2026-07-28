@@ -36,4 +36,28 @@ public interface ValidationResultJpaRepository
             findAllByEventIdAndCurrentTrueOrderByRuleCodeAsc(
                     UUID eventId);
 
+    @Query("""
+            select validationResult
+            from ValidationResultEntity validationResult
+            where validationResult.current = true
+              and validationResult.eventId in :eventIds
+              and validationResult.closeId is null
+              and exists (
+                  select operationalEvent.id
+                  from OperationalEventEntity operationalEvent
+                  where operationalEvent.id =
+                        validationResult.eventId
+                    and operationalEvent.closeId = :closeId
+              )
+            order by
+                validationResult.eventId asc,
+                validationResult.ruleCode asc
+            """)
+    List<ValidationResultEntity>
+            findAllCurrentEventResultsForInvalidation(
+                    @Param("closeId")
+                    UUID closeId,
+                    @Param("eventIds")
+                    List<UUID> eventIds);
+
 }
