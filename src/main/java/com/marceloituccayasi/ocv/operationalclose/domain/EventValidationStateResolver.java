@@ -74,4 +74,24 @@ public final class EventValidationStateResolver {
                 .VALIDATED;
     }
 
+    public static OperationalEventState
+            enforceOpenBlockingAlertInvariant(
+                    OperationalEventState resolvedState,
+                    boolean blockingAlertOpen) {
+
+        Objects.requireNonNull(
+                resolvedState,
+                "resolved event state must not be null");
+
+        if (blockingAlertOpen
+                && resolvedState
+                        == OperationalEventState.VALIDATED) {
+
+            return OperationalEventState
+                    .OBSERVED;
+        }
+
+        return resolvedState;
+    }
+
 }

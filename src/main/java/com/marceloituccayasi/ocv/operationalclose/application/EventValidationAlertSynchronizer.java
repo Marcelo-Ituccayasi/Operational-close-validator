@@ -12,6 +12,7 @@ import com.marceloituccayasi.ocv.operationalclose.domain.AuditActor;
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationAlert;
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationAlertChange;
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationResult;
+import com.marceloituccayasi.ocv.operationalclose.domain.OperationalEventId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationAlertId;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationAlertTransition;
 import com.marceloituccayasi.ocv.operationalclose.domain.ValidationAlertTransitionId;
@@ -98,6 +99,33 @@ public final class EventValidationAlertSynchronizer {
                         actor);
             }
         }
+    }
+
+    public boolean hasOpenBlockingAlert(
+            OperationalEventId eventId) {
+
+        Objects.requireNonNull(
+                eventId,
+                "eventId must not be null");
+
+        List<EventValidationAlert> openAlerts =
+                Objects.requireNonNull(
+                        alertRepository
+                                .findAllOpenByEventIdOrderByCreatedAt(
+                                        eventId),
+                        "open validation alerts must not be null");
+
+        for (EventValidationAlert openAlert
+                : openAlerts) {
+
+            Objects.requireNonNull(
+                    openAlert,
+                    "open validation alert must not be null");
+        }
+
+        return openAlerts.stream()
+                .anyMatch(
+                        EventValidationAlert::blocking);
     }
 
     private void createAlert(

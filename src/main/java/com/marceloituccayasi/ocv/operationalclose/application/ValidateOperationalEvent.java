@@ -264,11 +264,22 @@ public final class ValidateOperationalEvent {
                 evaluatedAt,
                 actor);
 
-        OperationalEventState resultingState =
+        boolean blockingAlertOpen =
+                alertSynchronizer
+                        .hasOpenBlockingAlert(
+                                input.eventId());
+
+        OperationalEventState evaluatedState =
                 Objects.requireNonNull(
                         stateResolver.resolve(
                                 evaluations),
                         "resulting event state must not be null");
+
+        OperationalEventState resultingState =
+                EventValidationStateResolver
+                        .enforceOpenBlockingAlertInvariant(
+                                evaluatedState,
+                                blockingAlertOpen);
 
         applyEventState(
                 operationalEvent,
