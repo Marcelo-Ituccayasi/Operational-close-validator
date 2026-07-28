@@ -1,0 +1,655 @@
+package com.marceloituccayasi.ocv.integration.web;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+
+import com.marceloituccayasi.ocv.TestcontainersConfiguration;
+import com.marceloituccayasi.ocv.identityaccess.infrastructure.persistence.entity.IdentityUserEntity;
+import com.marceloituccayasi.ocv.identityaccess.infrastructure.persistence.repository.IdentityUserJpaRepository;
+import com.marceloituccayasi.ocv.identityaccess.infrastructure.provisioning.ResponsibleUserProvisioner;
+
+@ActiveProfiles("test")
+@Import(TestcontainersConfiguration.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+class OperationalEventOpenAlertInvariantWebIntegrationTest {
+
+    private static final String TEST_PASSWORD =
+            "test-password";
+
+    private static final String VALIDATION_FAILED_MESSAGE =
+            "La validación finalizó con reglas fallidas. "
+                    + "Revisa el estado del evento y sus alertas.";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private IdentityUserJpaRepository identityRepository;
+
+    @Autowired
+    private ResponsibleUserProvisioner provisioner;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void prepareTestState() {
+        clearRegisteredSessions();
+        cleanOperationalCloseTables();
+
+        provisioner.provision();
+
+        IdentityUserEntity identityUser =
+                identityRepository.findById(
+                        IdentityUserEntity.RESPONSIBLE_USER_ID)
+                        .orElseThrow();
+
+        identityUser.synchronize(
+                "responsible",
+                "responsible",
+                passwordEncoder.encode(
+                        TEST_PASSWORD),
+                Instant.now());
+
+        identityRepository.saveAndFlush(
+                identityUser);
+    }
+
+    @AfterEach
+    void cleanTestState() {
+        cleanOperationalCloseTables();
+        clearRegisteredSessions();
+    }
+
+    @Test
+    void preservesObservedStateWhenFailedRuleStopsApplyingButAlertRemainsOpen()
+            throws Exception {
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session);
+
+        UUID eventId =
+                createIncomeAndGetId(
+                        session,
+                        closeId);
+
+        String detailUrl =
+                "/closes/"
+                        + closeId
+                        + "/events/"
+                        + eventId;
+
+        validateEvent(
+                session,
+                closeId,
+                eventId)
+                .andExpect(
+                        status().isSeeOther())
+                .andExpect(
+                        redirectedUrl(
+                                detailUrl));
+
+        assertThat(
+                eventType(
+                        eventId))
+                .isEqualTo(
+                        "INCOME");
+
+        assertThat(
+                eventState(
+                        eventId))
+                .isEqualTo(
+                        "OBSERVED");
+
+        assertThat(
+                eventDataRevision(
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.validation_result
+                        WHERE event_id = ?
+                          AND rule_code = 'VR-002'
+                          AND outcome = 'FAILED'
+                          AND is_current = TRUE
+                          AND event_data_revision = 1
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.alert
+                        WHERE event_id = ?
+                          AND cause_code = 'VR-002'
+                          AND is_blocking = TRUE
+                          AND state = 'ACTIVE'
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        reviseAsExpense(
+                session,
+                closeId,
+                eventId)
+                .andExpect(
+                        status().isSeeOther())
+                .andExpect(
+                        redirectedUrl(
+                                detailUrl));
+
+        assertThat(
+                eventType(
+                        eventId))
+                .isEqualTo(
+                        "EXPENSE");
+
+        assertThat(
+                eventState(
+                        eventId))
+                .isEqualTo(
+                        "OBSERVED");
+
+        assertThat(
+                eventDataRevision(
+                        eventId))
+                .isEqualTo(
+                        2L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.validation_result
+                        WHERE event_id = ?
+                          AND rule_code = 'VR-002'
+                          AND outcome = 'FAILED'
+                          AND is_current = FALSE
+                          AND invalidated_at IS NOT NULL
+                          AND invalidation_reason =
+                              'Operational Event data revision changed.'
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.validation_result
+                        WHERE event_id = ?
+                          AND is_current = TRUE
+                        """,
+                        eventId))
+                .isZero();
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.alert
+                        WHERE event_id = ?
+                          AND cause_code = 'VR-002'
+                          AND state = 'ACTIVE'
+                          AND resolved_by_validation_result_id IS NULL
+                          AND closed_at IS NULL
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        MvcResult revalidation =
+                validateEvent(
+                        session,
+                        closeId,
+                        eventId)
+                        .andExpect(
+                                status().isSeeOther())
+                        .andExpect(
+                                redirectedUrl(
+                                        detailUrl))
+                        .andReturn();
+
+        assertThat(
+                revalidation.getFlashMap()
+                        .get(
+                                "validationSuccessful"))
+                .isEqualTo(
+                        false);
+
+        assertThat(
+                revalidation.getFlashMap()
+                        .get(
+                                "validationMessage"))
+                .isEqualTo(
+                        VALIDATION_FAILED_MESSAGE);
+
+        assertThat(
+                eventType(
+                        eventId))
+                .isEqualTo(
+                        "EXPENSE");
+
+        assertThat(
+                eventState(
+                        eventId))
+                .isEqualTo(
+                        "OBSERVED");
+
+        assertThat(
+                eventDataRevision(
+                        eventId))
+                .isEqualTo(
+                        2L);
+
+        assertThat(
+                closeState(
+                        closeId))
+                .isEqualTo(
+                        "PREPARATION");
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.validation_result
+                        WHERE event_id = ?
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.validation_result
+                        WHERE event_id = ?
+                          AND is_current = TRUE
+                        """,
+                        eventId))
+                .isZero();
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.alert
+                        WHERE event_id = ?
+                          AND cause_code = 'VR-002'
+                          AND is_blocking = TRUE
+                          AND state = 'ACTIVE'
+                          AND resolved_by_validation_result_id IS NULL
+                          AND closed_at IS NULL
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.alert_transition transition
+                        JOIN ocv.alert alert
+                          ON alert.id = transition.alert_id
+                        WHERE alert.event_id = ?
+                          AND alert.cause_code = 'VR-002'
+                          AND transition.from_state IS NULL
+                          AND transition.to_state = 'ACTIVE'
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.alert_transition transition
+                        JOIN ocv.alert alert
+                          ON alert.id = transition.alert_id
+                        WHERE alert.event_id = ?
+                          AND alert.cause_code = 'VR-002'
+                          AND transition.to_state = 'RESOLVED'
+                        """,
+                        eventId))
+                .isZero();
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.event_state_transition
+                        WHERE event_id = ?
+                          AND cause_code =
+                              'EVENT_VALIDATION_APPLIED'
+                        """,
+                        eventId))
+                .isEqualTo(
+                        1L);
+    }
+
+    private UUID createCloseAndGetId(
+            MockHttpSession session)
+            throws Exception {
+
+        MvcResult result =
+                mockMvc.perform(
+                                post("/closes")
+                                        .session(
+                                                session)
+                                        .with(
+                                                csrf())
+                                        .param(
+                                                "periodStart",
+                                                "2026-07-01")
+                                        .param(
+                                                "periodEnd",
+                                                "2026-07-31")
+                                        .param(
+                                                "currencyCode",
+                                                "PEN")
+                                        .param(
+                                                "initialBalance",
+                                                "1250.5000"))
+                        .andExpect(
+                                status().isSeeOther())
+                        .andExpect(
+                                redirectedUrlPattern(
+                                        "/closes/*"))
+                        .andReturn();
+
+        return lastIdentifierFromRedirect(
+                result);
+    }
+
+    private UUID createIncomeAndGetId(
+            MockHttpSession session,
+            UUID closeId)
+            throws Exception {
+
+        MvcResult result =
+                mockMvc.perform(
+                                post(
+                                        "/closes/"
+                                                + closeId
+                                                + "/events")
+                                        .session(
+                                                session)
+                                        .with(
+                                                csrf())
+                                        .param(
+                                                "eventType",
+                                                "INCOME")
+                                        .param(
+                                                "amount",
+                                                "125.5000")
+                                        .param(
+                                                "reversedEventId",
+                                                "")
+                                        .param(
+                                                "occurredAt",
+                                                "2026-07-22T15:30:00Z")
+                                        .param(
+                                                "responsibleName",
+                                                "Caja principal")
+                                        .param(
+                                                "description",
+                                                "Ingreso con observación pendiente"))
+                        .andExpect(
+                                status().isSeeOther())
+                        .andExpect(
+                                redirectedUrlPattern(
+                                        "/closes/*/events/*"))
+                        .andReturn();
+
+        return lastIdentifierFromRedirect(
+                result);
+    }
+
+    private ResultActions reviseAsExpense(
+            MockHttpSession session,
+            UUID closeId,
+            UUID eventId)
+            throws Exception {
+
+        return mockMvc.perform(
+                post(
+                        "/closes/"
+                                + closeId
+                                + "/events/"
+                                + eventId
+                                + "/edit")
+                        .session(
+                                session)
+                        .with(
+                                csrf())
+                        .param(
+                                "eventType",
+                                "EXPENSE")
+                        .param(
+                                "amount",
+                                "125.5000")
+                        .param(
+                                "reversedEventId",
+                                "")
+                        .param(
+                                "occurredAt",
+                                "2026-07-22T15:30:00Z")
+                        .param(
+                                "responsibleName",
+                                "Caja principal")
+                        .param(
+                                "description",
+                                "Gasto sin regla aplicable"));
+    }
+
+    private ResultActions validateEvent(
+            MockHttpSession session,
+            UUID closeId,
+            UUID eventId)
+            throws Exception {
+
+        return mockMvc.perform(
+                post(
+                        "/closes/"
+                                + closeId
+                                + "/events/"
+                                + eventId
+                                + "/validate")
+                        .session(
+                                session)
+                        .with(
+                                csrf()));
+    }
+
+    private MockHttpSession authenticatedSession()
+            throws Exception {
+
+        MvcResult result =
+                mockMvc.perform(
+                                post("/login")
+                                        .with(
+                                                csrf())
+                                        .param(
+                                                "username",
+                                                "responsible")
+                                        .param(
+                                                "password",
+                                                TEST_PASSWORD))
+                        .andExpect(
+                                status().is3xxRedirection())
+                        .andExpect(
+                                redirectedUrl("/"))
+                        .andReturn();
+
+        MockHttpSession session =
+                (MockHttpSession) result
+                        .getRequest()
+                        .getSession(
+                                false);
+
+        assertThat(
+                session)
+                .isNotNull();
+
+        return session;
+    }
+
+    private String eventType(
+            UUID eventId) {
+
+        return jdbcTemplate.queryForObject(
+                """
+                SELECT event_type
+                FROM ocv.operational_event
+                WHERE id = ?
+                """,
+                String.class,
+                eventId);
+    }
+
+    private String eventState(
+            UUID eventId) {
+
+        return jdbcTemplate.queryForObject(
+                """
+                SELECT state
+                FROM ocv.operational_event
+                WHERE id = ?
+                """,
+                String.class,
+                eventId);
+    }
+
+    private Long eventDataRevision(
+            UUID eventId) {
+
+        return jdbcTemplate.queryForObject(
+                """
+                SELECT data_revision
+                FROM ocv.operational_event
+                WHERE id = ?
+                """,
+                Long.class,
+                eventId);
+    }
+
+    private String closeState(
+            UUID closeId) {
+
+        return jdbcTemplate.queryForObject(
+                """
+                SELECT state
+                FROM ocv.operational_close
+                WHERE id = ?
+                """,
+                String.class,
+                closeId);
+    }
+
+    private Long count(
+            String sql,
+            Object... arguments) {
+
+        return jdbcTemplate.queryForObject(
+                sql,
+                Long.class,
+                arguments);
+    }
+
+    private static UUID lastIdentifierFromRedirect(
+            MvcResult result) {
+
+        String redirectedUrl =
+                result.getResponse()
+                        .getRedirectedUrl();
+
+        assertThat(
+                redirectedUrl)
+                .isNotBlank();
+
+        int lastSeparator =
+                redirectedUrl.lastIndexOf(
+                        '/');
+
+        return UUID.fromString(
+                redirectedUrl.substring(
+                        lastSeparator + 1));
+    }
+
+    private void cleanOperationalCloseTables() {
+        jdbcTemplate.execute(
+                """
+                TRUNCATE TABLE
+                    ocv.alert_transition,
+                    ocv.alert,
+                    ocv.validation_result,
+                    ocv.supporting_evidence,
+                    ocv.event_authorization,
+                    ocv.event_state_transition,
+                    ocv.operational_event,
+                    ocv.close_state_transition,
+                    ocv.operational_close
+                """);
+    }
+
+    private void clearRegisteredSessions() {
+        sessionRegistry.getAllPrincipals()
+                .forEach(principal ->
+                        sessionRegistry
+                                .getAllSessions(
+                                        principal,
+                                        true)
+                                .forEach(session ->
+                                        sessionRegistry
+                                                .removeSessionInformation(
+                                                        session
+                                                                .getSessionId())));
+    }
+
+}

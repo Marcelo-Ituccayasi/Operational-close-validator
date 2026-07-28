@@ -9,6 +9,20 @@
     <main>
         <h1>Detalle del evento operativo</h1>
 
+                <p
+            th:if="${validationSuccessful == true}"
+            th:text="${validationMessage}"
+            role="status">
+            El evento fue validado correctamente.
+        </p>
+
+        <p
+            th:if="${validationSuccessful == false}"
+            th:text="${validationMessage}"
+            role="alert">
+            La validación finalizó con reglas fallidas.
+        </p>
+
         <dl>
             <dt>Identificador</dt>
             <dd th:text="${event.id}">
@@ -289,6 +303,15 @@
                 Modificar evento operativo
             </a>
         </p>
+
+        <form
+            th:if="${closeEditable}"
+            method="post"
+            th:action="@{/closes/{closeId}/events/{eventId}/validate(closeId=${closeId},eventId=${event.id})}">
+            <button type="submit">
+                Validar evento operativo
+            </button>
+        </form>
 
         <p>
             <a
