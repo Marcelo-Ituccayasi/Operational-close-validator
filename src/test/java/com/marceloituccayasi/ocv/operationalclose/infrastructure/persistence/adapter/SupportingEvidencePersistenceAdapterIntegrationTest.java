@@ -588,6 +588,8 @@ class SupportingEvidencePersistenceAdapterIntegrationTest {
         jdbcTemplate.execute(
                 """
                 TRUNCATE TABLE
+                    ocv.consolidation_event_snapshot,
+                    ocv.consolidation,
                     ocv.alert_transition,
                     ocv.alert,
                     ocv.validation_result,
