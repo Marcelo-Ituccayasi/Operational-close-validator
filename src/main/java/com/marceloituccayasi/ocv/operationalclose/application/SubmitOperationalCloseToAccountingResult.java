@@ -101,6 +101,13 @@ public record SubmitOperationalCloseToAccountingResult(
         }
     }
 
+    public List<String> issueTypeNames() {
+        return issueTypes.stream()
+                .map(
+                        Enum::name)
+                .toList();
+    }
+
     public static SubmitOperationalCloseToAccountingResult submitted(
             UUID submissionAttemptId,
             UUID validationResultId) {

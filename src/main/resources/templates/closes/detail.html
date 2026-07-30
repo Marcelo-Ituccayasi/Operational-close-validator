@@ -35,6 +35,39 @@
             </ul>
         </section>
 
+        <p
+            role="status"
+            th:if="${accountingSubmissionMessage}"
+            th:text="${accountingSubmissionMessage}">
+            Resultado del envío a contabilidad.
+        </p>
+
+        <p th:if="${accountingSubmissionAttemptId}">
+            Intento de envío:
+            <span th:text="${accountingSubmissionAttemptId}">
+                UUID
+            </span>
+        </p>
+
+        <p th:if="${accountingSubmissionValidationResultId}">
+            Resultado VR-008:
+            <span th:text="${accountingSubmissionValidationResultId}">
+                UUID
+            </span>
+        </p>
+
+        <section th:if="${accountingSubmissionIssueTypes}">
+            <h2>Causas registradas</h2>
+
+            <ul>
+                <li
+                    th:each="issueType : ${accountingSubmissionIssueTypes}"
+                    th:text="${issueType}">
+                    ISSUE_TYPE
+                </li>
+            </ul>
+        </section>
+
         <dl>
             <dt>Identificador</dt>
             <dd th:text="${close.id}">
@@ -97,6 +130,18 @@
                 Consolidar cierre operativo
             </a>
         </p>
+
+        <form
+            th:if="${close.state == 'VALIDATED'}"
+            th:action="@{/closes/{closeId}/submit-to-accounting(
+                closeId=${close.id}
+            )}"
+            method="post">
+
+            <button type="submit">
+                Enviar a contabilidad
+            </button>
+        </form>
 
         <p th:if="${close.state == 'PREPARATION' or close.state == 'BLOCKED'}">
             <a
