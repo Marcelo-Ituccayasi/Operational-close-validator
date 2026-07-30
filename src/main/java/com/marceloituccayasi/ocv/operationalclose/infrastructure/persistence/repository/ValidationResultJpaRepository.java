@@ -27,9 +27,25 @@ public interface ValidationResultJpaRepository
             @Param("validationResultId")
             UUID validationResultId);
 
+    @Query("""
+            select validationResult
+            from ValidationResultEntity validationResult
+            where validationResult.id = :validationResultId
+              and validationResult.eventId is null
+              and validationResult.closeId is not null
+            """)
+    Optional<ValidationResultEntity> findCloseResultById(
+            @Param("validationResultId")
+            UUID validationResultId);
+
     Optional<ValidationResultEntity>
             findByEventIdAndRuleCodeAndCurrentTrue(
                     UUID eventId,
+                    String ruleCode);
+
+    Optional<ValidationResultEntity>
+            findByCloseIdAndRuleCodeAndCurrentTrue(
+                    UUID closeId,
                     String ruleCode);
 
     List<ValidationResultEntity>
