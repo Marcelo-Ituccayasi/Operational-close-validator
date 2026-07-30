@@ -2,6 +2,7 @@ package com.marceloituccayasi.ocv.operationalclose.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -140,8 +141,13 @@ public record Consolidation(
         }
 
         eventSnapshots =
-                List.copyOf(
-                        eventSnapshots);
+                eventSnapshots.stream()
+                        .sorted(
+                                Comparator.comparing(
+                                        snapshot ->
+                                                snapshot.eventId()
+                                                        .value()))
+                        .toList();
 
         if (eventCount
                 != eventSnapshots.size()) {

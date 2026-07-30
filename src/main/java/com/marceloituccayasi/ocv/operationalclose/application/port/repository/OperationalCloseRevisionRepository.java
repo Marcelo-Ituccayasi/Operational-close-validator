@@ -1,6 +1,7 @@
 package com.marceloituccayasi.ocv.operationalclose.application.port.repository;
 
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
+import com.marceloituccayasi.ocv.operationalclose.domain.ConsolidationId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 
 /**
@@ -13,5 +14,9 @@ public interface OperationalCloseRevisionRepository {
 
     void appendStateTransition(
             CloseStateTransition stateTransition);
+
+    void appendConsolidationStateTransition(
+            CloseStateTransition stateTransition,
+            ConsolidationId consolidationId);
 
 }
