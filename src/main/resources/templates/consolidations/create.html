@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consolidar cierre | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <h1>Consolidar cierre operativo</h1>
+
+        <p
+            role="alert"
+            th:if="${errorMessage}"
+            th:text="${errorMessage}">
+            Los datos ingresados no son válidos.
+        </p>
+
+        <section>
+            <h2>Información del cierre</h2>
+
+            <dl>
+                <dt>Identificador</dt>
+                <dd th:text="${preview.close.id}">
+                    UUID
+                </dd>
+
+                <dt>Estado actual</dt>
+                <dd th:text="${preview.close.state}">
+                    PREPARATION
+                </dd>
+
+                <dt>Moneda</dt>
+                <dd th:text="${preview.close.currencyCode}">
+                    PEN
+                </dd>
+
+                <dt>Saldo inicial</dt>
+                <dd th:text="${preview.close.initialBalance}">
+                    0.0000
+                </dd>
+
+                <dt>Cantidad de eventos</dt>
+                <dd th:text="${preview.eventCount}">
+                    0
+                </dd>
+            </dl>
+        </section>
+
+        <section>
+            <h2>Totales preliminares</h2>
+
+            <dl>
+                <dt>Total de ingresos</dt>
+                <dd th:text="${preview.totalIncome}">
+                    0.0000
+                </dd>
+
+                <dt>Total de gastos</dt>
+                <dd th:text="${preview.totalExpense}">
+                    0.0000
+                </dd>
+
+                <dt>Total de descuentos</dt>
+                <dd th:text="${preview.totalDiscount}">
+                    0.0000
+                </dd>
+
+                <dt>Total de anulaciones</dt>
+                <dd th:text="${preview.totalCancellation}">
+                    0.0000
+                </dd>
+
+                <dt>Saldo esperado preliminar</dt>
+                <dd th:text="${preview.expectedBalance}">
+                    0.0000
+                </dd>
+            </dl>
+
+            <p th:if="${preview.ready}">
+                El cierre cumple actualmente las precondiciones
+                para consolidarse.
+            </p>
+
+            <p
+                role="alert"
+                th:unless="${preview.ready}">
+                El cierre todavía contiene condiciones que pueden
+                impedir la consolidación.
+            </p>
+        </section>
+
+        <section>
+            <h2>Eventos incluidos</h2>
+
+            <p th:unless="${preview.eventsPresent}">
+                El cierre todavía no contiene eventos operativos.
+            </p>
+
+            <table th:if="${preview.eventsPresent}">
+                <thead>
+                    <tr>
+                        <th>Identificador</th>
+                        <th>Tipo</th>
+                        <th>Importe</th>
+                        <th>Efecto en saldo</th>
+                        <th>Estado</th>
+                        <th>Revisión</th>
+                        <th>Condición</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="event : ${preview.events}">
+                        <td th:text="${event.id}">
+                            UUID
+                        </td>
+
+                        <td th:text="${event.eventType}">
+                            INCOME
+                        </td>
+
+                        <td th:text="${event.amount}">
+                            0.0000
+                        </td>
+
+                        <td th:text="${event.balanceEffect}">
+                            0.0000
+                        </td>
+
+                        <td th:text="${event.state}">
+                            VALIDATED
+                        </td>
+
+                        <td th:text="${event.dataRevision}">
+                            1
+                        </td>
+
+                        <td
+                            th:text="${#lists.contains(
+                                preview.affectedEventIds,
+                                event.id
+                            )} ? 'Requiere corrección' : 'Sin observaciones'">
+                            Sin observaciones
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <form
+            method="post"
+            th:action="@{/closes/{closeId}/consolidate(
+                closeId=${preview.close.id}
+            )}"
+            th:object="${consolidationForm}">
+
+            <div>
+                <label for="actualBalance">
+                    Saldo real
+                </label>
+
+                <input
+                    id="actualBalance"
+                    type="number"
+                    th:field="*{actualBalance}"
+                    min="0"
+                    step="0.0001"
+                    required>
+
+                <small>
+                    Ingresa un importe no negativo con un máximo
+                    de cuatro decimales.
+                </small>
+            </div>
+
+            <button type="submit">
+                Ejecutar consolidación
+            </button>
+        </form>
+
+        <p>
+            <a
+                th:href="@{/closes/{closeId}(
+                    closeId=${preview.close.id}
+                )}">
+                Volver al detalle del cierre
+            </a>
+        </p>
+    </main>
+</body>
+</html>

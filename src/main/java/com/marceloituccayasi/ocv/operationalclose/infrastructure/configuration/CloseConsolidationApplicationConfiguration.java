@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.marceloituccayasi.ocv.operationalclose.application.CloseConsolidationReadinessEvaluator;
 import com.marceloituccayasi.ocv.operationalclose.application.CompleteOperationalCloseConsolidation;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalCloseConsolidation;
 import com.marceloituccayasi.ocv.operationalclose.application.EventValidationContextLoader;
 import com.marceloituccayasi.ocv.operationalclose.application.port.ApplicationClock;
 import com.marceloituccayasi.ocv.operationalclose.application.port.CurrentActorProvider;
@@ -14,6 +15,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.port.repository.Co
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.EventValidationAlertRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.EventValidationResultRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseLockRepository;
+import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRevisionRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalEventRepository;
 import com.marceloituccayasi.ocv.operationalclose.domain.EventValidationEngine;
@@ -40,6 +42,21 @@ public class CloseConsolidationApplicationConfiguration {
                 alertRepository);
     }
 
+    @Bean
+    GetOperationalCloseConsolidation
+            getOperationalCloseConsolidation(
+                    OperationalCloseRepository closeRepository,
+                    OperationalEventRepository eventRepository,
+                    CloseConsolidationReadinessEvaluator
+                            readinessEvaluator,
+                    TransactionRunner transactionRunner) {
+
+        return new GetOperationalCloseConsolidation(
+                closeRepository,
+                eventRepository,
+                readinessEvaluator,
+                transactionRunner);
+    }
     @Bean
     CompleteOperationalCloseConsolidation
             completeOperationalCloseConsolidation(
