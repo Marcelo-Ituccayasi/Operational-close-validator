@@ -13,7 +13,11 @@ class AuthenticationConfigurationFailFastTest {
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
                     .withUserConfiguration(
-                            IdentityAccessPropertiesConfiguration.class);
+                            IdentityAccessPropertiesConfiguration.class)
+                    .withPropertyValues(
+                            "ocv.login.max-failures=10",
+                            "ocv.login.window-seconds=300",
+                            "ocv.login.block-seconds=300");
 
     @Test
     void startsWithValidExternalAuthenticationConfiguration() {

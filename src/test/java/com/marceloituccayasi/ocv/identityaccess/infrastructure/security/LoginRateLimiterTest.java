@@ -131,6 +131,40 @@ class LoginRateLimiterTest {
                 .isFalse();
     }
 
+    @Test
+    void appliesConfiguredThresholdWindowAndBlockDuration() {
+        MutableClock clock = new MutableClock();
+        LoginRateLimiter limiter =
+                new LoginRateLimiter(
+                        clock,
+                        2,
+                        Duration.ofSeconds(10),
+                        Duration.ofSeconds(20));
+
+        assertThat(limiter.recordFailure(KEY))
+                .isFalse();
+
+        clock.advance(
+                Duration.ofSeconds(11));
+
+        assertThat(limiter.recordFailure(KEY))
+                .isFalse();
+        assertThat(limiter.recordFailure(KEY))
+                .isTrue();
+
+        clock.advance(
+                Duration.ofSeconds(19));
+
+        assertThat(limiter.isBlocked(KEY))
+                .isTrue();
+
+        clock.advance(
+                Duration.ofSeconds(1));
+
+        assertThat(limiter.isBlocked(KEY))
+                .isFalse();
+    }
+
     private static void block(
             LoginRateLimiter limiter,
             LoginRateLimitKey key) {

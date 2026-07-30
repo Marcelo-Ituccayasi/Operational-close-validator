@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties({
         AuthenticationProperties.class,
+        LoginRateLimitProperties.class,
         TrustedProxyProperties.class
 })
 public class IdentityAccessPropertiesConfiguration {
