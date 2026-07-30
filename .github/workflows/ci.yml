@@ -37,4 +37,22 @@ jobs:
           cache-dependency-path: pom.xml
 
       - name: Verify project
-        run: bash mvnw -B verify
+        shell: bash
+        run: |
+          set -o pipefail
+          for attempt in 1 2 3; do
+            log_file="$(mktemp)"
+            if bash mvnw -B verify 2>&1 | tee "$log_file"; then
+              rm -f "$log_file"
+              exit 0
+            fi
+            if ! grep -q "status code: 429" "$log_file"; then
+              rm -f "$log_file"
+              exit 1
+            fi
+            rm -f "$log_file"
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 30))
+          done
