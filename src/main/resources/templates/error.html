@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Error | Operational Close Validator</title>
+</head>
+<body>
+    <main>
+        <p th:text="${status}">500</p>
+        <h1>No fue posible completar la solicitud</h1>
+        <p>
+            Intenta nuevamente más tarde.
+        </p>
+
+        <p>
+            <a th:href="@{/closes}">
+                Volver a cierres operativos
+            </a>
+        </p>
+    </main>
+</body>
+</html>
