@@ -104,7 +104,7 @@ public class WebSecurityConfiguration {
                         .referrerPolicy(referrer -> referrer
                                 .policy(
                                         ReferrerPolicy.NO_REFERRER))
-                        .permissionsPolicy(permissions -> permissions
+                        .permissionsPolicyHeader(permissions -> permissions
                                 .policy(
                                         PERMISSIONS_POLICY)))
                 .httpBasic(AbstractHttpConfigurer::disable)

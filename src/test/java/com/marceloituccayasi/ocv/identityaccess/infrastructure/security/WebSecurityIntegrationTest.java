@@ -2,6 +2,7 @@ package com.marceloituccayasi.ocv.identityaccess.infrastructure.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -149,6 +150,24 @@ class WebSecurityIntegrationTest {
                 .andExpect(
                         header().doesNotExist(
                                 "Strict-Transport-Security"));
+    }
+
+    @Test
+    void addsServerOwnedCorrelationIdToResponses()
+            throws Exception {
+
+        mockMvc.perform(get("/login")
+                        .header(
+                                CorrelationIdFilter.HEADER_NAME,
+                                "client-controlled"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        CorrelationIdFilter.HEADER_NAME,
+                        matchesPattern(
+                                "[0-9a-f]{8}-[0-9a-f]{4}-"
+                                        + "4[0-9a-f]{3}-"
+                                        + "[89ab][0-9a-f]{3}-"
+                                        + "[0-9a-f]{12}")));
     }
 
     @Test
