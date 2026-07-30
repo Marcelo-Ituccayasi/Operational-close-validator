@@ -562,6 +562,8 @@ class OperationalEventRevisionPersistenceIntegrationTest {
     jdbcTemplate.execute(
             """
             TRUNCATE TABLE
+                ocv.submission_attempt_issue,
+                ocv.accounting_submission_attempt,
                 ocv.consolidation_event_snapshot,
                 ocv.consolidation,
                 ocv.alert_transition,
