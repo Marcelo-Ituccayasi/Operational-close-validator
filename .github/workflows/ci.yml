@@ -56,3 +56,15 @@ jobs:
             fi
             sleep $((attempt * 30))
           done
+
+      - name: Build OCI image
+        run: docker build --pull --build-arg APP_VERSION=0.0.1-SNAPSHOT --build-arg VCS_REF=${{ github.sha }} --tag ocv:ci-${{ github.sha }} .
+
+      - name: Validate OCI image
+        shell: bash
+        run: |
+          image="ocv:ci-${{ github.sha }}"
+          test "$(docker image inspect "$image" --format '{{.Config.User}}')" = "10001:10001"
+          test "$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.version"}}')" = "0.0.1-SNAPSHOT"
+          test "$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" = "${{ github.sha }}"
+          docker run --rm --entrypoint sh "$image" -c 'id -u | grep -qx 10001 && test -r /opt/ocv/app.jar && test ! -e /workspace && test ! -e /opt/ocv/.git'
