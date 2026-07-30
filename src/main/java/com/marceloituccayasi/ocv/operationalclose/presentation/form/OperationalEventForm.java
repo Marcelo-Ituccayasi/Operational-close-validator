@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.marceloituccayasi.ocv.operationalclose.application.CreateOperationalEventCommand;
 import com.marceloituccayasi.ocv.operationalclose.application.OperationalEventView;
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEventCommand;
+import com.marceloituccayasi.ocv.presentation.BusinessDateTimeFormatter;
 
 /**
  * Mutable web form used to bind Operational Event creation and revision fields.
@@ -89,10 +90,12 @@ public final class OperationalEventForm {
     }
 
     public CreateOperationalEventCommand toCreateCommand(
-            UUID closeId) {
+            UUID closeId,
+            BusinessDateTimeFormatter businessDateTimeFormatter) {
 
         ParsedFields fields =
-                parseFields();
+                parseFields(
+                        businessDateTimeFormatter);
 
         return new CreateOperationalEventCommand(
                 requireIdentifier(
@@ -108,10 +111,12 @@ public final class OperationalEventForm {
 
     public UpdateOperationalEventCommand toUpdateCommand(
             UUID closeId,
-            UUID eventId) {
+            UUID eventId,
+            BusinessDateTimeFormatter businessDateTimeFormatter) {
 
         ParsedFields fields =
-                parseFields();
+                parseFields(
+                        businessDateTimeFormatter);
 
         return new UpdateOperationalEventCommand(
                 requireIdentifier(
@@ -129,11 +134,16 @@ public final class OperationalEventForm {
     }
 
     public static OperationalEventForm fromView(
-            OperationalEventView operationalEvent) {
+            OperationalEventView operationalEvent,
+            BusinessDateTimeFormatter businessDateTimeFormatter) {
 
         Objects.requireNonNull(
                 operationalEvent,
                 "operationalEvent must not be null");
+
+        Objects.requireNonNull(
+                businessDateTimeFormatter,
+                "businessDateTimeFormatter must not be null");
 
         OperationalEventForm form =
                 new OperationalEventForm();
@@ -153,8 +163,8 @@ public final class OperationalEventForm {
                                 .toString());
 
         form.setOccurredAt(
-                operationalEvent.occurredAt()
-                        .toString());
+                businessDateTimeFormatter.formatForInput(
+                        operationalEvent.occurredAt()));
 
         form.setResponsibleName(
                 operationalEvent.responsibleName());
@@ -165,7 +175,13 @@ public final class OperationalEventForm {
         return form;
     }
 
-    private ParsedFields parseFields() {
+    private ParsedFields parseFields(
+            BusinessDateTimeFormatter businessDateTimeFormatter) {
+
+        Objects.requireNonNull(
+                businessDateTimeFormatter,
+                "businessDateTimeFormatter must not be null");
+
         try {
             return new ParsedFields(
                     requiredValue(
@@ -175,7 +191,7 @@ public final class OperationalEventForm {
                                     amount)),
                     optionalUuid(
                             reversedEventId),
-                    Instant.parse(
+                    businessDateTimeFormatter.parse(
                             requiredValue(
                                     occurredAt)),
                     requiredValue(

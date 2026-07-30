@@ -66,12 +66,12 @@
             </dd>
 
             <dt>Fecha de ocurrencia</dt>
-            <dd th:text="${event.occurredAt}">
+            <dd th:text="${businessTime.format(event.occurredAt)}">
                 2026-07-22T15:30:00Z
             </dd>
 
             <dt>Fecha de registro</dt>
-            <dd th:text="${event.registeredAt}">
+            <dd th:text="${businessTime.format(event.registeredAt)}">
                 2026-07-22T15:35:00Z
             </dd>
 
@@ -106,7 +106,7 @@
             </dd>
 
             <dt>Último cambio de estado</dt>
-            <dd th:text="${event.stateChangedAt}">
+            <dd th:text="${businessTime.format(event.stateChangedAt)}">
                 2026-07-22T15:35:00Z
             </dd>
 
@@ -116,12 +116,12 @@
             </dd>
 
             <dt>Fecha de creación</dt>
-            <dd th:text="${event.createdAt}">
+            <dd th:text="${businessTime.format(event.createdAt)}">
                 2026-07-22T15:35:00Z
             </dd>
 
             <dt>Última actualización</dt>
-            <dd th:text="${event.updatedAt}">
+            <dd th:text="${businessTime.format(event.updatedAt)}">
                 2026-07-22T15:35:00Z
             </dd>
 
@@ -245,7 +245,7 @@
                             Supervisor
                         </td>
 
-                        <td th:text="${authorization.authorizedAt}">
+                        <td th:text="${businessTime.format(authorization.authorizedAt)}">
                             2026-07-24T08:00:00Z
                         </td>
 

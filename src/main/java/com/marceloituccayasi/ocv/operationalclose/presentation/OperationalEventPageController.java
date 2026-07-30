@@ -24,6 +24,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalE
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEventCommand;
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEventResult;
 import com.marceloituccayasi.ocv.operationalclose.presentation.form.OperationalEventForm;
+import com.marceloituccayasi.ocv.presentation.BusinessDateTimeFormatter;
 
 /**
  * MVC entry point for Operational Event creation, revision and queries.
@@ -43,6 +44,9 @@ public class OperationalEventPageController {
     private final GetOperationalEventDetail
             getOperationalEventDetail;
 
+    private final BusinessDateTimeFormatter
+            businessDateTimeFormatter;
+
     public OperationalEventPageController(
             CreateOperationalEvent createOperationalEvent,
             UpdateOperationalEvent updateOperationalEvent,
@@ -50,7 +54,8 @@ public class OperationalEventPageController {
             ListOperationalEvents listOperationalEvents,
             GetOperationalEventDetail getOperationalEventDetail,
             GetOperationalEventSupportingInformation
-                    getOperationalEventSupportingInformation) {
+                    getOperationalEventSupportingInformation,
+            BusinessDateTimeFormatter businessDateTimeFormatter) {
 
         this.createOperationalEvent =
                 Objects.requireNonNull(
@@ -71,6 +76,10 @@ public class OperationalEventPageController {
         this.getOperationalEventDetail =
                 Objects.requireNonNull(
                         getOperationalEventDetail);
+
+        this.businessDateTimeFormatter =
+                Objects.requireNonNull(
+                        businessDateTimeFormatter);
     }
 
     @GetMapping("/closes/{closeId}/events")
@@ -186,7 +195,8 @@ public class OperationalEventPageController {
         try {
             command =
                     eventForm.toCreateCommand(
-                            parsedCloseId);
+                            parsedCloseId,
+                            businessDateTimeFormatter);
         }
         catch (IllegalArgumentException exception) {
             return createFormError(
@@ -355,7 +365,8 @@ public class OperationalEventPageController {
                 identifiers.closeId(),
                 identifiers.eventId(),
                 OperationalEventForm.fromView(
-                        eventResult.operationalEvent()));
+                        eventResult.operationalEvent(),
+                        businessDateTimeFormatter));
     }
 
     @PostMapping(
@@ -381,7 +392,8 @@ public class OperationalEventPageController {
             command =
                     eventForm.toUpdateCommand(
                             identifiers.closeId(),
-                            identifiers.eventId());
+                            identifiers.eventId(),
+                            businessDateTimeFormatter);
         }
         catch (IllegalArgumentException exception) {
             return updateFormError(

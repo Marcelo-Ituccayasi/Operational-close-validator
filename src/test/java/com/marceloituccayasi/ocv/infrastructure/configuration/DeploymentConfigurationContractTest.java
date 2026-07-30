@@ -11,10 +11,15 @@ import org.junit.jupiter.api.Test;
 class DeploymentConfigurationContractTest {
 
     @Test
-    void exposesApprovedSessionAndEvidenceEnvironmentVariables()
+    void exposesApprovedDeploymentEnvironmentVariables()
             throws IOException {
 
         Properties properties = loadApplicationProperties();
+
+        assertThat(properties.getProperty(
+                "ocv.business.time-zone"))
+                .isEqualTo(
+                        "${OCV_BUSINESS_TIME_ZONE:UTC}");
 
         assertThat(properties.getProperty(
                 "server.servlet.session.timeout"))

@@ -97,13 +97,16 @@
 
                 <input
                     id="occurredAt"
-                    type="text"
+                    type="datetime-local"
                     th:field="*{occurredAt}"
-                    placeholder="2026-07-22T15:30:00Z"
+                    step="1"
                     required>
 
                 <small>
-                    Utiliza formato ISO-8601 con zona u offset.
+                    La fecha y hora se interpreta en la zona de negocio:
+                    <span th:text="${businessTime.zoneId()}">
+                        UTC
+                    </span>.
                 </small>
             </div>
 

@@ -37,7 +37,7 @@ import com.marceloituccayasi.ocv.identityaccess.infrastructure.provisioning.Resp
 
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest
+@SpringBootTest(properties = "ocv.business.time-zone=America/Lima")
 @AutoConfigureMockMvc
 class OperationalEventWebIntegrationTest {
 
@@ -254,6 +254,58 @@ class OperationalEventWebIntegrationTest {
                 .isEqualTo(1L);
     }
 
+    @Test
+    void interpretsLocalOccurredAtInConfiguredBusinessTimeZone()
+            throws Exception {
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session,
+                        "2026-07-01",
+                        "2026-07-31");
+
+        UUID eventId =
+                createEventAndGetId(
+                        session,
+                        closeId,
+                        "INCOME",
+                        "25.0000",
+                        null,
+                        "2026-07-22T10:30:00",
+                        "Ingreso en hora local");
+
+        Long matchingOccurredAtRows =
+                jdbcTemplate.queryForObject(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.operational_event
+                        WHERE id = ?
+                          AND occurred_at =
+                              TIMESTAMPTZ '2026-07-22 15:30:00+00'
+                        """,
+                        Long.class,
+                        eventId);
+
+        assertThat(matchingOccurredAtRows)
+                .isEqualTo(1L);
+
+        mockMvc.perform(
+                        get(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId)
+                                .session(session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "2026-07-22 10:30:00 -05:00 [America/Lima]")));
+    }
     @Test
     void createsCancellationAndRejectsDuplicateCancellation()
             throws Exception {
