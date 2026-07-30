@@ -51,6 +51,10 @@ public record Consolidation(
     private static final int MAXIMUM_SCALE = 4;
     private static final int MAXIMUM_INTEGER_DIGITS = 15;
 
+    private static final BigDecimal ZERO_MONEY =
+            new BigDecimal(
+                    "0.0000");
+
     public Consolidation {
         requireNonNull(
                 id,
@@ -406,19 +410,19 @@ public record Consolidation(
             List<ConsolidationEventSnapshot> snapshots) {
 
         BigDecimal totalIncome =
-                BigDecimal.ZERO;
+                ZERO_MONEY;
 
         BigDecimal totalExpense =
-                BigDecimal.ZERO;
+                ZERO_MONEY;
 
         BigDecimal totalDiscount =
-                BigDecimal.ZERO;
+                ZERO_MONEY;
 
         BigDecimal totalCancellation =
-                BigDecimal.ZERO;
+                ZERO_MONEY;
 
         BigDecimal balanceEffect =
-                BigDecimal.ZERO;
+                ZERO_MONEY;
 
         for (ConsolidationEventSnapshot snapshot
                 : snapshots) {
