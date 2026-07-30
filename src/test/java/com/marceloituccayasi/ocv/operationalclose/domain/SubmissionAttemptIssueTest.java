@@ -78,6 +78,59 @@ class SubmissionAttemptIssueTest {
     }
 
     @Test
+    void createsBlockingAlertIssueWithAlertReference() {
+        SubmissionAttemptIssue issue =
+                issue(
+                        SubmissionAttemptIssueType.BLOCKING_ALERT,
+                        EVENT_ID,
+                        ALERT_ID,
+                        null,
+                        null,
+                        "A blocking Alert remains open.");
+
+        assertThat(
+                issue.alertId())
+                .isEqualTo(
+                        ALERT_ID);
+    }
+
+    @Test
+    void createsFailedValidationIssueWithResultReference() {
+        SubmissionAttemptIssue issue =
+                issue(
+                        SubmissionAttemptIssueType
+                                .VALIDATION_RESULT_FAILED,
+                        EVENT_ID,
+                        null,
+                        RESULT_ID,
+                        null,
+                        "A Validation Result failed.");
+
+        assertThat(
+                issue.validationResultId())
+                .isEqualTo(
+                        RESULT_ID);
+    }
+
+    @Test
+    void createsStaleValidationIssueWithResultReference() {
+        SubmissionAttemptIssue issue =
+                issue(
+                        SubmissionAttemptIssueType
+                                .VALIDATION_RESULT_STALE,
+                        EVENT_ID,
+                        null,
+                        RESULT_ID,
+                        null,
+                        "A Validation Result is stale.");
+
+        assertThat(
+                issue.validationResultId())
+                .isEqualTo(
+                        RESULT_ID);
+    }
+
+    @Test
     void requiresAlertForBlockingAlertIssue() {
         assertThatThrownBy(
                 () -> issue(
