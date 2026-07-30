@@ -25,7 +25,7 @@ public class OperationalCloseAccountingSubmissionPageController {
             "Cierre enviado a contabilidad.";
 
     private static final String REJECTED_MESSAGE =
-            "El envÃ­o fue rechazado. Revisa las causas registradas.";
+            "El envío fue rechazado. Revisa las causas registradas.";
 
     private final SubmitOperationalCloseToAccounting
             submitOperationalCloseToAccounting;
@@ -82,14 +82,14 @@ public class OperationalCloseAccountingSubmissionPageController {
             case INVALID_INPUT ->
                     statusError(
                             HttpStatus.BAD_REQUEST,
-                            "Solicitud invÃ¡lida",
-                            "La solicitud de envÃ­o no es vÃ¡lida.");
+                            "Solicitud inválida",
+                            "La solicitud de envío no es válida.");
 
             case ACTOR_REJECTED ->
                     statusError(
                             HttpStatus.FORBIDDEN,
-                            "OperaciÃ³n no autorizada",
-                            "No tienes autorizaciÃ³n para enviar "
+                            "Operación no autorizada",
+                            "No tienes autorización para enviar "
                                     + "este cierre a contabilidad.");
 
             case CLOSE_NOT_FOUND ->
@@ -167,8 +167,8 @@ public class OperationalCloseAccountingSubmissionPageController {
     private static ModelAndView invalidCloseIdentifier() {
         return statusError(
                 HttpStatus.BAD_REQUEST,
-                "Solicitud invÃ¡lida",
-                "El identificador del cierre no es vÃ¡lido.");
+                "Solicitud inválida",
+                "El identificador del cierre no es válido.");
     }
 
     private static ModelAndView closeNotFound() {

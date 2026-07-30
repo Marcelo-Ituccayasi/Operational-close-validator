@@ -49,7 +49,7 @@ class OperationalCloseAccountingSubmissionWebIntegrationTest {
             "Cierre enviado a contabilidad.";
 
     private static final String REJECTED_MESSAGE =
-            "El envÃ­o fue rechazado. Revisa las causas registradas.";
+            "El envío fue rechazado. Revisa las causas registradas.";
 
     private static final UUID CLOSE_ID =
             uuid(
@@ -569,7 +569,7 @@ class OperationalCloseAccountingSubmissionWebIntegrationTest {
                         content().string(
                                 containsString(
                                         "El identificador del cierre "
-                                                + "no es vÃ¡lido.")));
+                                                + "no es válido.")));
 
         mockMvc.perform(
                         post(
@@ -709,7 +709,7 @@ class OperationalCloseAccountingSubmissionWebIntegrationTest {
                     ?,
                     ?,
                     'Caja principal',
-                    'Egreso para envÃ­o interno a contabilidad',
+                    'Egreso para envío interno a contabilidad',
                     'VALIDATED',
                     FALSE,
                     FALSE,
