@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
+import com.marceloituccayasi.ocv.operationalclose.domain.AccountingSubmissionAttemptId;
 import com.marceloituccayasi.ocv.operationalclose.domain.AuditActor;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
 import com.marceloituccayasi.ocv.operationalclose.domain.ConsolidationId;
@@ -13,6 +14,7 @@ import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseState;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalPeriod;
+import com.marceloituccayasi.ocv.operationalclose.domain.ValidationResultId;
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.entity.CloseStateTransitionEntity;
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.entity.OperationalCloseEntity;
 
@@ -82,14 +84,10 @@ public final class OperationalClosePersistenceMapper {
                 transition,
                 "transition must not be null");
 
-        String fromState =
-                transition.fromState() == null
-                        ? null
-                        : transition.fromState().name();
-
         return transitionEntity(
                 transition,
-                fromState,
+                null,
+                null,
                 null);
     }
 
@@ -105,21 +103,76 @@ public final class OperationalClosePersistenceMapper {
                 consolidationId,
                 "consolidationId must not be null");
 
-        String fromState =
-                transition.fromState() == null
-                        ? null
-                        : transition.fromState().name();
+        return transitionEntity(
+                transition,
+                null,
+                consolidationId,
+                null);
+    }
+
+    public CloseStateTransitionEntity toEntity(
+            CloseStateTransition transition,
+            ValidationResultId validationResultId,
+            AccountingSubmissionAttemptId submissionAttemptId) {
+
+        Objects.requireNonNull(
+                transition,
+                "transition must not be null");
+
+        Objects.requireNonNull(
+                validationResultId,
+                "validationResultId must not be null");
+
+        Objects.requireNonNull(
+                submissionAttemptId,
+                "submissionAttemptId must not be null");
 
         return transitionEntity(
                 transition,
-                fromState,
-                consolidationId);
+                validationResultId,
+                null,
+                submissionAttemptId);
+    }
+
+    public CloseStateTransitionEntity toEntity(
+            CloseStateTransition transition,
+            ValidationResultId validationResultId,
+            ConsolidationId consolidationId,
+            AccountingSubmissionAttemptId submissionAttemptId) {
+
+        Objects.requireNonNull(
+                transition,
+                "transition must not be null");
+
+        Objects.requireNonNull(
+                validationResultId,
+                "validationResultId must not be null");
+
+        Objects.requireNonNull(
+                consolidationId,
+                "consolidationId must not be null");
+
+        Objects.requireNonNull(
+                submissionAttemptId,
+                "submissionAttemptId must not be null");
+
+        return transitionEntity(
+                transition,
+                validationResultId,
+                consolidationId,
+                submissionAttemptId);
     }
 
     private static CloseStateTransitionEntity transitionEntity(
             CloseStateTransition transition,
-            String fromState,
-            ConsolidationId consolidationId) {
+            ValidationResultId validationResultId,
+            ConsolidationId consolidationId,
+            AccountingSubmissionAttemptId submissionAttemptId) {
+
+        String fromState =
+                transition.fromState() == null
+                        ? null
+                        : transition.fromState().name();
 
         return CloseStateTransitionEntity.create(
                 transition.id().value(),
@@ -128,11 +181,15 @@ public final class OperationalClosePersistenceMapper {
                 transition.toState().name(),
                 transition.causeCode(),
                 transition.detail(),
-                null,
+                validationResultId == null
+                        ? null
+                        : validationResultId.value(),
                 consolidationId == null
                         ? null
                         : consolidationId.value(),
-                null,
+                submissionAttemptId == null
+                        ? null
+                        : submissionAttemptId.value(),
                 transition.occurredAt(),
                 transition.actor().userId(),
                 transition.actor().username());

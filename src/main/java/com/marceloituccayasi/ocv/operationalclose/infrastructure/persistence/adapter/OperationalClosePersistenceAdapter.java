@@ -11,11 +11,13 @@ import com.marceloituccayasi.ocv.operationalclose.application.DuplicateOperation
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseLockRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRevisionRepository;
+import com.marceloituccayasi.ocv.operationalclose.domain.AccountingSubmissionAttemptId;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
 import com.marceloituccayasi.ocv.operationalclose.domain.ConsolidationId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalPeriod;
+import com.marceloituccayasi.ocv.operationalclose.domain.ValidationResultId;
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.entity.CloseStateTransitionEntity;
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.entity.OperationalCloseEntity;
 import com.marceloituccayasi.ocv.operationalclose.infrastructure.persistence.mapper.OperationalClosePersistenceMapper;
@@ -190,6 +192,62 @@ public class OperationalClosePersistenceAdapter
                 mapper.toEntity(
                         stateTransition,
                         consolidationId));
+    }
+
+    @Override
+    public void appendSubmissionStateTransition(
+            CloseStateTransition stateTransition,
+            ValidationResultId validationResultId,
+            AccountingSubmissionAttemptId submissionAttemptId) {
+
+        Objects.requireNonNull(
+                stateTransition,
+                "stateTransition must not be null");
+
+        Objects.requireNonNull(
+                validationResultId,
+                "validationResultId must not be null");
+
+        Objects.requireNonNull(
+                submissionAttemptId,
+                "submissionAttemptId must not be null");
+
+        transitionJpaRepository.saveAndFlush(
+                mapper.toEntity(
+                        stateTransition,
+                        validationResultId,
+                        submissionAttemptId));
+    }
+
+    @Override
+    public void appendSubmissionStateTransition(
+            CloseStateTransition stateTransition,
+            ValidationResultId validationResultId,
+            ConsolidationId consolidationId,
+            AccountingSubmissionAttemptId submissionAttemptId) {
+
+        Objects.requireNonNull(
+                stateTransition,
+                "stateTransition must not be null");
+
+        Objects.requireNonNull(
+                validationResultId,
+                "validationResultId must not be null");
+
+        Objects.requireNonNull(
+                consolidationId,
+                "consolidationId must not be null");
+
+        Objects.requireNonNull(
+                submissionAttemptId,
+                "submissionAttemptId must not be null");
+
+        transitionJpaRepository.saveAndFlush(
+                mapper.toEntity(
+                        stateTransition,
+                        validationResultId,
+                        consolidationId,
+                        submissionAttemptId));
     }
 
     @Override
