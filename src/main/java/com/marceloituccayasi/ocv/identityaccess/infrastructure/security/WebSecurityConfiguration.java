@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 /**
@@ -19,6 +20,22 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
  */
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityConfiguration {
+
+    private static final long HSTS_MAX_AGE_SECONDS =
+            31_536_000L;
+
+    private static final String CONTENT_SECURITY_POLICY =
+            "default-src 'self'; "
+                    + "object-src 'none'; "
+                    + "base-uri 'self'; "
+                    + "frame-ancestors 'none'; "
+                    + "form-action 'self'; "
+                    + "script-src 'self'; "
+                    + "style-src 'self'; "
+                    + "img-src 'self';";
+
+    private static final String PERMISSIONS_POLICY =
+            "geolocation=(), microphone=(), camera=()";
 
     @Bean
     SecurityFilterChain applicationSecurityFilterChain(
@@ -70,9 +87,28 @@ public class WebSecurityConfiguration {
                         .deleteCookies("JSESSIONID")
                         .permitAll())
                 .csrf(Customizer.withDefaults())
+                .headers(headers -> headers
+                        .cacheControl(
+                                Customizer.withDefaults())
+                        .contentTypeOptions(
+                                Customizer.withDefaults())
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(false)
+                                .maxAgeInSeconds(
+                                        HSTS_MAX_AGE_SECONDS))
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives(
+                                        CONTENT_SECURITY_POLICY))
+                        .frameOptions(frameOptions ->
+                                frameOptions.deny())
+                        .referrerPolicy(referrer -> referrer
+                                .policy(
+                                        ReferrerPolicy.NO_REFERRER))
+                        .permissionsPolicy(permissions -> permissions
+                                .policy(
+                                        PERMISSIONS_POLICY)))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .rememberMe(AbstractHttpConfigurer::disable)
-
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
                                 SessionCreationPolicy.IF_REQUIRED)

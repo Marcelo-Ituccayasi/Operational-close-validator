@@ -8,6 +8,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
@@ -56,6 +58,9 @@ class WebSecurityIntegrationTest {
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    @Value("${server.servlet.session.cookie.path}")
+    private String sessionCookiePath;
+
     @BeforeEach
     void prepareKnownTestCredential() {
         clearRegisteredSessions();
@@ -78,6 +83,72 @@ class WebSecurityIntegrationTest {
     @AfterEach
     void clearSessionsAfterTest() {
         clearRegisteredSessions();
+    }
+
+    @Test
+    void configuresApprovedSessionCookiePath() {
+        assertThat(
+                sessionCookiePath)
+                .isEqualTo(
+                        "/");
+    }
+
+    @Test
+    void sendsApprovedSecurityHeadersOnHttps() throws Exception {
+        mockMvc.perform(
+                        get("/login")
+                                .secure(true))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        header().string(
+                                "Strict-Transport-Security",
+                                "max-age=31536000"))
+                .andExpect(
+                        header().string(
+                                "Content-Security-Policy",
+                                "default-src 'self'; "
+                                        + "object-src 'none'; "
+                                        + "base-uri 'self'; "
+                                        + "frame-ancestors 'none'; "
+                                        + "form-action 'self'; "
+                                        + "script-src 'self'; "
+                                        + "style-src 'self'; "
+                                        + "img-src 'self';"))
+                .andExpect(
+                        header().string(
+                                "X-Content-Type-Options",
+                                "nosniff"))
+                .andExpect(
+                        header().string(
+                                "X-Frame-Options",
+                                "DENY"))
+                .andExpect(
+                        header().string(
+                                "Referrer-Policy",
+                                "no-referrer"))
+                .andExpect(
+                        header().string(
+                                "Permissions-Policy",
+                                "geolocation=(), "
+                                        + "microphone=(), "
+                                        + "camera=()"))
+                .andExpect(
+                        header().string(
+                                "Cache-Control",
+                                containsString(
+                                        "no-store")));
+    }
+
+    @Test
+    void omitsHstsOnPlainHttp() throws Exception {
+        mockMvc.perform(
+                        get("/login"))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        header().doesNotExist(
+                                "Strict-Transport-Security"));
     }
 
     @Test
