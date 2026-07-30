@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -38,17 +39,21 @@ import com.marceloituccayasi.ocv.identityaccess.infrastructure.provisioning.Resp
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-class OperationalEventValidationWebIntegrationTest {
+class OperationalCloseConsolidationWebIntegrationTest {
 
     private static final String TEST_PASSWORD =
             "test-password";
 
-    private static final String FAILED_MESSAGE =
-            "La validación finalizó con reglas fallidas. "
-                    + "Revisa el estado del evento y sus alertas.";
+    private static final String CONSOLIDATED_MESSAGE =
+            "El cierre fue consolidado correctamente.";
 
-    private static final String VALIDATED_MESSAGE =
-            "El evento fue validado correctamente.";
+    private static final String REJECTED_MESSAGE =
+            "La consolidación fue rechazada. Revisa los eventos, "
+                    + "resultados de validación y alertas bloqueantes.";
+
+    private static final UUID MISSING_CLOSE_ID =
+            UUID.fromString(
+                    "716cb0ca-2af3-4a85-98ac-800000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -98,7 +103,59 @@ class OperationalEventValidationWebIntegrationTest {
     }
 
     @Test
-    void failsIncomeValidationAndResolvesAlertAfterMatchingEvidence()
+    void protectsConsolidationRoutesAndRequiresCsrf()
+            throws Exception {
+
+        mockMvc.perform(
+                        get(
+                                "/closes/"
+                                        + MISSING_CLOSE_ID
+                                        + "/consolidate"))
+                .andExpect(
+                        status().is3xxRedirection())
+                .andExpect(
+                        redirectedUrl(
+                                "/login"));
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session);
+
+        mockMvc.perform(
+                        post(
+                                "/closes/"
+                                        + closeId
+                                        + "/consolidate")
+                                .session(
+                                        session)
+                                .param(
+                                        "actualBalance",
+                                        "1250.5000"))
+                .andExpect(
+                        status().isForbidden());
+
+        assertThat(
+                closeState(
+                        closeId))
+                .isEqualTo(
+                        "PREPARATION");
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.consolidation
+                        WHERE close_id = ?
+                        """,
+                        closeId))
+                .isZero();
+    }
+
+    @Test
+    void rendersPreviewAndCompletesConsolidation()
             throws Exception {
 
         MockHttpSession session =
@@ -113,235 +170,19 @@ class OperationalEventValidationWebIntegrationTest {
                         session,
                         closeId);
 
-        String eventDetailUrl =
-                "/closes/"
-                        + closeId
-                        + "/events/"
-                        + eventId;
-
-        mockMvc.perform(
-                        get(
-                                eventDetailUrl)
-                                .session(
-                                        session))
-                .andExpect(
-                        status().isOk())
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        "Validar evento operativo")))
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        "REGISTERED")));
-
-        MvcResult failedValidation =
-                validateEvent(
-                        session,
-                        closeId,
-                        eventId)
-                        .andExpect(
-                                status().isSeeOther())
-                        .andExpect(
-                                redirectedUrl(
-                                        eventDetailUrl))
-                        .andReturn();
-
-        assertThat(
-                failedValidation.getFlashMap()
-                        .get(
-                                "validationSuccessful"))
-                .isEqualTo(
-                        false);
-
-        assertThat(
-                failedValidation.getFlashMap()
-                        .get(
-                                "validationMessage"))
-                .isEqualTo(
-                        FAILED_MESSAGE);
-
-        mockMvc.perform(
-                        get(
-                                eventDetailUrl)
-                                .session(
-                                        session))
-                .andExpect(
-                        status().isOk())
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        FAILED_MESSAGE)))
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        "OBSERVED")));
-
-        assertThat(
-                eventState(
-                        eventId))
-                .isEqualTo(
-                        "OBSERVED");
-
-        assertThat(
-                closeState(
-                        closeId))
-                .isEqualTo(
-                        "PREPARATION");
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.validation_result
-                        WHERE event_id = ?
-                          AND rule_code = 'VR-002'
-                          AND outcome = 'FAILED'
-                          AND is_current = TRUE
-                          AND event_data_revision = 1
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.alert
-                        WHERE event_id = ?
-                          AND cause_code = 'VR-002'
-                          AND severity = 'CRITICAL'
-                          AND is_blocking = TRUE
-                          AND state = 'ACTIVE'
-                          AND source_validation_result_id IS NOT NULL
-                          AND resolved_by_validation_result_id IS NULL
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.alert_transition transition
-                        JOIN ocv.alert alert
-                          ON alert.id = transition.alert_id
-                        WHERE alert.event_id = ?
-                          AND alert.cause_code = 'VR-002'
-                          AND transition.from_state IS NULL
-                          AND transition.to_state = 'ACTIVE'
-                          AND transition.validation_result_id IS NULL
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
         createMatchingEvidence(
                 session,
                 closeId,
                 eventId)
                 .andExpect(
-                        status().isSeeOther())
+                        status().isSeeOther());
+
+        validateEvent(
+                session,
+                closeId,
+                eventId)
                 .andExpect(
-                        redirectedUrl(
-                                eventDetailUrl));
-
-        assertThat(
-                eventDataRevision(
-                        eventId))
-                .isEqualTo(
-                        2L);
-
-        assertThat(
-                eventState(
-                        eventId))
-                .isEqualTo(
-                        "OBSERVED");
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.validation_result
-                        WHERE event_id = ?
-                          AND rule_code = 'VR-002'
-                          AND outcome = 'FAILED'
-                          AND is_current = FALSE
-                          AND invalidated_at IS NOT NULL
-                          AND invalidation_reason =
-                              'Operational Event data revision changed.'
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.validation_result
-                        WHERE event_id = ?
-                          AND is_current = TRUE
-                        """,
-                        eventId))
-                .isZero();
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.alert
-                        WHERE event_id = ?
-                          AND cause_code = 'VR-002'
-                          AND state = 'ACTIVE'
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
-        MvcResult successfulValidation =
-                validateEvent(
-                        session,
-                        closeId,
-                        eventId)
-                        .andExpect(
-                                status().isSeeOther())
-                        .andExpect(
-                                redirectedUrl(
-                                        eventDetailUrl))
-                        .andReturn();
-
-        assertThat(
-                successfulValidation.getFlashMap()
-                        .get(
-                                "validationSuccessful"))
-                .isEqualTo(
-                        true);
-
-        assertThat(
-                successfulValidation.getFlashMap()
-                        .get(
-                                "validationMessage"))
-                .isEqualTo(
-                        VALIDATED_MESSAGE);
-
-        mockMvc.perform(
-                        get(
-                                eventDetailUrl)
-                                .session(
-                                        session))
-                .andExpect(
-                        status().isOk())
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        VALIDATED_MESSAGE)))
-                .andExpect(
-                        content().string(
-                                containsString(
-                                        "VALIDATED")));
+                        status().isSeeOther());
 
         assertThat(
                 eventState(
@@ -349,11 +190,377 @@ class OperationalEventValidationWebIntegrationTest {
                 .isEqualTo(
                         "VALIDATED");
 
+        String consolidationUrl =
+                "/closes/"
+                        + closeId
+                        + "/consolidate";
+
+        mockMvc.perform(
+                        get(
+                                consolidationUrl)
+                                .session(
+                                        session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "Consolidar cierre operativo")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        eventId.toString())))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "1250.5000")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "125.5000")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "1376.0000")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "El cierre cumple actualmente "
+                                                + "las precondiciones")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "name=\"_csrf\"")));
+
+        MvcResult completionResult =
+                mockMvc.perform(
+                                post(
+                                        consolidationUrl)
+                                        .session(
+                                                session)
+                                        .with(
+                                                csrf())
+                                        .param(
+                                                "actualBalance",
+                                                "1376.0000"))
+                        .andExpect(
+                                status().isSeeOther())
+                        .andExpect(
+                                redirectedUrl(
+                                        "/closes/"
+                                                + closeId))
+                        .andReturn();
+
         assertThat(
-                eventDataRevision(
+                completionResult.getFlashMap()
+                        .get(
+                                "consolidationSuccessful"))
+                .isEqualTo(
+                        true);
+
+        assertThat(
+                completionResult.getFlashMap()
+                        .get(
+                                "consolidationMessage"))
+                .isEqualTo(
+                        CONSOLIDATED_MESSAGE);
+
+        Object consolidationIdentifier =
+                completionResult.getFlashMap()
+                        .get(
+                                "consolidationId");
+
+        assertThat(
+                consolidationIdentifier)
+                .isInstanceOf(
+                        UUID.class);
+
+        UUID consolidationId =
+                (UUID) consolidationIdentifier;
+
+        mockMvc.perform(
+                        get(
+                                "/closes/"
+                                        + closeId)
+                                .session(
+                                        session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        CONSOLIDATED_MESSAGE)))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        consolidationId.toString())))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "VALIDATED")));
+
+        assertThat(
+                closeState(
+                        closeId))
+                .isEqualTo(
+                        "VALIDATED");
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                          AND close_id = ?
+                          AND is_current = TRUE
+                          AND invalidated_at IS NULL
+                          AND invalidation_reason IS NULL
+                        """,
+                        consolidationId,
+                        closeId))
+                .isEqualTo(
+                        1L);
+
+        assertThat(
+                decimalValue(
+                        """
+                        SELECT initial_balance
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                        """,
+                        consolidationId))
+                .isEqualByComparingTo(
+                        new BigDecimal(
+                                "1250.5000"));
+
+        assertThat(
+                decimalValue(
+                        """
+                        SELECT total_income
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                        """,
+                        consolidationId))
+                .isEqualByComparingTo(
+                        new BigDecimal(
+                                "125.5000"));
+
+        assertThat(
+                decimalValue(
+                        """
+                        SELECT expected_balance
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                        """,
+                        consolidationId))
+                .isEqualByComparingTo(
+                        new BigDecimal(
+                                "1376.0000"));
+
+        assertThat(
+                decimalValue(
+                        """
+                        SELECT actual_balance
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                        """,
+                        consolidationId))
+                .isEqualByComparingTo(
+                        new BigDecimal(
+                                "1376.0000"));
+
+        assertThat(
+                decimalValue(
+                        """
+                        SELECT difference
+                        FROM ocv.consolidation
+                        WHERE id = ?
+                        """,
+                        consolidationId))
+                .isEqualByComparingTo(
+                        BigDecimal.ZERO);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.consolidation_event_snapshot
+                        WHERE consolidation_id = ?
+                          AND event_id = ?
+                          AND event_data_revision = 2
+                          AND event_state = 'VALIDATED'
+                        """,
+                        consolidationId,
                         eventId))
                 .isEqualTo(
-                        2L);
+                        1L);
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.close_state_transition
+                        WHERE close_id = ?
+                          AND cause_code = 'CONSOLIDATION_COMPLETED'
+                          AND from_state = 'PREPARATION'
+                          AND to_state = 'VALIDATED'
+                          AND consolidation_id = ?
+                        """,
+                        closeId,
+                        consolidationId))
+                .isEqualTo(
+                        1L);
+    }
+
+    @Test
+    void rejectsEmptyCloseAndMovesItToBlocked()
+            throws Exception {
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session);
+
+        String consolidationUrl =
+                "/closes/"
+                        + closeId
+                        + "/consolidate";
+
+        mockMvc.perform(
+                        get(
+                                consolidationUrl)
+                                .session(
+                                        session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "El cierre todavía no contiene "
+                                                + "eventos operativos.")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "impedir la consolidación.")));
+
+        MvcResult rejectionResult =
+                mockMvc.perform(
+                                post(
+                                        consolidationUrl)
+                                        .session(
+                                                session)
+                                        .with(
+                                                csrf())
+                                        .param(
+                                                "actualBalance",
+                                                "1250.5000"))
+                        .andExpect(
+                                status().isSeeOther())
+                        .andExpect(
+                                redirectedUrl(
+                                        "/closes/"
+                                                + closeId))
+                        .andReturn();
+
+        assertThat(
+                rejectionResult.getFlashMap()
+                        .get(
+                                "consolidationSuccessful"))
+                .isEqualTo(
+                        false);
+
+        assertThat(
+                rejectionResult.getFlashMap()
+                        .get(
+                                "consolidationMessage"))
+                .isEqualTo(
+                        REJECTED_MESSAGE);
+
+        mockMvc.perform(
+                        get(
+                                "/closes/"
+                                        + closeId)
+                                .session(
+                                        session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        REJECTED_MESSAGE)))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "BLOCKED")));
+
+        assertThat(
+                closeState(
+                        closeId))
+                .isEqualTo(
+                        "BLOCKED");
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.consolidation
+                        WHERE close_id = ?
+                        """,
+                        closeId))
+                .isZero();
+
+        assertThat(
+                count(
+                        """
+                        SELECT COUNT(*)
+                        FROM ocv.close_state_transition
+                        WHERE close_id = ?
+                          AND cause_code = 'CONSOLIDATION_REJECTED'
+                          AND from_state = 'PREPARATION'
+                          AND to_state = 'BLOCKED'
+                          AND consolidation_id IS NULL
+                        """,
+                        closeId))
+                .isEqualTo(
+                        1L);
+    }
+
+    @Test
+    void rejectsMalformedActualBalanceWithoutChangingClose()
+            throws Exception {
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session);
+
+        mockMvc.perform(
+                        post(
+                                "/closes/"
+                                        + closeId
+                                        + "/consolidate")
+                                .session(
+                                        session)
+                                .with(
+                                        csrf())
+                                .param(
+                                        "actualBalance",
+                                        "not-a-number"))
+                .andExpect(
+                        status().isBadRequest())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "El saldo real no tiene un "
+                                                + "formato decimal válido.")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "Consolidar cierre operativo")));
 
         assertThat(
                 closeState(
@@ -365,87 +572,25 @@ class OperationalEventValidationWebIntegrationTest {
                 count(
                         """
                         SELECT COUNT(*)
-                        FROM ocv.validation_result
-                        WHERE event_id = ?
-                          AND rule_code = 'VR-002'
-                          AND outcome = 'SATISFIED'
-                          AND is_current = TRUE
-                          AND event_data_revision = 2
+                        FROM ocv.consolidation
+                        WHERE close_id = ?
                         """,
-                        eventId))
-                .isEqualTo(
-                        1L);
+                        closeId))
+                .isZero();
 
         assertThat(
                 count(
                         """
                         SELECT COUNT(*)
-                        FROM ocv.validation_result
-                        WHERE event_id = ?
-                          AND rule_code = 'VR-002'
-                        """,
-                        eventId))
-                .isEqualTo(
-                        2L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.alert alert
-                        JOIN ocv.validation_result result
-                          ON result.id =
-                             alert.resolved_by_validation_result_id
-                        WHERE alert.event_id = ?
-                          AND alert.cause_code = 'VR-002'
-                          AND alert.state = 'RESOLVED'
-                          AND alert.closed_at IS NOT NULL
-                          AND result.rule_code = 'VR-002'
-                          AND result.outcome = 'SATISFIED'
-                          AND result.is_current = TRUE
-                          AND result.event_data_revision = 2
-                        """,
-                        eventId))
-                .isEqualTo(
-                        1L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.alert_transition transition
-                        JOIN ocv.alert alert
-                          ON alert.id = transition.alert_id
-                        WHERE alert.event_id = ?
-                          AND alert.cause_code = 'VR-002'
-                          AND (
-                              (
-                                  transition.from_state IS NULL
-                                  AND transition.to_state = 'ACTIVE'
-                              )
-                              OR
-                              (
-                                  transition.from_state = 'ACTIVE'
-                                  AND transition.to_state = 'RESOLVED'
-                                  AND transition.validation_result_id IS NOT NULL
-                              )
+                        FROM ocv.close_state_transition
+                        WHERE close_id = ?
+                          AND cause_code IN (
+                              'CONSOLIDATION_COMPLETED',
+                              'CONSOLIDATION_REJECTED'
                           )
                         """,
-                        eventId))
-                .isEqualTo(
-                        2L);
-
-        assertThat(
-                count(
-                        """
-                        SELECT COUNT(*)
-                        FROM ocv.event_state_transition
-                        WHERE event_id = ?
-                          AND cause_code = 'EVENT_VALIDATION_APPLIED'
-                        """,
-                        eventId))
-                .isEqualTo(
-                        2L);
+                        closeId))
+                .isZero();
     }
 
     private UUID createCloseAndGetId(
@@ -514,7 +659,8 @@ class OperationalEventValidationWebIntegrationTest {
                                                 "Caja principal")
                                         .param(
                                                 "description",
-                                                "Ingreso sujeto a validación"))
+                                                "Ingreso incluido en "
+                                                        + "consolidación"))
                         .andExpect(
                                 status().isSeeOther())
                         .andExpect(
@@ -524,25 +670,6 @@ class OperationalEventValidationWebIntegrationTest {
 
         return lastIdentifierFromRedirect(
                 result);
-    }
-
-    private ResultActions validateEvent(
-            MockHttpSession session,
-            UUID closeId,
-            UUID eventId)
-            throws Exception {
-
-        return mockMvc.perform(
-                post(
-                        "/closes/"
-                                + closeId
-                                + "/events/"
-                                + eventId
-                                + "/validate")
-                        .session(
-                                session)
-                        .with(
-                                csrf()));
     }
 
     private ResultActions createMatchingEvidence(
@@ -567,7 +694,7 @@ class OperationalEventValidationWebIntegrationTest {
                                 "RECEIPT")
                         .param(
                                 "contentReference",
-                                "income-125-5000")
+                                "income-consolidation-125-5000")
                         .param(
                                 "supportedAmount",
                                 "125.5000")
@@ -577,6 +704,25 @@ class OperationalEventValidationWebIntegrationTest {
                         .param(
                                 "legibilityStatus",
                                 "LEGIBLE"));
+    }
+
+    private ResultActions validateEvent(
+            MockHttpSession session,
+            UUID closeId,
+            UUID eventId)
+            throws Exception {
+
+        return mockMvc.perform(
+                post(
+                        "/closes/"
+                                + closeId
+                                + "/events/"
+                                + eventId
+                                + "/validate")
+                        .session(
+                                session)
+                        .with(
+                                csrf()));
     }
 
     private MockHttpSession authenticatedSession()
@@ -596,7 +742,8 @@ class OperationalEventValidationWebIntegrationTest {
                         .andExpect(
                                 status().is3xxRedirection())
                         .andExpect(
-                                redirectedUrl("/"))
+                                redirectedUrl(
+                                        "/"))
                         .andReturn();
 
         MockHttpSession session =
@@ -612,6 +759,19 @@ class OperationalEventValidationWebIntegrationTest {
         return session;
     }
 
+    private String closeState(
+            UUID closeId) {
+
+        return jdbcTemplate.queryForObject(
+                """
+                SELECT state
+                FROM ocv.operational_close
+                WHERE id = ?
+                """,
+                String.class,
+                closeId);
+    }
+
     private String eventState(
             UUID eventId) {
 
@@ -625,30 +785,14 @@ class OperationalEventValidationWebIntegrationTest {
                 eventId);
     }
 
-    private Long eventDataRevision(
-            UUID eventId) {
+    private BigDecimal decimalValue(
+            String sql,
+            Object... arguments) {
 
         return jdbcTemplate.queryForObject(
-                """
-                SELECT data_revision
-                FROM ocv.operational_event
-                WHERE id = ?
-                """,
-                Long.class,
-                eventId);
-    }
-
-    private String closeState(
-            UUID closeId) {
-
-        return jdbcTemplate.queryForObject(
-                """
-                SELECT state
-                FROM ocv.operational_close
-                WHERE id = ?
-                """,
-                String.class,
-                closeId);
+                sql,
+                BigDecimal.class,
+                arguments);
     }
 
     private Long count(

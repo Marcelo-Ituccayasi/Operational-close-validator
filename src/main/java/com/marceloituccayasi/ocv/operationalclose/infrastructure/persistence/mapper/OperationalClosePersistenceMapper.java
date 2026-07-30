@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.marceloituccayasi.ocv.operationalclose.domain.AuditActor;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
+import com.marceloituccayasi.ocv.operationalclose.domain.ConsolidationId;
 import com.marceloituccayasi.ocv.operationalclose.domain.CurrencyCode;
 import com.marceloituccayasi.ocv.operationalclose.domain.InitialBalance;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
@@ -86,6 +87,40 @@ public final class OperationalClosePersistenceMapper {
                         ? null
                         : transition.fromState().name();
 
+        return transitionEntity(
+                transition,
+                fromState,
+                null);
+    }
+
+    public CloseStateTransitionEntity toEntity(
+            CloseStateTransition transition,
+            ConsolidationId consolidationId) {
+
+        Objects.requireNonNull(
+                transition,
+                "transition must not be null");
+
+        Objects.requireNonNull(
+                consolidationId,
+                "consolidationId must not be null");
+
+        String fromState =
+                transition.fromState() == null
+                        ? null
+                        : transition.fromState().name();
+
+        return transitionEntity(
+                transition,
+                fromState,
+                consolidationId);
+    }
+
+    private static CloseStateTransitionEntity transitionEntity(
+            CloseStateTransition transition,
+            String fromState,
+            ConsolidationId consolidationId) {
+
         return CloseStateTransitionEntity.create(
                 transition.id().value(),
                 transition.closeId().value(),
@@ -94,7 +129,9 @@ public final class OperationalClosePersistenceMapper {
                 transition.causeCode(),
                 transition.detail(),
                 null,
-                null,
+                consolidationId == null
+                        ? null
+                        : consolidationId.value(),
                 null,
                 transition.occurredAt(),
                 transition.actor().userId(),

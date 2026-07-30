@@ -9,6 +9,32 @@
     <main>
         <h1>Detalle del cierre operativo</h1>
 
+        <p
+            role="status"
+            th:if="${consolidationMessage}"
+            th:text="${consolidationMessage}">
+            Resultado de la consolidación.
+        </p>
+
+        <p th:if="${consolidationId}">
+            Consolidación creada:
+            <span th:text="${consolidationId}">
+                UUID
+            </span>
+        </p>
+
+        <section th:if="${consolidationAffectedEventIds}">
+            <h2>Eventos que requieren corrección</h2>
+
+            <ul>
+                <li
+                    th:each="eventId : ${consolidationAffectedEventIds}"
+                    th:text="${eventId}">
+                    UUID
+                </li>
+            </ul>
+        </section>
+
         <dl>
             <dt>Identificador</dt>
             <dd th:text="${close.id}">
@@ -60,6 +86,15 @@
             <a
                 th:href="@{/closes/{closeId}/events(closeId=${close.id})}">
                 Ver eventos operativos
+            </a>
+        </p>
+
+        <p th:if="${close.state == 'PREPARATION' or close.state == 'BLOCKED'}">
+            <a
+                th:href="@{/closes/{closeId}/consolidate(
+                    closeId=${close.id}
+                )}">
+                Consolidar cierre operativo
             </a>
         </p>
 

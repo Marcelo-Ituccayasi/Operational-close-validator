@@ -12,6 +12,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.port.repository.Op
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRepository;
 import com.marceloituccayasi.ocv.operationalclose.application.port.repository.OperationalCloseRevisionRepository;
 import com.marceloituccayasi.ocv.operationalclose.domain.CloseStateTransition;
+import com.marceloituccayasi.ocv.operationalclose.domain.ConsolidationId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalClose;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalCloseId;
 import com.marceloituccayasi.ocv.operationalclose.domain.OperationalPeriod;
@@ -170,6 +171,25 @@ public class OperationalClosePersistenceAdapter
         transitionJpaRepository.saveAndFlush(
                 mapper.toEntity(
                         stateTransition));
+    }
+
+    @Override
+    public void appendConsolidationStateTransition(
+            CloseStateTransition stateTransition,
+            ConsolidationId consolidationId) {
+
+        Objects.requireNonNull(
+                stateTransition,
+                "stateTransition must not be null");
+
+        Objects.requireNonNull(
+                consolidationId,
+                "consolidationId must not be null");
+
+        transitionJpaRepository.saveAndFlush(
+                mapper.toEntity(
+                        stateTransition,
+                        consolidationId));
     }
 
     @Override

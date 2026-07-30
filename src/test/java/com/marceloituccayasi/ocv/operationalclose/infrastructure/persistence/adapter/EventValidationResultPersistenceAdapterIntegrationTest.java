@@ -394,6 +394,53 @@ class EventValidationResultPersistenceAdapterIntegrationTest {
     private void persistCurrentCloseResult() {
         jdbcTemplate.update(
                 """
+                INSERT INTO ocv.consolidation (
+                    id,
+                    close_id,
+                    currency_code,
+                    event_count,
+                    total_income,
+                    total_expense,
+                    total_discount,
+                    total_cancellation,
+                    initial_balance,
+                    expected_balance,
+                    actual_balance,
+                    difference,
+                    is_current,
+                    completed_at,
+                    completed_by_user_id,
+                    completed_by_username,
+                    invalidated_at,
+                    invalidation_reason
+                )
+                VALUES (
+                    ?,
+                    ?,
+                    'PEN',
+                    1,
+                    0.0000,
+                    50.0000,
+                    0.0000,
+                    0.0000,
+                    1000.0000,
+                    950.0000,
+                    950.0000,
+                    0.0000,
+                    TRUE,
+                    ?,
+                    'responsible-user',
+                    'responsible',
+                    NULL,
+                    NULL
+                )
+                """,
+                CONSOLIDATION_ID,
+                CLOSE_ID,
+                EVALUATED_AT);
+
+        jdbcTemplate.update(
+                """
                 INSERT INTO ocv.validation_result (
                     id,
                     rule_code,
@@ -439,6 +486,8 @@ class EventValidationResultPersistenceAdapterIntegrationTest {
         jdbcTemplate.execute(
                 """
                 TRUNCATE TABLE
+                    ocv.consolidation_event_snapshot,
+                    ocv.consolidation,
                     ocv.alert_transition,
                     ocv.alert,
                     ocv.validation_result,
