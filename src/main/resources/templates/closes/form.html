@@ -4,83 +4,208 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Crear cierre | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Crear cierre operativo</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p
-            role="alert"
-            th:if="${errorMessage}"
-            th:text="${errorMessage}">
-            Los datos ingresados no son válidos.
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <form
-            method="post"
-            th:action="@{/closes}"
-            th:object="${closeForm}">
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-            <div>
-                <label for="periodStart">
-                    Inicio del período
-                </label>
-                <input
-                    id="periodStart"
-                    type="date"
-                    th:field="*{periodStart}"
-                    required>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes}">
+                    Volver al listado
+                </a>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Nuevo período
+                    </p>
+
+                    <h1>
+                        Crear cierre operativo
+                    </h1>
+
+                    <p class="page-description">
+                        Define el período, la moneda y el saldo inicial
+                        con los que comenzará el proceso de cierre.
+                    </p>
+                </div>
+            </header>
+
+            <div
+                class="alert alert--danger"
+                role="alert"
+                th:if="${errorMessage}"
+                th:text="${errorMessage}">
+                Los datos ingresados no son válidos.
             </div>
 
-            <div>
-                <label for="periodEnd">
-                    Fin del período
-                </label>
-                <input
-                    id="periodEnd"
-                    type="date"
-                    th:field="*{periodEnd}"
-                    required>
-            </div>
+            <section
+                class="content-grid"
+                aria-label="Formulario de creación de cierre">
 
-            <div>
-                <label for="currencyCode">
-                    Moneda
-                </label>
-                <input
-                    id="currencyCode"
-                    type="text"
-                    th:field="*{currencyCode}"
-                    minlength="3"
-                    maxlength="3"
-                    pattern="[A-Z]{3}"
-                    placeholder="PEN"
-                    required>
-            </div>
+                <div class="card content-grid__full">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Información inicial
+                        </p>
 
-            <div>
-                <label for="initialBalance">
-                    Saldo inicial
-                </label>
-                <input
-                    id="initialBalance"
-                    type="number"
-                    th:field="*{initialBalance}"
-                    min="0"
-                    step="0.0001"
-                    required>
-            </div>
+                        <h2>
+                            Datos del cierre
+                        </h2>
 
-            <button type="submit">
-                Crear cierre
-            </button>
-        </form>
+                        <p class="muted">
+                            Todos los campos son obligatorios. Las fechas
+                            deben representar un período válido y la moneda
+                            debe utilizar un código ISO de tres letras.
+                        </p>
+                    </div>
 
-        <p>
-            <a th:href="@{/closes}">
-                Volver al listado
-            </a>
-        </p>
-    </main>
+                    <div class="card__body">
+                        <form
+                            class="form"
+                            method="post"
+                            th:action="@{/closes}"
+                            th:object="${closeForm}">
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="periodStart">
+                                        Inicio del período
+                                    </label>
+
+                                    <input
+                                        id="periodStart"
+                                        type="date"
+                                        th:field="*{periodStart}"
+                                        required>
+
+                                    <p class="form-help">
+                                        Primera fecha incluida en el cierre.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="periodEnd">
+                                        Fin del período
+                                    </label>
+
+                                    <input
+                                        id="periodEnd"
+                                        type="date"
+                                        th:field="*{periodEnd}"
+                                        required>
+
+                                    <p class="form-help">
+                                        Última fecha incluida en el cierre.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="currencyCode">
+                                        Moneda
+                                    </label>
+
+                                    <input
+                                        id="currencyCode"
+                                        type="text"
+                                        th:field="*{currencyCode}"
+                                        minlength="3"
+                                        maxlength="3"
+                                        pattern="[A-Z]{3}"
+                                        placeholder="PEN"
+                                        autocomplete="off"
+                                        required>
+
+                                    <p class="form-help">
+                                        Código ISO de tres letras, por ejemplo
+                                        PEN, USD o EUR.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="initialBalance">
+                                        Saldo inicial
+                                    </label>
+
+                                    <input
+                                        id="initialBalance"
+                                        type="number"
+                                        th:field="*{initialBalance}"
+                                        min="0"
+                                        step="0.0001"
+                                        placeholder="0.0000"
+                                        required>
+
+                                    <p class="form-help">
+                                        Importe disponible al inicio del período.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit">
+                                    Crear cierre
+                                </button>
+
+                                <a
+                                    class="button button-secondary"
+                                    th:href="@{/closes}">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <aside class="card content-grid__full">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Después de crear
+                        </p>
+
+                        <h2>
+                            Preparación del cierre
+                        </h2>
+
+                        <p class="muted">
+                            El cierre comenzará en estado de preparación.
+                            Desde su detalle podrás registrar eventos,
+                            referencias de Evidencias, autorizaciones y
+                            otras acciones requeridas por el flujo.
+                        </p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

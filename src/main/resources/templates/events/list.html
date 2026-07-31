@@ -4,94 +4,271 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Eventos operativos | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Eventos operativos</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Cierre:
-            <span th:text="${closeId}">
-                UUID
-            </span>
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p>
-            Estado del cierre:
-            <span th:text="${closeState}">
-                PREPARATION
-            </span>
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <p th:unless="${closeEditable}">
-            El cierre fue enviado a contabilidad y ya no admite modificaciones.
-        </p>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes/{closeId}(closeId=${closeId})}">
+                    Volver al cierre
+                </a>
+            </div>
+        </header>
 
-        <p th:if="${closeEditable}">
-            <a
-                th:href="@{/closes/{closeId}/events/new(closeId=${closeId})}">
-                Registrar evento operativo
-            </a>
-        </p>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Registro operativo
+                    </p>
 
-        <p th:if="${#lists.isEmpty(events)}">
-            No existen eventos operativos registrados para este cierre.
-        </p>
+                    <h1>
+                        Eventos operativos
+                    </h1>
 
-        <table th:unless="${#lists.isEmpty(events)}">
-            <thead>
-                <tr>
-                    <th>Ocurrencia</th>
-                    <th>Tipo</th>
-                    <th>Importe</th>
-                    <th>Efecto</th>
-                    <th>Estado</th>
-                    <th>Revisión</th>
-                    <th>Detalle</th>
-                </tr>
-            </thead>
+                    <p class="page-description">
+                        Consulta los movimientos asociados al cierre,
+                        revisa su efecto sobre el saldo y accede al
+                        detalle de cada registro.
+                    </p>
+                </div>
 
-            <tbody>
-                <tr th:each="event : ${events}">
-                    <td th:text="${businessTime.format(event.occurredAt)}">
-                        2026-07-22T15:30:00Z
-                    </td>
+                <div
+                    class="page-actions"
+                    th:if="${closeEditable}">
 
-                    <td th:text="${event.eventType}">
-                        INCOME
-                    </td>
+                    <a
+                        class="button"
+                        th:href="@{/closes/{closeId}/events/new(
+                            closeId=${closeId}
+                        )}">
+                        Registrar evento operativo
+                    </a>
+                </div>
+            </header>
 
-                    <td th:text="${event.amount}">
-                        0.0000
-                    </td>
+            <section
+                class="content-grid"
+                aria-label="Resumen del cierre">
 
-                    <td th:text="${event.balanceEffect}">
-                        0.0000
-                    </td>
+                <article class="card content-grid__half">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Cierre asociado
+                        </p>
 
-                    <td th:text="${event.state}">
-                        REGISTERED
-                    </td>
+                        <h2>
+                            Identificador
+                        </h2>
 
-                    <td th:text="${event.dataRevision}">
-                        1
-                    </td>
+                        <span
+                            class="code-value"
+                            th:text="${closeId}">
+                            UUID
+                        </span>
+                    </div>
+                </article>
 
-                    <td>
-                        <a
-                            th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${event.id})}">
-                            Ver
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                <article class="card content-grid__half">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Estado actual
+                        </p>
 
-        <p>
-            <a th:href="@{/closes/{closeId}(closeId=${closeId})}">
-                Volver al cierre
-            </a>
-        </p>
-    </main>
+                        <h2>
+                            Estado del cierre
+                        </h2>
+
+                        <span
+                            class="status-badge"
+                            th:text="${closeState}">
+                            PREPARATION
+                        </span>
+                    </div>
+                </article>
+            </section>
+
+            <div
+                class="alert alert--warning"
+                style="margin-top: 20px;"
+                role="status"
+                th:unless="${closeEditable}">
+                El cierre fue enviado a contabilidad y ya no admite modificaciones.
+            </div>
+
+            <section
+                class="empty-state"
+                style="margin-top: 20px;"
+                th:if="${#lists.isEmpty(events)}"
+                aria-labelledby="empty-events-title">
+
+                <h2
+                    id="empty-events-title"
+                    class="empty-state__title">
+                    No existen eventos registrados
+                </h2>
+
+                <p class="empty-state__description">
+                    Este cierre todavía no contiene eventos operativos.
+                    Registra el primero para comenzar a documentar los
+                    movimientos del período.
+                </p>
+
+                <a
+                    class="button"
+                    th:if="${closeEditable}"
+                    th:href="@{/closes/{closeId}/events/new(
+                        closeId=${closeId}
+                    )}">
+                    Registrar primer evento
+                </a>
+            </section>
+
+            <section
+                style="margin-top: 20px;"
+                th:unless="${#lists.isEmpty(events)}"
+                aria-label="Listado de eventos operativos">
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    Ocurrencia
+                                </th>
+
+                                <th scope="col">
+                                    Tipo
+                                </th>
+
+                                <th scope="col">
+                                    Importe
+                                </th>
+
+                                <th scope="col">
+                                    Efecto
+                                </th>
+
+                                <th scope="col">
+                                    Estado
+                                </th>
+
+                                <th scope="col">
+                                    Revisión
+                                </th>
+
+                                <th scope="col">
+                                    Acción
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="event : ${events}">
+                                <td th:text="${businessTime.format(event.occurredAt)}">
+                                    2026-07-22T15:30:00Z
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${event.eventType}">
+                                        INCOME
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong th:text="${event.amount}">
+                                        0.0000
+                                    </strong>
+                                </td>
+
+                                <td th:text="${event.balanceEffect}">
+                                    0.0000
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${event.state}">
+                                        REGISTERED
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="code-value"
+                                        th:text="${event.dataRevision}">
+                                        1
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a
+                                        class="button button-secondary"
+                                        th:href="@{/closes/{closeId}/events/{eventId}(
+                                            closeId=${closeId},
+                                            eventId=${event.id}
+                                        )}">
+                                        Ver detalle
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="event-information-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        Trazabilidad
+                    </p>
+
+                    <h2 id="event-information-title">
+                        Revisión de eventos
+                    </h2>
+
+                    <p class="muted">
+                        Cada evento conserva su tipo, importe, efecto
+                        sobre el saldo, estado y número de revisión.
+                        Desde el detalle podrás consultar sus Evidencias
+                        y acciones disponibles.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

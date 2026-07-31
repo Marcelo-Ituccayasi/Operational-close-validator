@@ -4,25 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Inicio | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Operational Close Validator</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Sesión autenticada como
-            <strong th:text="${username}">usuario</strong>.
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p>
-            <a th:href="@{/dashboard}">
-                Ir al panel de cierres operativos
-            </a>
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <form method="post" th:action="@{/logout}">
-            <button type="submit">Cerrar sesión</button>
-        </form>
-    </main>
+                <div class="user-summary">
+                    <span
+                        class="user-summary__avatar"
+                        aria-hidden="true">
+                        U
+                    </span>
+
+                    <span class="user-summary__content">
+                        <span class="user-summary__label">
+                            Sesión activa
+                        </span>
+
+                        <strong
+                            class="user-summary__name"
+                            th:text="${username}">
+                            usuario
+                        </strong>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Inicio
+                    </p>
+
+                    <h1>
+                        Bienvenido al sistema
+                    </h1>
+
+                    <p class="page-description">
+                        Gestiona cierres operativos, registra Evidencias
+                        y revisa el avance de cada proceso desde un único
+                        punto de control.
+                    </p>
+                </div>
+
+                <div class="page-actions">
+                    <form
+                        method="post"
+                        th:action="@{/logout}">
+                        <button
+                            class="button-secondary"
+                            type="submit">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <section
+                class="action-grid"
+                aria-label="Acciones disponibles">
+
+                <a
+                    class="action-card"
+                    th:href="@{/dashboard}">
+
+                    <span
+                        class="action-card__icon"
+                        aria-hidden="true">
+                        CO
+                    </span>
+
+                    <span>
+                        <h2 class="action-card__title">
+                            Cierres operativos
+                        </h2>
+
+                        <p class="action-card__description">
+                            Accede al panel principal para crear, revisar
+                            y administrar cierres operativos.
+                        </p>
+                    </span>
+                </a>
+
+                <article class="action-card">
+                    <span
+                        class="action-card__icon"
+                        aria-hidden="true">
+                        TR
+                    </span>
+
+                    <span>
+                        <h2 class="action-card__title">
+                            Trazabilidad centralizada
+                        </h2>
+
+                        <p class="action-card__description">
+                            Mantén eventos, autorizaciones y Evidencias
+                            asociados al flujo correspondiente.
+                        </p>
+                    </span>
+                </article>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="session-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        Estado de acceso
+                    </p>
+
+                    <h2 id="session-title">
+                        Sesión autenticada
+                    </h2>
+
+                    <p class="muted">
+                        Estás conectado como
+                        <strong th:text="${username}">
+                            usuario
+                        </strong>.
+                        Las operaciones realizadas durante esta sesión
+                        quedarán asociadas al usuario autenticado.
+                    </p>
+
+                    <a
+                        class="button"
+                        th:href="@{/dashboard}">
+                        Ir al panel de cierres
+                    </a>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

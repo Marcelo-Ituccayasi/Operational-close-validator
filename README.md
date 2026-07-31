@@ -1,94 +1,61 @@
 # Operational Close Validator
 
-Early validation system for detecting unsupported, unauthorized, or inconsistent operational events before operational close and submission to accounting.
+Sistema de validación temprana que detecta eventos operativos sin sustento, sin autorización o con inconsistencias antes de consolidar el cierre y enviarlo a contabilidad.
 
-## Problem
+## Vista del producto
 
-Operational closes frequently require manual rework because missing receipts, informal authorizations, or inconsistent records are detected only during final consolidation or after submission to accounting.
+### Panel principal
 
-## MVP objective
+![Panel principal de Operational Close Validator](docs/screenshots/dashboard.png)
 
-Demonstrate that a registered operational event without the required evidence can be detected before close, generate a blocking alert, and prevent the close from advancing until the inconsistency is corrected and successfully revalidated.
+### Detalle del evento operativo
 
-## MVP workflow
+![Resumen del evento operativo](docs/screenshots/event-detail-overview.png)
 
-1. Register an operational event.
-2. Execute fixed business validations.
-3. Generate a blocking alert when required evidence is missing.
-4. Correct the cause of the alert.
-5. Revalidate the event.
-6. Consolidate the operational close.
-7. Submit the validated close to accounting.
+### Evidencias y autorizaciones
 
-## Included event types
+![Información de soporte del evento](docs/screenshots/event-detail-supporting-info.png)
 
-- Income
-- Expense
-- Discount
-- Cancellation
+### Inicio de sesión
 
-## Project status
+![Inicio de sesión](docs/screenshots/login.png)
 
-Product discovery, domain analysis, system behavior, MVP scope, technical design, and the implementation plan are approved and incorporated into the repository.
+## Problema
 
-Application implementation is in progress.
+Los cierres operativos suelen requerir reprocesos manuales porque los comprobantes faltantes, las autorizaciones informales o los registros inconsistentes se descubren durante la consolidación final o después del envío a contabilidad.
 
-- IP-00 established the reproducible Spring Boot build, PostgreSQL integration testing, Flyway migration pipeline, coverage reporting, and CI gates.
-- IP-01 establishes the modular architecture skeleton, framework-independent application contracts, explicit transaction execution, persistence boundaries, and executable architecture rules.
+Operational Close Validator adelanta estas verificaciones para que los problemas sean detectados y corregidos antes de que el cierre abandone el dominio operativo.
 
-## Architecture
+## Objetivo del MVP
 
-The application is organized as a modular monolith by business capability:
+Demostrar que el sistema puede:
 
-- `operationalclose` — Operational Close Management
-- `identityaccess` — Identity and Access
+1. Registrar un cierre operativo.
+2. Registrar ingresos, egresos, descuentos y anulaciones.
+3. Identificar eventos que requieren evidencia o autorización.
+4. Registrar la información de soporte del evento.
+5. Ejecutar reglas de validación deterministas.
+6. Generar resultados bloqueantes cuando existan inconsistencias.
+7. Permitir la corrección y revalidación del evento.
+8. Consolidar únicamente cierres válidos.
+9. Enviar el cierre consolidado a contabilidad.
+10. Impedir modificaciones después del envío.
 
-The permitted dependency direction is:
+## Flujo principal
 
 ```text
-Presentation → Application → Domain
-Infrastructure → Application ports
-```
-
-Domain and Application remain independent of JPA, Hibernate, Spring MVC, Spring Security, and persistence implementations. JPA entities, repositories, mappers, and adapters remain inside Infrastructure.
-
-## Development verification
-
-Prerequisites:
-
-- Java 25
-- A Docker Engine capable of running Linux containers
-
-Run `.\mvnw.cmd verify` on Windows or `./mvnw verify` on Linux and macOS.
-
-The verification starts PostgreSQL through Testcontainers and executes Flyway, transaction integration tests, the automated test suite, ArchUnit, and JaCoCo. Current verification does not require real application secrets.
-
-## Documentation
-
-Project documentation is organized under the `docs/` directory.
-
-### Product discovery
-
-- [Problem Map v0.2.1](docs/01-product-discovery/problem-map.md)
-- [Problem Statement v0.2](docs/01-product-discovery/problem-statement.md)
-- [Product Thesis v0.2](docs/01-product-discovery/product-thesis.md)
-- [Current Workflow v0.2](docs/01-product-discovery/current-workflow.md)
-
-### Domain analysis
-
-- [Failure Mode Analysis v0.1](docs/02-domain-analysis/failure-mode-analysis.md)
-- [Validation Rules v0.2](docs/02-domain-analysis/validation-rules.md)
-- [Domain Model v0.3](docs/02-domain-analysis/domain-model.md)
-
-### System behavior
-
-- [State Machine v0.3](docs/03-system-behavior/state-machine.md)
-- [Use Cases v0.2](docs/03-system-behavior/use-cases.md)
-
-### Product scope
-
-- [MVP Scope v0.3](docs/04-product-scope/mvp-scope.md)
-
-### Decision records
-
-- [ADR-0001 — Final validation can return a validated close to blocked](docs/decisions/ADR-0001-final-validation-blocks-close.md)
+Creación del cierre
+        ↓
+Registro de eventos operativos
+        ↓
+Registro de evidencias y autorizaciones
+        ↓
+Validación de eventos
+        ↓
+Corrección de inconsistencias
+        ↓
+Consolidación del cierre
+        ↓
+Envío a contabilidad
+        ↓
+Modo de solo lectura

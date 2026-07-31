@@ -4,149 +4,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registrar evento | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Registrar evento operativo</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Cierre:
-            <span th:text="${closeId}">
-                UUID
-            </span>
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p
-            role="alert"
-            th:if="${errorMessage}"
-            th:text="${errorMessage}">
-            Los datos ingresados no son válidos.
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <form
-            method="post"
-            th:action="@{/closes/{closeId}/events(closeId=${closeId})}"
-            th:object="${eventForm}">
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes/{closeId}/events(
+                        closeId=${closeId}
+                    )}">
+                    Volver a eventos
+                </a>
+            </div>
+        </header>
 
-            <div>
-                <label for="eventType">
-                    Tipo de evento
-                </label>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Nuevo registro
+                    </p>
 
-                <select
-                    id="eventType"
-                    th:field="*{eventType}"
-                    required>
+                    <h1>
+                        Registrar evento operativo
+                    </h1>
 
-                    <option value="">
-                        Seleccionar
-                    </option>
+                    <p class="page-description">
+                        Registra un movimiento ocurrido durante el
+                        período del cierre y documenta su responsable,
+                        importe y efecto operativo.
+                    </p>
+                </div>
+            </header>
 
-                    <option value="INCOME">
-                        Ingreso
-                    </option>
-
-                    <option value="EXPENSE">
-                        Gasto
-                    </option>
-
-                    <option value="DISCOUNT">
-                        Descuento
-                    </option>
-
-                    <option value="CANCELLATION">
-                        Anulación
-                    </option>
-                </select>
+            <div
+                class="alert alert--danger"
+                role="alert"
+                th:if="${errorMessage}"
+                th:text="${errorMessage}">
+                Los datos ingresados no son válidos.
             </div>
 
-            <div>
-                <label for="amount">
-                    Importe nominal
-                </label>
+            <section class="content-grid">
+                <div class="card content-grid__full">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Cierre asociado
+                        </p>
 
-                <input
-                    id="amount"
-                    type="number"
-                    th:field="*{amount}"
-                    min="0.0001"
-                    step="0.0001"
-                    required>
-            </div>
+                        <h2>
+                            Identificador del cierre
+                        </h2>
 
-            <div>
-                <label for="reversedEventId">
-                    Identificador del evento que se anula
-                </label>
+                        <span
+                            class="code-value"
+                            th:text="${closeId}">
+                            UUID
+                        </span>
+                    </div>
 
-                <input
-                    id="reversedEventId"
-                    type="text"
-                    th:field="*{reversedEventId}"
-                    placeholder="Solo para eventos de tipo CANCELLATION">
+                    <div class="card__body">
+                        <form
+                            class="form"
+                            method="post"
+                            th:action="@{/closes/{closeId}/events(
+                                closeId=${closeId}
+                            )}"
+                            th:object="${eventForm}">
 
-                <small>
-                    Debe permanecer vacío para ingresos, gastos y descuentos.
-                </small>
-            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="eventType">
+                                        Tipo de evento
+                                    </label>
 
-            <div>
-                <label for="occurredAt">
-                    Fecha y hora de ocurrencia
-                </label>
+                                    <select
+                                        id="eventType"
+                                        th:field="*{eventType}"
+                                        required>
 
-                <input
-                    id="occurredAt"
-                    type="datetime-local"
-                    th:field="*{occurredAt}"
-                    step="1"
-                    required>
+                                        <option value="">
+                                            Seleccionar tipo
+                                        </option>
 
-                <small>
-                    La fecha y hora se interpreta en la zona de negocio:
-                    <span th:text="${businessTime.zoneId()}">
-                        UTC
-                    </span>.
-                </small>
-            </div>
+                                        <option value="INCOME">
+                                            Ingreso
+                                        </option>
 
-            <div>
-                <label for="responsibleName">
-                    Responsable
-                </label>
+                                        <option value="EXPENSE">
+                                            Gasto
+                                        </option>
 
-                <input
-                    id="responsibleName"
-                    type="text"
-                    th:field="*{responsibleName}"
-                    maxlength="200"
-                    required>
-            </div>
+                                        <option value="DISCOUNT">
+                                            Descuento
+                                        </option>
 
-            <div>
-                <label for="description">
-                    Descripción
-                </label>
+                                        <option value="CANCELLATION">
+                                            Anulación
+                                        </option>
+                                    </select>
 
-                <textarea
-                    id="description"
-                    th:field="*{description}"
-                    rows="5"
-                    required>
-                </textarea>
-            </div>
+                                    <p class="form-help">
+                                        Determina cómo afectará el evento
+                                        al saldo del cierre.
+                                    </p>
+                                </div>
 
-            <button type="submit">
-                Registrar evento
-            </button>
-        </form>
+                                <div class="form-group">
+                                    <label for="amount">
+                                        Importe nominal
+                                    </label>
 
-        <p>
-            <a
-                th:href="@{/closes/{closeId}/events(closeId=${closeId})}">
-                Volver al listado de eventos
-            </a>
-        </p>
-    </main>
+                                    <input
+                                        id="amount"
+                                        type="number"
+                                        th:field="*{amount}"
+                                        min="0.0001"
+                                        step="0.0001"
+                                        placeholder="0.0000"
+                                        required>
+
+                                    <p class="form-help">
+                                        Debe ser mayor que cero y admite
+                                        hasta cuatro decimales.
+                                    </p>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="reversedEventId">
+                                        Identificador del evento anulado
+                                    </label>
+
+                                    <input
+                                        id="reversedEventId"
+                                        type="text"
+                                        th:field="*{reversedEventId}"
+                                        placeholder="Solo para eventos CANCELLATION"
+                                        autocomplete="off">
+
+                                    <p class="form-help">
+                                        Completa este campo únicamente para
+                                        una anulación. Debe permanecer vacío
+                                        para ingresos, gastos y descuentos.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="occurredAt">
+                                        Fecha y hora de ocurrencia
+                                    </label>
+
+                                    <input
+                                        id="occurredAt"
+                                        type="datetime-local"
+                                        th:field="*{occurredAt}"
+                                        step="1"
+                                        required>
+
+                                    <p class="form-help">
+                                        Se interpretará en la zona de negocio:
+                                        <strong th:text="${businessTime.zoneId()}">
+                                            UTC
+                                        </strong>.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="responsibleName">
+                                        Responsable
+                                    </label>
+
+                                    <input
+                                        id="responsibleName"
+                                        type="text"
+                                        th:field="*{responsibleName}"
+                                        maxlength="200"
+                                        placeholder="Nombre o área responsable"
+                                        autocomplete="off"
+                                        required>
+
+                                    <p class="form-help">
+                                        Persona, caja o área responsable
+                                        del movimiento.
+                                    </p>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="description">
+                                        Descripción
+                                    </label>
+
+                                    <textarea
+                                        id="description"
+                                        th:field="*{description}"
+                                        rows="5"
+                                        placeholder="Describe el origen, contexto y finalidad del evento"
+                                        required>
+                                    </textarea>
+
+                                    <p class="form-help">
+                                        Incluye la información necesaria para
+                                        comprender y auditar el registro.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit">
+                                    Registrar evento
+                                </button>
+
+                                <a
+                                    class="button button-secondary"
+                                    th:href="@{/closes/{closeId}/events(
+                                        closeId=${closeId}
+                                    )}">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <aside class="card content-grid__full">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Consideraciones
+                        </p>
+
+                        <h2>
+                            Reglas del registro
+                        </h2>
+
+                        <p class="muted">
+                            Después de registrar el evento podrás asociar
+                            Evidencias de soporte, autorizaciones y ejecutar
+                            su validación. Las anulaciones deben identificar
+                            expresamente el evento que se desea revertir.
+                        </p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

@@ -4,20 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Error | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <p th:text="${status}">500</p>
-        <h1>No fue posible completar la solicitud</h1>
-        <p>
-            Intenta nuevamente más tarde.
-        </p>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            <a th:href="@{/closes}">
-                Volver a cierres operativos
-            </a>
-        </p>
-    </main>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
+
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
+
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes}">
+                    Volver a cierres
+                </a>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section
+                class="card"
+                aria-labelledby="generic-error-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        Error inesperado
+                    </p>
+
+                    <p
+                        class="code-value"
+                        th:text="${status}">
+                        500
+                    </p>
+
+                    <h1
+                        id="generic-error-title"
+                        style="margin-top: 18px;">
+                        No fue posible completar la solicitud
+                    </h1>
+
+                    <p class="page-description">
+                        Se produjo un error inesperado durante el
+                        procesamiento de la operación.
+                    </p>
+
+                    <div class="alert alert--danger">
+                        Intenta nuevamente. Si el problema continúa,
+                        revisa los registros de la aplicación para
+                        identificar la causa técnica.
+                    </div>
+
+                    <div class="form-actions">
+                        <a
+                            class="button"
+                            th:href="@{/closes}">
+                            Volver a cierres operativos
+                        </a>
+
+                        <a
+                            class="button button-secondary"
+                            th:href="@{/dashboard}">
+                            Ir al panel
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

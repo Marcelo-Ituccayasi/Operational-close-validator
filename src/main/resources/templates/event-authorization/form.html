@@ -4,118 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registrar autorización | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Registrar autorización del evento</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Cierre:
-            <span th:text="${closeId}">
-                UUID
-            </span>
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p>
-            Evento:
-            <span th:text="${eventId}">
-                UUID
-            </span>
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <p th:if="${closeState != null}">
-            Estado del cierre:
-            <span th:text="${closeState}">
-                PREPARATION
-            </span>
-        </p>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes/{closeId}/events/{eventId}(
+                        closeId=${closeId},
+                        eventId=${eventId}
+                    )}">
+                    Volver al evento
+                </a>
+            </div>
+        </header>
 
-        <p>
-            La referencia formal se conservará como texto opaco. El sistema
-            no accederá a direcciones web, rutas locales ni recursos externos.
-        </p>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Aprobación formal
+                    </p>
 
-        <p
-            th:if="${errorMessage != null}"
-            th:text="${errorMessage}">
-            Los datos ingresados no son válidos.
-        </p>
+                    <h1>
+                        Registrar autorización
+                    </h1>
 
-        <form
-            method="post"
-            th:action="@{/closes/{closeId}/events/{eventId}/authorizations(closeId=${closeId},eventId=${eventId})}"
-            th:object="${authorizationForm}">
+                    <p class="page-description">
+                        Documenta quién autorizó el evento, cuándo se
+                        produjo la aprobación y cuál fue su fundamento
+                        formal.
+                    </p>
+                </div>
+            </header>
 
-            <p>
-                <label for="authorizedByName">
-                    Autorizado por
-                </label>
+            <div
+                class="alert alert--danger"
+                role="alert"
+                th:if="${errorMessage != null}"
+                th:text="${errorMessage}">
+                Los datos ingresados no son válidos.
+            </div>
 
-                <input
-                    id="authorizedByName"
-                    name="authorizedByName"
-                    type="text"
-                    maxlength="200"
-                    required
-                    th:field="*{authorizedByName}">
-            </p>
+            <section class="content-grid">
+                <div class="card content-grid__full">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Registro asociado
+                        </p>
 
-            <p>
-                <label for="reason">
-                    Motivo
-                </label>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>
+                                    Cierre
+                                </label>
 
-                <textarea
-                    id="reason"
-                    name="reason"
-                    required
-                    th:field="*{reason}"></textarea>
-            </p>
+                                <span
+                                    class="code-value"
+                                    th:text="${closeId}">
+                                    UUID
+                                </span>
+                            </div>
 
-            <p>
-                <label for="authorizedAt">
-                    Fecha y hora de autorización
-                </label>
+                            <div class="form-group">
+                                <label>
+                                    Evento
+                                </label>
 
-                <input
-                    id="authorizedAt"
-                    name="authorizedAt"
-                    type="text"
-                    placeholder="2026-07-24T09:15:00Z"
-                    required
-                    th:field="*{authorizedAt}">
+                                <span
+                                    class="code-value"
+                                    th:text="${eventId}">
+                                    UUID
+                                </span>
+                            </div>
 
-                <small>
-                    Formato ISO-8601 con zona horaria, por ejemplo:
-                    2026-07-24T09:15:00Z
-                </small>
-            </p>
+                            <div
+                                class="form-group form-group--full"
+                                th:if="${closeState != null}">
 
-            <p>
-                <label for="formalReference">
-                    Referencia formal
-                </label>
+                                <label>
+                                    Estado del cierre
+                                </label>
 
-                <input
-                    id="formalReference"
-                    name="formalReference"
-                    type="text"
-                    maxlength="500"
-                    required
-                    th:field="*{formalReference}">
-            </p>
+                                <span
+                                    class="status-badge"
+                                    th:text="${closeState}">
+                                    PREPARATION
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-            <button type="submit">
-                Registrar autorización
-            </button>
-        </form>
+                    <div class="card__body">
+                        <form
+                            class="form"
+                            method="post"
+                            th:action="@{/closes/{closeId}/events/{eventId}/authorizations(
+                                closeId=${closeId},
+                                eventId=${eventId}
+                            )}"
+                            th:object="${authorizationForm}">
 
-        <p>
-            <a
-                th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${eventId})}">
-                Volver al evento
-            </a>
-        </p>
-    </main>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="authorizedByName">
+                                        Autorizado por
+                                    </label>
+
+                                    <input
+                                        id="authorizedByName"
+                                        name="authorizedByName"
+                                        type="text"
+                                        maxlength="200"
+                                        placeholder="Nombre o cargo del autorizador"
+                                        autocomplete="off"
+                                        required
+                                        th:field="*{authorizedByName}">
+
+                                    <p class="form-help">
+                                        Persona o autoridad que aprobó
+                                        formalmente el evento.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="authorizedAt">
+                                        Fecha y hora de autorización
+                                    </label>
+
+                                    <input
+                                        id="authorizedAt"
+                                        name="authorizedAt"
+                                        type="text"
+                                        placeholder="2026-07-24T09:15:00Z"
+                                        autocomplete="off"
+                                        required
+                                        th:field="*{authorizedAt}">
+
+                                    <p class="form-help">
+                                        Usa formato ISO-8601 con zona horaria,
+                                        por ejemplo: 2026-07-24T09:15:00Z.
+                                    </p>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="reason">
+                                        Motivo
+                                    </label>
+
+                                    <textarea
+                                        id="reason"
+                                        name="reason"
+                                        rows="5"
+                                        placeholder="Describe el fundamento de la autorización"
+                                        required
+                                        th:field="*{reason}">
+                                    </textarea>
+
+                                    <p class="form-help">
+                                        Explica por qué el evento fue autorizado
+                                        y qué condición operativa lo justifica.
+                                    </p>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="formalReference">
+                                        Referencia formal
+                                    </label>
+
+                                    <input
+                                        id="formalReference"
+                                        name="formalReference"
+                                        type="text"
+                                        maxlength="500"
+                                        placeholder="AUTH-001"
+                                        autocomplete="off"
+                                        required
+                                        th:field="*{formalReference}">
+
+                                    <p class="form-help">
+                                        Identificador, acta, ticket o referencia
+                                        documental que respalda la autorización.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit">
+                                    Registrar autorización
+                                </button>
+
+                                <a
+                                    class="button button-secondary"
+                                    th:href="@{/closes/{closeId}/events/{eventId}(
+                                        closeId=${closeId},
+                                        eventId=${eventId}
+                                    )}">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <aside class="card content-grid__full">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Tratamiento de la referencia
+                        </p>
+
+                        <h2>
+                            Documento externo no consultado
+                        </h2>
+
+                        <p class="muted">
+                            La referencia formal se conservará como texto
+                            opaco. El sistema no accederá a direcciones web,
+                            rutas locales ni recursos externos indicados
+                            en este campo.
+                        </p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
