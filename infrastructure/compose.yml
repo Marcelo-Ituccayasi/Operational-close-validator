@@ -1,0 +1,83 @@
+name: "ocv-${OCV_ENVIRONMENT:?OCV_ENVIRONMENT is required}"
+
+services:
+  postgres:
+    image: postgres@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ocv
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:?SPRING_DATASOURCE_USERNAME is required}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?SPRING_DATASOURCE_PASSWORD is required}
+      TZ: UTC
+      PGTZ: UTC
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    stop_grace_period: 60s
+
+  app:
+    image: ${OCV_IMAGE_REFERENCE:?OCV_IMAGE_REFERENCE must be an immutable image reference by digest}
+    restart: unless-stopped
+    init: true
+    user: "10001:10001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:?SPRING_PROFILES_ACTIVE is required}
+      OCV_ENVIRONMENT: ${OCV_ENVIRONMENT:?OCV_ENVIRONMENT is required}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL is required}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:?SPRING_DATASOURCE_USERNAME is required}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?SPRING_DATASOURCE_PASSWORD is required}
+      OCV_AUTH_USERNAME: ${OCV_AUTH_USERNAME:?OCV_AUTH_USERNAME is required}
+      OCV_AUTH_PASSWORD_HASH: ${OCV_AUTH_PASSWORD_HASH:?OCV_AUTH_PASSWORD_HASH is required}
+      OCV_SESSION_EXPIRY_MINUTES: ${OCV_SESSION_EXPIRY_MINUTES:-30}
+      OCV_LOGIN_MAX_FAILURES: ${OCV_LOGIN_MAX_FAILURES:-10}
+      OCV_LOGIN_WINDOW_SECONDS: ${OCV_LOGIN_WINDOW_SECONDS:-300}
+      OCV_LOGIN_BLOCK_SECONDS: ${OCV_LOGIN_BLOCK_SECONDS:-300}
+      OCV_TRUSTED_PROXY_CIDRS: ${OCV_TRUSTED_PROXY_CIDRS:?OCV_TRUSTED_PROXY_CIDRS is required}
+      OCV_EVIDENCE_STORAGE_PATH: /var/lib/ocv/evidence
+      OCV_EVIDENCE_MAX_FILE_SIZE_BYTES: ${OCV_EVIDENCE_MAX_FILE_SIZE_BYTES:-10485760}
+      OCV_EVIDENCE_MAX_REQUEST_SIZE_BYTES: ${OCV_EVIDENCE_MAX_REQUEST_SIZE_BYTES:-12582912}
+      OCV_BUSINESS_TIME_ZONE: ${OCV_BUSINESS_TIME_ZONE:-UTC}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - evidence_data:/var/lib/ocv/evidence
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,uid=10001,gid=10001
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -ec 'exec 3<>/dev/tcp/127.0.0.1/8080;
+          printf "GET /actuator/health/readiness HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3;
+          IFS= read -r status <&3;
+          case "$$status" in *" 200 "*) exit 0 ;; *) exit 1 ;; esac'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    stop_grace_period: 40s
+
+volumes:
+  postgres_data:
+    name: "ocv-${OCV_ENVIRONMENT}-postgres"
+  evidence_data:
+    name: "ocv-${OCV_ENVIRONMENT}-evidence"
+
+networks:
+  default:
+    name: "ocv-${OCV_ENVIRONMENT}-private"

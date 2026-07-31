@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotBlank;
  * {@code OCV_EVIDENCE_STORAGE_PATH}. No production path default is provided.
  *
  * <p>The maximum content size may be reduced through
- * {@code OCV_EVIDENCE_STORAGE_MAXIMUM_CONTENT_BYTES}, but it cannot exceed
+ * {@code OCV_EVIDENCE_MAX_FILE_SIZE_BYTES}, but it cannot exceed
  * the approved 10 MiB limit.
  *
  * @param path absolute existing storage directory
@@ -30,10 +30,10 @@ public record SupportingEvidenceStorageProperties(
 
         @Min(
                 value = 1L,
-                message = "OCV_EVIDENCE_STORAGE_MAXIMUM_CONTENT_BYTES must be at least 1")
+                message = "OCV_EVIDENCE_MAX_FILE_SIZE_BYTES must be at least 1")
         @Max(
                 value = 10_485_760L,
-                message = "OCV_EVIDENCE_STORAGE_MAXIMUM_CONTENT_BYTES must not exceed 10485760")
+                message = "OCV_EVIDENCE_MAX_FILE_SIZE_BYTES must not exceed 10485760")
         long maximumContentBytes) {
 
     public SupportingEvidenceStorageProperties {

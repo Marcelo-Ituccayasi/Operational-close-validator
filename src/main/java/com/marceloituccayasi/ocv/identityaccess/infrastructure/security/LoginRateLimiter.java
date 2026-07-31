@@ -10,7 +10,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.marceloituccayasi.ocv.identityaccess.infrastructure.configuration.LoginRateLimitProperties;
 
 /**
  * Bounded in-memory login failure limiter.
@@ -18,16 +21,19 @@ import org.springframework.stereotype.Component;
 @Component
 public final class LoginRateLimiter {
 
-    static final int MAXIMUM_FAILURES = 10;
-    static final Duration FAILURE_WINDOW =
+    private static final int DEFAULT_MAXIMUM_FAILURES = 10;
+    private static final Duration DEFAULT_FAILURE_WINDOW =
             Duration.ofMinutes(5);
-    static final Duration BLOCK_DURATION =
+    private static final Duration DEFAULT_BLOCK_DURATION =
             Duration.ofMinutes(5);
 
     private static final int MAXIMUM_KEYS =
             10_000;
 
     private final Clock clock;
+    private final int maximumFailures;
+    private final Duration failureWindow;
+    private final Duration blockDuration;
 
     private final Map<LoginRateLimitKey, AttemptState>
             attempts =
@@ -40,8 +46,41 @@ public final class LoginRateLimiter {
         this(Clock.systemUTC());
     }
 
+    @Autowired
+    public LoginRateLimiter(
+            LoginRateLimitProperties properties) {
+
+        this(
+                Clock.systemUTC(),
+                properties.maxFailures(),
+                Duration.ofSeconds(
+                        properties.windowSeconds()),
+                Duration.ofSeconds(
+                        properties.blockSeconds()));
+    }
+
     LoginRateLimiter(Clock clock) {
-        this.clock = Objects.requireNonNull(clock);
+        this(
+                clock,
+                DEFAULT_MAXIMUM_FAILURES,
+                DEFAULT_FAILURE_WINDOW,
+                DEFAULT_BLOCK_DURATION);
+    }
+
+    LoginRateLimiter(
+            Clock clock,
+            int maximumFailures,
+            Duration failureWindow,
+            Duration blockDuration) {
+
+        this.clock =
+                Objects.requireNonNull(clock);
+        this.maximumFailures =
+                maximumFailures;
+        this.failureWindow =
+                Objects.requireNonNull(failureWindow);
+        this.blockDuration =
+                Objects.requireNonNull(blockDuration);
     }
 
     public synchronized boolean isBlocked(
@@ -102,12 +141,11 @@ public final class LoginRateLimiter {
         state.failures.addLast(now);
 
         if (state.failures.size()
-                >= MAXIMUM_FAILURES) {
+                >= maximumFailures) {
 
             state.failures.clear();
             state.blockedUntil =
-                    now.plus(BLOCK_DURATION);
-
+                    now.plus(blockDuration);
             enforceMaximumSize();
             return true;
         }
@@ -132,7 +170,7 @@ public final class LoginRateLimiter {
             Instant now) {
 
         Instant windowStart =
-                now.minus(FAILURE_WINDOW);
+                now.minus(failureWindow);
 
         while (!state.failures.isEmpty()
                 && !state.failures

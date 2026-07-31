@@ -1,0 +1,202 @@
+name: Publish OCI image
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+
+permissions: {}
+
+concurrency:
+  group: publish-oci-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish immutable OCI image
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-reference: ${{ steps.publish.outputs.reference }}
+      image-digest: ${{ steps.publish.outputs.digest }}
+      image-tag: ${{ steps.coordinates.outputs.tag }}
+      image-version: ${{ steps.coordinates.outputs.version }}
+
+    env:
+      COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      - name: Check out verified commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.COMMIT_SHA }}
+          persist-credentials: false
+
+      - name: Resolve immutable image coordinates
+        id: coordinates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(
+            python3 -c "import xml.etree.ElementTree as ET; root=ET.parse('pom.xml').getroot(); namespace={'m':'http://maven.apache.org/POM/4.0.0'}; print(root.find('m:version', namespace).text.strip())"
+          )"
+
+          test -n "$version"
+
+          version_tag="$(
+            printf '%s' "$version" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's/[^a-z0-9_.-]+/-/g'
+          )"
+
+          test -n "$version_tag"
+
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          tag="${image}:version-${version_tag}-sha-${COMMIT_SHA}-run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          {
+            echo "version=$version"
+            echo "image=$image"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" \
+            | docker login ghcr.io \
+                --username "${{ github.actor }}" \
+                --password-stdin
+
+      - name: Build candidate image
+        shell: bash
+        env:
+          APP_VERSION: ${{ steps.coordinates.outputs.version }}
+          IMAGE_TAG: ${{ steps.coordinates.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          docker build \
+            --pull \
+            --build-arg "APP_VERSION=$APP_VERSION" \
+            --build-arg "VCS_REF=$COMMIT_SHA" \
+            --tag "$IMAGE_TAG" \
+            .
+
+      - name: Validate candidate image
+        shell: bash
+        env:
+          APP_VERSION: ${{ steps.coordinates.outputs.version }}
+          IMAGE_TAG: ${{ steps.coordinates.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          test "$(
+            docker image inspect "$IMAGE_TAG" \
+              --format '{{.Config.User}}'
+          )" = "10001:10001"
+
+          test "$(
+            docker image inspect "$IMAGE_TAG" \
+              --format '{{index .Config.Labels "org.opencontainers.image.version"}}'
+          )" = "$APP_VERSION"
+
+          test "$(
+            docker image inspect "$IMAGE_TAG" \
+              --format '{{index .Config.Labels "org.opencontainers.image.revision"}}'
+          )" = "$COMMIT_SHA"
+
+          docker run \
+            --rm \
+            --entrypoint sh \
+            "$IMAGE_TAG" \
+            -c 'id -u | grep -qx 10001 && test -r /opt/ocv/app.jar && test ! -e /workspace && test ! -e /opt/ocv/.git'
+
+      - name: Publish and record digest
+        id: publish
+        shell: bash
+        env:
+          APP_VERSION: ${{ steps.coordinates.outputs.version }}
+          IMAGE_NAME: ${{ steps.coordinates.outputs.image }}
+          IMAGE_TAG: ${{ steps.coordinates.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          push_output="$(docker push "$IMAGE_TAG" 2>&1)"
+          printf '%s\n' "$push_output"
+
+          digest="$(
+            printf '%s\n' "$push_output" \
+              | sed -nE 's/.*digest: (sha256:[0-9a-f]{64}).*/\1/p' \
+              | tail -n 1
+          )"
+
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+
+          reference="${IMAGE_NAME}@${digest}"
+
+          {
+            echo "digest=$digest"
+            echo "reference=$reference"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Published OCI image"
+            echo
+            echo "- Version: \`$APP_VERSION\`"
+            echo "- Commit: \`$COMMIT_SHA\`"
+            echo "- Tag: \`$IMAGE_TAG\`"
+            echo "- Digest: \`$digest\`"
+            echo "- Immutable reference: \`$reference\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate published digest
+        shell: bash
+        env:
+          APP_VERSION: ${{ steps.coordinates.outputs.version }}
+          REFERENCE: ${{ steps.publish.outputs.reference }}
+        run: |
+          set -euo pipefail
+
+          docker pull "$REFERENCE"
+
+          test "$(
+            docker image inspect "$REFERENCE" \
+              --format '{{.Config.User}}'
+          )" = "10001:10001"
+
+          test "$(
+            docker image inspect "$REFERENCE" \
+              --format '{{index .Config.Labels "org.opencontainers.image.version"}}'
+          )" = "$APP_VERSION"
+
+          test "$(
+            docker image inspect "$REFERENCE" \
+              --format '{{index .Config.Labels "org.opencontainers.image.revision"}}'
+          )" = "$COMMIT_SHA"
+
+          docker run \
+            --rm \
+            --entrypoint sh \
+            "$REFERENCE" \
+            -c 'id -u | grep -qx 10001 && test -r /opt/ocv/app.jar'
+
+      - name: Log out from GHCR
+        if: always()
+        run: docker logout ghcr.io || true

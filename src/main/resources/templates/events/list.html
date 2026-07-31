@@ -53,7 +53,7 @@
 
             <tbody>
                 <tr th:each="event : ${events}">
-                    <td th:text="${event.occurredAt}">
+                    <td th:text="${businessTime.format(event.occurredAt)}">
                         2026-07-22T15:30:00Z
                     </td>
 

@@ -33,3 +33,5 @@ coverage/
 
 # Maven
 target/
+
+!infrastructure/.env.local.example
