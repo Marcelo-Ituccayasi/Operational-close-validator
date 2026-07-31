@@ -17,6 +17,11 @@ class DeploymentConfigurationContractTest {
         Properties properties = loadApplicationProperties();
 
         assertThat(properties.getProperty(
+                "spring.flyway.default-schema"))
+                .isEqualTo(
+                        "public");
+
+        assertThat(properties.getProperty(
                 "ocv.business.time-zone"))
                 .isEqualTo(
                         "${OCV_BUSINESS_TIME_ZONE:UTC}");
