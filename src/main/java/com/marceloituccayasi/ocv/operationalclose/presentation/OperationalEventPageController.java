@@ -18,6 +18,7 @@ import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalClos
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventDetail;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventResult;
 import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventSupportingInformation;
+import com.marceloituccayasi.ocv.operationalclose.application.GetOperationalEventSupportingInformationResult;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEvents;
 import com.marceloituccayasi.ocv.operationalclose.application.ListOperationalEventsResult;
 import com.marceloituccayasi.ocv.operationalclose.application.UpdateOperationalEvent;
@@ -43,6 +44,9 @@ public class OperationalEventPageController {
 
     private final GetOperationalEventDetail
             getOperationalEventDetail;
+
+    private final GetOperationalEventSupportingInformation
+            getOperationalEventSupportingInformation;
 
     private final BusinessDateTimeFormatter
             businessDateTimeFormatter;
@@ -76,6 +80,10 @@ public class OperationalEventPageController {
         this.getOperationalEventDetail =
                 Objects.requireNonNull(
                         getOperationalEventDetail);
+
+        this.getOperationalEventSupportingInformation =
+                Objects.requireNonNull(
+                        getOperationalEventSupportingInformation);
 
         this.businessDateTimeFormatter =
                 Objects.requireNonNull(
@@ -290,6 +298,18 @@ public class OperationalEventPageController {
             return eventNotFound();
         }
 
+        GetOperationalEventSupportingInformationResult supportingInformation =
+                getOperationalEventSupportingInformation.execute(
+                        identifiers.closeId(),
+                        identifiers.eventId());
+
+        if (supportingInformation.status()
+                == GetOperationalEventSupportingInformationResult.Status
+                        .NOT_FOUND) {
+
+            return eventNotFound();
+        }
+
         ModelAndView modelAndView =
                 new ModelAndView(
                         "events/detail");
@@ -313,6 +333,14 @@ public class OperationalEventPageController {
                 closeResult
                         .operationalClose()
                         .editable());
+
+        modelAndView.addObject(
+                "supportingEvidence",
+                supportingInformation.supportingEvidence());
+
+        modelAndView.addObject(
+                "authorizations",
+                supportingInformation.authorizations());
 
         return modelAndView;
     }
