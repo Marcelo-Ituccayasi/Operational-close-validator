@@ -4,34 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Panel | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Panel de cierres operativos</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Sesión autenticada como
-            <strong th:text="${username}">usuario</strong>.
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <nav aria-label="Acciones principales">
-            <ul>
-                <li>
-                    <a th:href="@{/closes}">
-                        Ver cierres operativos
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
+
+                <div class="user-summary">
+                    <span
+                        class="user-summary__avatar"
+                        aria-hidden="true">
+                        U
+                    </span>
+
+                    <span class="user-summary__content">
+                        <span class="user-summary__label">
+                            Usuario autenticado
+                        </span>
+
+                        <strong
+                            class="user-summary__name"
+                            th:text="${username}">
+                            usuario
+                        </strong>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Panel de cierres operativos
+                    </p>
+
+                    <h1>
+                        Cierres operativos
+                    </h1>
+
+                    <p class="page-description">
+                        Administra el ciclo completo de cada cierre,
+                        desde su preparación hasta la validación,
+                        consolidación y envío interno.
+                    </p>
+                </div>
+
+                <div class="page-actions">
+                    <a
+                        class="button"
+                        th:href="@{/closes/new}">
+                        Crear cierre
                     </a>
-                </li>
-                <li>
-                    <a th:href="@{/closes/new}">
-                        Crear cierre operativo
-                    </a>
-                </li>
-            </ul>
-        </nav>
 
-        <form method="post" th:action="@{/logout}">
-            <button type="submit">Cerrar sesión</button>
-        </form>
-    </main>
+                    <form
+                        method="post"
+                        th:action="@{/logout}">
+                        <button
+                            class="button-secondary"
+                            type="submit">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            <section
+                class="action-grid"
+                aria-label="Acciones principales">
+
+                <a
+                    class="action-card"
+                    th:href="@{/closes}">
+                    <span
+                        class="action-card__icon"
+                        aria-hidden="true">
+                        LC
+                    </span>
+
+                    <span>
+                        <h2 class="action-card__title">
+                            Listado de cierres
+                        </h2>
+
+                        <p class="action-card__description">
+                            Consulta los cierres registrados, revisa su
+                            estado y accede al detalle de cada proceso.
+                        </p>
+                    </span>
+                </a>
+
+                <a
+                    class="action-card"
+                    th:href="@{/closes/new}">
+                    <span
+                        class="action-card__icon"
+                        aria-hidden="true">
+                        +
+                    </span>
+
+                    <span>
+                        <h2 class="action-card__title">
+                            Nuevo cierre operativo
+                        </h2>
+
+                        <p class="action-card__description">
+                            Inicia un nuevo período operativo indicando
+                            fechas, moneda y saldo inicial.
+                        </p>
+                    </span>
+                </a>
+            </section>
+
+            <section
+                class="content-grid"
+                style="margin-top: 20px;"
+                aria-label="Características del flujo">
+
+                <article class="card content-grid__half">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Flujo controlado
+                        </p>
+
+                        <h2>
+                            Validación progresiva
+                        </h2>
+
+                        <p class="muted">
+                            Cada cierre avanza mediante reglas de negocio
+                            que verifican eventos, Alertas, Evidencias y
+                            autorizaciones antes de permitir su envío.
+                        </p>
+                    </div>
+                </article>
+
+                <article class="card content-grid__half">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Auditoría
+                        </p>
+
+                        <h2>
+                            Trazabilidad operativa
+                        </h2>
+
+                        <p class="muted">
+                            Las acciones relevantes quedan asociadas al
+                            cierre, al usuario autenticado y al momento
+                            exacto en que fueron registradas.
+                        </p>
+                    </div>
+                </article>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="next-step-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        Acción recomendada
+                    </p>
+
+                    <h2 id="next-step-title">
+                        Revisa los cierres operativos
+                    </h2>
+
+                    <p class="muted">
+                        Accede al listado para continuar trabajando con
+                        un cierre existente o crea uno nuevo para iniciar
+                        otro período.
+                    </p>
+
+                    <div class="inline-actions">
+                        <a
+                            class="button"
+                            th:href="@{/closes}">
+                            Ver cierres
+                        </a>
+
+                        <a
+                            class="button button-secondary"
+                            th:href="@{/}">
+                            Volver al inicio
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

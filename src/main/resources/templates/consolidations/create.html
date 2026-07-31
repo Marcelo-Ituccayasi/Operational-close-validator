@@ -4,189 +4,465 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consolidar cierre | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Consolidar cierre operativo</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p
-            role="alert"
-            th:if="${errorMessage}"
-            th:text="${errorMessage}">
-            Los datos ingresados no son válidos.
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <section>
-            <h2>Información del cierre</h2>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-            <dl>
-                <dt>Identificador</dt>
-                <dd th:text="${preview.close.id}">
-                    UUID
-                </dd>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes/{closeId}(
+                        closeId=${preview.close.id}
+                    )}">
+                    Volver al cierre
+                </a>
+            </div>
+        </header>
 
-                <dt>Estado actual</dt>
-                <dd th:text="${preview.close.state}">
-                    PREPARATION
-                </dd>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Verificación final
+                    </p>
 
-                <dt>Moneda</dt>
-                <dd th:text="${preview.close.currencyCode}">
-                    PEN
-                </dd>
+                    <h1>
+                        Consolidar cierre operativo
+                    </h1>
 
-                <dt>Saldo inicial</dt>
-                <dd th:text="${preview.close.initialBalance}">
-                    0.0000
-                </dd>
+                    <p class="page-description">
+                        Revisa los eventos incluidos, los totales
+                        preliminares y el saldo esperado antes de
+                        ejecutar la consolidación.
+                    </p>
+                </div>
 
-                <dt>Cantidad de eventos</dt>
-                <dd th:text="${preview.eventCount}">
-                    0
-                </dd>
-            </dl>
-        </section>
+                <div class="page-actions">
+                    <span
+                        class="status-badge"
+                        th:text="${preview.close.state}">
+                        PREPARATION
+                    </span>
+                </div>
+            </header>
 
-        <section>
-            <h2>Totales preliminares</h2>
-
-            <dl>
-                <dt>Total de ingresos</dt>
-                <dd th:text="${preview.totalIncome}">
-                    0.0000
-                </dd>
-
-                <dt>Total de gastos</dt>
-                <dd th:text="${preview.totalExpense}">
-                    0.0000
-                </dd>
-
-                <dt>Total de descuentos</dt>
-                <dd th:text="${preview.totalDiscount}">
-                    0.0000
-                </dd>
-
-                <dt>Total de anulaciones</dt>
-                <dd th:text="${preview.totalCancellation}">
-                    0.0000
-                </dd>
-
-                <dt>Saldo esperado preliminar</dt>
-                <dd th:text="${preview.expectedBalance}">
-                    0.0000
-                </dd>
-            </dl>
-
-            <p th:if="${preview.ready}">
-                El cierre cumple actualmente las precondiciones
-                para consolidarse.
-            </p>
-
-            <p
+            <div
+                class="alert alert--danger"
                 role="alert"
-                th:unless="${preview.ready}">
-                El cierre todavía contiene condiciones que pueden
-                impedir la consolidación.
-            </p>
-        </section>
-
-        <section>
-            <h2>Eventos incluidos</h2>
-
-            <p th:unless="${preview.eventsPresent}">
-                El cierre todavía no contiene eventos operativos.
-            </p>
-
-            <table th:if="${preview.eventsPresent}">
-                <thead>
-                    <tr>
-                        <th>Identificador</th>
-                        <th>Tipo</th>
-                        <th>Importe</th>
-                        <th>Efecto en saldo</th>
-                        <th>Estado</th>
-                        <th>Revisión</th>
-                        <th>Condición</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr th:each="event : ${preview.events}">
-                        <td th:text="${event.id}">
-                            UUID
-                        </td>
-
-                        <td th:text="${event.eventType}">
-                            INCOME
-                        </td>
-
-                        <td th:text="${event.amount}">
-                            0.0000
-                        </td>
-
-                        <td th:text="${event.balanceEffect}">
-                            0.0000
-                        </td>
-
-                        <td th:text="${event.state}">
-                            VALIDATED
-                        </td>
-
-                        <td th:text="${event.dataRevision}">
-                            1
-                        </td>
-
-                        <td
-                            th:text="${#lists.contains(
-                                preview.affectedEventIds,
-                                event.id
-                            )} ? 'Requiere corrección' : 'Sin observaciones'">
-                            Sin observaciones
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <form
-            method="post"
-            th:action="@{/closes/{closeId}/consolidate(
-                closeId=${preview.close.id}
-            )}"
-            th:object="${consolidationForm}">
-
-            <div>
-                <label for="actualBalance">
-                    Saldo real
-                </label>
-
-                <input
-                    id="actualBalance"
-                    type="number"
-                    th:field="*{actualBalance}"
-                    min="0"
-                    step="0.0001"
-                    required>
-
-                <small>
-                    Ingresa un importe no negativo con un máximo
-                    de cuatro decimales.
-                </small>
+                th:if="${errorMessage}"
+                th:text="${errorMessage}">
+                Los datos ingresados no son válidos.
             </div>
 
-            <button type="submit">
-                Ejecutar consolidación
-            </button>
-        </form>
+            <div
+                class="callout callout--success"
+                th:if="${preview.ready}">
 
-        <p>
-            <a
-                th:href="@{/closes/{closeId}(
-                    closeId=${preview.close.id}
-                )}">
-                Volver al detalle del cierre
-            </a>
-        </p>
-    </main>
+                <h2 class="callout__title">
+                    Cierre preparado para consolidación
+                </h2>
+
+                <p class="callout__text">
+                    El cierre cumple actualmente las precondiciones
+                    necesarias para ejecutar la consolidación.
+                </p>
+            </div>
+
+            <div
+                class="callout callout--warning"
+                th:unless="${preview.ready}">
+
+                <h2 class="callout__title">
+                    Existen condiciones pendientes
+                </h2>
+
+                <p class="callout__text">
+                    El cierre todavía contiene condiciones que pueden
+                    impedir que la consolidación se complete.
+                </p>
+            </div>
+
+            <section
+                class="content-grid"
+                style="margin-top: 20px;"
+                aria-label="Resumen de consolidación">
+
+                <article class="card content-grid__half">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Contexto
+                        </p>
+
+                        <h2>
+                            Información del cierre
+                        </h2>
+                    </div>
+
+                    <div class="card__body">
+                        <dl class="definition-list">
+                            <div class="definition-item">
+                                <dt>
+                                    Identificador
+                                </dt>
+
+                                <dd>
+                                    <span
+                                        class="code-value"
+                                        th:text="${preview.close.id}">
+                                        UUID
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Estado actual
+                                </dt>
+
+                                <dd>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${preview.close.state}">
+                                        PREPARATION
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Moneda
+                                </dt>
+
+                                <dd th:text="${preview.close.currencyCode}">
+                                    PEN
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Saldo inicial
+                                </dt>
+
+                                <dd th:text="${preview.close.initialBalance}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Cantidad de eventos
+                                </dt>
+
+                                <dd th:text="${preview.eventCount}">
+                                    0
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </article>
+
+                <article class="card content-grid__half">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Cálculo previo
+                        </p>
+
+                        <h2>
+                            Totales preliminares
+                        </h2>
+                    </div>
+
+                    <div class="card__body">
+                        <dl class="definition-list">
+                            <div class="definition-item">
+                                <dt>
+                                    Total de ingresos
+                                </dt>
+
+                                <dd th:text="${preview.totalIncome}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Total de gastos
+                                </dt>
+
+                                <dd th:text="${preview.totalExpense}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Total de descuentos
+                                </dt>
+
+                                <dd th:text="${preview.totalDiscount}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Total de anulaciones
+                                </dt>
+
+                                <dd th:text="${preview.totalCancellation}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Saldo esperado
+                                </dt>
+
+                                <dd>
+                                    <strong th:text="${preview.expectedBalance}">
+                                        0.0000
+                                    </strong>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </article>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="included-events-title">
+
+                <div class="card__body">
+                    <header class="section-header">
+                        <div class="section-header__content">
+                            <p class="page-eyebrow">
+                                Alcance
+                            </p>
+
+                            <h2 id="included-events-title">
+                                Eventos incluidos
+                            </h2>
+
+                            <p class="section-header__description">
+                                Registros considerados para calcular el
+                                saldo esperado y determinar la viabilidad
+                                de la consolidación.
+                            </p>
+                        </div>
+                    </header>
+
+                    <div
+                        class="empty-state"
+                        th:unless="${preview.eventsPresent}">
+
+                        <h3 class="empty-state__title">
+                            No existen eventos operativos
+                        </h3>
+
+                        <p class="empty-state__description">
+                            El cierre todavía no contiene eventos operativos.
+                        </p>
+
+                        <p class="empty-state__description">
+                            La ausencia de eventos debe impedir la consolidación.
+                        </p>
+                    </div>
+
+                    <div
+                        class="table-wrapper"
+                        th:if="${preview.eventsPresent}">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Identificador
+                                    </th>
+
+                                    <th scope="col">
+                                        Tipo
+                                    </th>
+
+                                    <th scope="col">
+                                        Importe
+                                    </th>
+
+                                    <th scope="col">
+                                        Efecto en saldo
+                                    </th>
+
+                                    <th scope="col">
+                                        Estado
+                                    </th>
+
+                                    <th scope="col">
+                                        Revisión
+                                    </th>
+
+                                    <th scope="col">
+                                        Condición
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr th:each="event : ${preview.events}">
+                                    <td>
+                                        <span
+                                            class="code-value"
+                                            th:text="${event.id}">
+                                            UUID
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="status-badge"
+                                            th:text="${event.eventType}">
+                                            INCOME
+                                        </span>
+                                    </td>
+
+                                    <td th:text="${event.amount}">
+                                        0.0000
+                                    </td>
+
+                                    <td th:text="${event.balanceEffect}">
+                                        0.0000
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="status-badge"
+                                            th:text="${event.state}">
+                                            VALIDATED
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="code-value"
+                                            th:text="${event.dataRevision}">
+                                            1
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="status-badge"
+                                            th:text="${#lists.contains(
+                                                preview.affectedEventIds,
+                                                event.id
+                                            )
+                                                ? 'Requiere corrección'
+                                                : 'Sin observaciones'}">
+                                            Sin observaciones
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="consolidation-form-title">
+
+                <div class="card__header">
+                    <p class="page-eyebrow">
+                        Confirmación
+                    </p>
+
+                    <h2 id="consolidation-form-title">
+                        Registrar saldo real
+                    </h2>
+
+                    <p class="muted">
+                        Ingresa el saldo observado al finalizar el
+                        período. El sistema lo comparará con el saldo
+                        esperado durante la consolidación.
+                    </p>
+                </div>
+
+                <div class="card__body">
+                    <form
+                        class="form"
+                        method="post"
+                        th:action="@{/closes/{closeId}/consolidate(
+                            closeId=${preview.close.id}
+                        )}"
+                        th:object="${consolidationForm}">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="actualBalance">
+                                    Saldo real
+                                </label>
+
+                                <input
+                                    id="actualBalance"
+                                    type="number"
+                                    th:field="*{actualBalance}"
+                                    min="0"
+                                    step="0.0001"
+                                    placeholder="0.0000"
+                                    required>
+
+                                <p class="form-help">
+                                    Ingresa un importe no negativo con
+                                    un máximo de cuatro decimales.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit">
+                                Ejecutar consolidación
+                            </button>
+
+                            <a
+                                class="button button-secondary"
+                                th:href="@{/closes/{closeId}(
+                                    closeId=${preview.close.id}
+                                )}">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

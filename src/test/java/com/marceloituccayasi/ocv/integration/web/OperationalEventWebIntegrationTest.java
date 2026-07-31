@@ -255,6 +255,120 @@ class OperationalEventWebIntegrationTest {
     }
 
     @Test
+        void displaysSupportingEvidenceAndAuthorizationsInEventDetail()
+                throws Exception {
+
+        MockHttpSession session =
+                authenticatedSession();
+
+        UUID closeId =
+                createCloseAndGetId(
+                        session,
+                        "2026-07-01",
+                        "2026-07-31");
+
+        UUID eventId =
+                createEventAndGetId(
+                        session,
+                        closeId,
+                        "INCOME",
+                        "250.0000",
+                        null,
+                        "2026-07-22T15:30:00Z",
+                        "Ingreso con información de soporte");
+
+        mockMvc.perform(
+                        post(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId
+                                        + "/supporting-evidence")
+                                .session(
+                                        session)
+                                .with(
+                                        csrf())
+                                .param(
+                                        "evidenceType",
+                                        "RECEIPT")
+                                .param(
+                                        "contentReference",
+                                        "integration-evidence-001")
+                                .param(
+                                        "supportedAmount",
+                                        "250.0000")
+                                .param(
+                                        "evidenceDate",
+                                        "2026-07-22")
+                                .param(
+                                        "legibilityStatus",
+                                        "LEGIBLE"))
+                .andExpect(
+                        status().isSeeOther())
+                .andExpect(
+                        redirectedUrl(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId));
+
+        mockMvc.perform(
+                        post(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId
+                                        + "/authorizations")
+                                .session(
+                                        session)
+                                .with(
+                                        csrf())
+                                .param(
+                                        "authorizedByName",
+                                        "Supervisor de integración")
+                                .param(
+                                        "authorizedAt",
+                                        "2026-07-22T16:00:00Z")
+                                .param(
+                                        "reason",
+                                        "Autorización para prueba de integración")
+                                .param(
+                                        "formalReference",
+                                        "AUTH-INTEGRATION-001"))
+                .andExpect(
+                        status().isSeeOther())
+                .andExpect(
+                        redirectedUrl(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId));
+
+        mockMvc.perform(
+                        get(
+                                "/closes/"
+                                        + closeId
+                                        + "/events/"
+                                        + eventId)
+                                .session(
+                                        session))
+                .andExpect(
+                        status().isOk())
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "integration-evidence-001")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "AUTH-INTEGRATION-001")))
+                .andExpect(
+                        content().string(
+                                containsString(
+                                        "Supervisor de integración")));
+    }
+
+    @Test
     void interpretsLocalOccurredAtInConfiguredBusinessTimeZone()
             throws Exception {
 

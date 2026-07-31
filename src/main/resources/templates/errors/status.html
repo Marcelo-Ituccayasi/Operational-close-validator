@@ -3,23 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title th:text="${title + ' | Operational Close Validator'}">
         Error | Operational Close Validator
     </title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <p th:text="${statusCode}">400</p>
-        <h1 th:text="${title}">Solicitud inválida</h1>
-        <p th:text="${message}">
-            No fue posible completar la solicitud.
-        </p>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            <a th:href="@{/closes}">
-                Volver a cierres operativos
-            </a>
-        </p>
-    </main>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
+
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
+
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes}">
+                    Volver a cierres
+                </a>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section
+                class="card"
+                aria-labelledby="error-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        No fue posible completar la operación
+                    </p>
+
+                    <p
+                        class="code-value"
+                        th:text="${statusCode}">
+                        400
+                    </p>
+
+                    <h1
+                        id="error-title"
+                        style="margin-top: 18px;"
+                        th:text="${title}">
+                        Solicitud inválida
+                    </h1>
+
+                    <p
+                        class="page-description"
+                        th:text="${message}">
+                        No fue posible completar la solicitud.
+                    </p>
+
+                    <div class="alert alert--warning">
+                        Revisa la información ingresada o vuelve al flujo
+                        anterior para continuar con una operación válida.
+                    </div>
+
+                    <div class="form-actions">
+                        <a
+                            class="button"
+                            th:href="@{/closes}">
+                            Volver a cierres operativos
+                        </a>
+
+                        <a
+                            class="button button-secondary"
+                            th:href="@{/dashboard}">
+                            Ir al panel
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

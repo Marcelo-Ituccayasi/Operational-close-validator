@@ -4,157 +4,388 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Detalle del cierre | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Detalle del cierre operativo</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p
-            role="status"
-            th:if="${consolidationMessage}"
-            th:text="${consolidationMessage}">
-            Resultado de la consolidación.
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p th:if="${consolidationId}">
-            Consolidación creada:
-            <span th:text="${consolidationId}">
-                UUID
-            </span>
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <section th:if="${consolidationAffectedEventIds}">
-            <h2>Eventos que requieren corrección</h2>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes}">
+                    Volver al listado
+                </a>
+            </div>
+        </header>
 
-            <ul>
-                <li
-                    th:each="eventId : ${consolidationAffectedEventIds}"
-                    th:text="${eventId}">
-                    UUID
-                </li>
-            </ul>
-        </section>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Seguimiento del proceso
+                    </p>
 
-        <p
-            role="status"
-            th:if="${accountingSubmissionMessage}"
-            th:text="${accountingSubmissionMessage}">
-            Resultado del envío a contabilidad.
-        </p>
+                    <h1>
+                        Detalle del cierre operativo
+                    </h1>
 
-        <p th:if="${accountingSubmissionAttemptId}">
-            Intento de envío:
-            <span th:text="${accountingSubmissionAttemptId}">
-                UUID
-            </span>
-        </p>
+                    <p class="page-description">
+                        Revisa los datos del período, su estado actual
+                        y las acciones disponibles dentro del flujo.
+                    </p>
+                </div>
 
-        <p th:if="${accountingSubmissionValidationResultId}">
-            Resultado VR-008:
-            <span th:text="${accountingSubmissionValidationResultId}">
-                UUID
-            </span>
-        </p>
+                <div class="page-actions">
+                    <span
+                        class="status-badge"
+                        th:text="${close.state}">
+                        PREPARATION
+                    </span>
+                </div>
+            </header>
 
-        <section th:if="${accountingSubmissionIssueTypes}">
-            <h2>Causas registradas</h2>
+            <div
+                class="alert alert--info"
+                role="status"
+                th:if="${consolidationMessage}"
+                th:text="${consolidationMessage}">
+                Resultado de la consolidación.
+            </div>
 
-            <ul>
-                <li
-                    th:each="issueType : ${accountingSubmissionIssueTypes}"
-                    th:text="${issueType}">
-                    ISSUE_TYPE
-                </li>
-            </ul>
-        </section>
+            <section
+                class="callout callout--success"
+                th:if="${consolidationId}"
+                aria-labelledby="consolidation-result-title">
 
-        <dl>
-            <dt>Identificador</dt>
-            <dd th:text="${close.id}">
-                UUID
-            </dd>
+                <h2
+                    id="consolidation-result-title"
+                    class="callout__title">
+                    Consolidación creada
+                </h2>
 
-            <dt>Inicio del período</dt>
-            <dd th:text="${close.periodStart}">
-                2026-07-01
-            </dd>
+                <p class="callout__text">
+                    Identificador:
+                    <span
+                        class="code-value"
+                        th:text="${consolidationId}">
+                        UUID
+                    </span>
+                </p>
+            </section>
 
-            <dt>Fin del período</dt>
-            <dd th:text="${close.periodEnd}">
-                2026-07-31
-            </dd>
+            <section
+                class="callout callout--warning"
+                style="margin-top: 16px;"
+                th:if="${consolidationAffectedEventIds}"
+                aria-labelledby="affected-events-title">
 
-            <dt>Moneda</dt>
-            <dd th:text="${close.currencyCode}">
-                PEN
-            </dd>
+                <h2
+                    id="affected-events-title"
+                    class="callout__title">
+                    Eventos que requieren corrección
+                </h2>
 
-            <dt>Saldo inicial</dt>
-            <dd th:text="${close.initialBalance}">
-                0.0000
-            </dd>
+                <p class="callout__text">
+                    Los siguientes eventos impiden completar
+                    correctamente la consolidación.
+                </p>
 
-            <dt>Estado</dt>
-            <dd th:text="${close.state}">
-                PREPARATION
-            </dd>
+                <ul class="issue-list">
+                    <li
+                        th:each="eventId : ${consolidationAffectedEventIds}"
+                        th:text="${eventId}">
+                        UUID
+                    </li>
+                </ul>
+            </section>
 
-            <dt>Creado por</dt>
-            <dd th:text="${close.createdByUsername}">
-                responsible
-            </dd>
+            <div
+                class="alert alert--info"
+                style="margin-top: 16px;"
+                role="status"
+                th:if="${accountingSubmissionMessage}"
+                th:text="${accountingSubmissionMessage}">
+                Resultado del envío a contabilidad.
+            </div>
 
-            <dt>Fecha de creación</dt>
-            <dd th:text="${close.createdAt}">
-                2026-07-20T00:00:00Z
-            </dd>
+            <section
+                class="callout callout--success"
+                style="margin-top: 16px;"
+                th:if="${accountingSubmissionAttemptId}"
+                aria-labelledby="submission-result-title">
 
-            <dt>Última actualización</dt>
-            <dd th:text="${close.updatedAt}">
-                2026-07-20T00:00:00Z
-            </dd>
-        </dl>
+                <h2
+                    id="submission-result-title"
+                    class="callout__title">
+                    Intento de envío registrado
+                </h2>
 
-        <p>
-            <a
-                th:href="@{/closes/{closeId}/events(closeId=${close.id})}">
-                Ver eventos operativos
-            </a>
-        </p>
+                <p class="callout__text">
+                    Identificador:
+                    <span
+                        class="code-value"
+                        th:text="${accountingSubmissionAttemptId}">
+                        UUID
+                    </span>
+                </p>
 
-        <p th:if="${close.state == 'PREPARATION' or close.state == 'BLOCKED'}">
-            <a
-                th:href="@{/closes/{closeId}/consolidate(
-                    closeId=${close.id}
-                )}">
-                Consolidar cierre operativo
-            </a>
-        </p>
+                <p
+                    class="callout__text"
+                    style="margin-top: 10px;"
+                    th:if="${accountingSubmissionValidationResultId}">
+                    Resultado VR-008:
+                    <span
+                        class="code-value"
+                        th:text="${accountingSubmissionValidationResultId}">
+                        UUID
+                    </span>
+                </p>
+            </section>
 
-        <form
-            th:if="${close.state == 'VALIDATED'}"
-            th:action="@{/closes/{closeId}/submit-to-accounting(
-                closeId=${close.id}
-            )}"
-            method="post">
+            <section
+                class="callout callout--warning"
+                style="margin-top: 16px;"
+                th:if="${accountingSubmissionIssueTypes}"
+                aria-labelledby="submission-issues-title">
 
-            <button type="submit">
-                Enviar a contabilidad
-            </button>
-        </form>
+                <h2
+                    id="submission-issues-title"
+                    class="callout__title">
+                    Causas registradas
+                </h2>
 
-        <p th:if="${close.state == 'PREPARATION' or close.state == 'BLOCKED'}">
-            <a
-                th:href="@{/closes/{closeId}/events/new(closeId=${close.id})}">
-                Registrar evento operativo
-            </a>
-        </p>
+                <p class="callout__text">
+                    El intento de envío registró las siguientes causas.
+                </p>
 
-        <p>
-            <a th:href="@{/closes}">
-                Volver al listado
-            </a>
-        </p>
-    </main>
+                <ul class="issue-list">
+                    <li
+                        th:each="issueType : ${accountingSubmissionIssueTypes}"
+                        th:text="${issueType}">
+                        ISSUE_TYPE
+                    </li>
+                </ul>
+            </section>
+
+            <div
+                class="detail-grid"
+                style="margin-top: 20px;">
+
+                <section
+                    class="card"
+                    aria-labelledby="close-information-title">
+
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Información general
+                        </p>
+
+                        <h2 id="close-information-title">
+                            Datos del cierre
+                        </h2>
+                    </div>
+
+                    <div class="card__body">
+                        <dl class="definition-list">
+                            <div class="definition-item">
+                                <dt>
+                                    Identificador
+                                </dt>
+
+                                <dd>
+                                    <span
+                                        class="code-value"
+                                        th:text="${close.id}">
+                                        UUID
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Estado
+                                </dt>
+
+                                <dd>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${close.state}">
+                                        PREPARATION
+                                    </span>
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Inicio del período
+                                </dt>
+
+                                <dd th:text="${close.periodStart}">
+                                    2026-07-01
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Fin del período
+                                </dt>
+
+                                <dd th:text="${close.periodEnd}">
+                                    2026-07-31
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Moneda
+                                </dt>
+
+                                <dd th:text="${close.currencyCode}">
+                                    PEN
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Saldo inicial
+                                </dt>
+
+                                <dd th:text="${close.initialBalance}">
+                                    0.0000
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Creado por
+                                </dt>
+
+                                <dd th:text="${close.createdByUsername}">
+                                    responsible
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Fecha de creación
+                                </dt>
+
+                                <dd th:text="${close.createdAt}">
+                                    2026-07-20T00:00:00Z
+                                </dd>
+                            </div>
+
+                            <div class="definition-item">
+                                <dt>
+                                    Última actualización
+                                </dt>
+
+                                <dd th:text="${close.updatedAt}">
+                                    2026-07-20T00:00:00Z
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
+
+                <aside
+                    class="card"
+                    aria-labelledby="available-actions-title">
+
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Flujo operativo
+                        </p>
+
+                        <h2 id="available-actions-title">
+                            Acciones disponibles
+                        </h2>
+                    </div>
+
+                    <div class="card__body">
+                        <div class="sidebar-actions">
+                            <a
+                                class="button button-secondary"
+                                th:href="@{/closes/{closeId}/events(
+                                    closeId=${close.id}
+                                )}">
+                                Ver eventos operativos
+                            </a>
+
+                            <a
+                                class="button"
+                                th:if="${close.state == 'PREPARATION'
+                                    or close.state == 'BLOCKED'}"
+                                th:href="@{/closes/{closeId}/events/new(
+                                    closeId=${close.id}
+                                )}">
+                                Registrar evento
+                            </a>
+
+                            <a
+                                class="button"
+                                th:if="${close.state == 'PREPARATION'
+                                    or close.state == 'BLOCKED'}"
+                                th:href="@{/closes/{closeId}/consolidate(
+                                    closeId=${close.id}
+                                )}">
+                                Consolidar cierre
+                            </a>
+
+                            <form
+                                th:if="${close.state == 'VALIDATED'}"
+                                th:action="@{/closes/{closeId}/submit-to-accounting(
+                                    closeId=${close.id}
+                                )}"
+                                method="post">
+
+                                <button type="submit">
+                                    Enviar a contabilidad
+                                </button>
+                            </form>
+
+                            <hr class="section-divider">
+
+                            <a
+                                class="button button-secondary"
+                                th:href="@{/closes}">
+                                Volver al listado
+                            </a>
+
+                            <a
+                                class="button button-secondary"
+                                th:href="@{/dashboard}">
+                                Ir al panel
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
 </body>
 </html>

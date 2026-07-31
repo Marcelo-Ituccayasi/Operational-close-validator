@@ -4,142 +4,288 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registrar evidencia | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Registrar evidencia de soporte por referencia</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            Cierre:
-            <span th:text="${closeId}">
-                UUID
-            </span>
-        </p>
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
+                        </span>
 
-        <p>
-            Evento:
-            <span th:text="${eventId}">
-                UUID
-            </span>
-        </p>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
 
-        <p th:if="${closeState != null}">
-            Estado del cierre:
-            <span th:text="${closeState}">
-                PREPARATION
-            </span>
-        </p>
+                <a
+                    class="button button-secondary"
+                    th:href="@{/closes/{closeId}/events/{eventId}(
+                        closeId=${closeId},
+                        eventId=${eventId}
+                    )}">
+                    Volver al evento
+                </a>
+            </div>
+        </header>
 
-        <p>
-            La referencia se conservará como texto opaco. El sistema no
-            accederá a direcciones web, rutas locales ni recursos externos.
-        </p>
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Soporte documental
+                    </p>
 
-        <p
-            th:if="${errorMessage != null}"
-            th:text="${errorMessage}">
-            Los datos ingresados no son válidos.
-        </p>
+                    <h1>
+                        Registrar evidencia por referencia
+                    </h1>
 
-        <form
-            method="post"
-            th:action="@{/closes/{closeId}/events/{eventId}/supporting-evidence(closeId=${closeId},eventId=${eventId})}"
-            th:object="${evidenceForm}">
+                    <p class="page-description">
+                        Asocia al evento una referencia documental,
+                        su fecha, importe soportado y condición de
+                        legibilidad.
+                    </p>
+                </div>
+            </header>
 
-            <p>
-                <label for="evidenceType">
-                    Tipo de evidencia
-                </label>
+            <div
+                class="alert alert--danger"
+                role="alert"
+                th:if="${errorMessage != null}"
+                th:text="${errorMessage}">
+                Los datos ingresados no son válidos.
+            </div>
 
-                <input
-                    id="evidenceType"
-                    name="evidenceType"
-                    type="text"
-                    maxlength="40"
-                    required
-                    th:field="*{evidenceType}">
-            </p>
+            <section class="content-grid">
+                <div class="card content-grid__full">
+                    <div class="card__header">
+                        <p class="page-eyebrow">
+                            Registro asociado
+                        </p>
 
-            <p>
-                <label for="contentReference">
-                    Referencia
-                </label>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>
+                                    Cierre
+                                </label>
 
-                <input
-                    id="contentReference"
-                    name="contentReference"
-                    type="text"
-                    maxlength="490"
-                    required
-                    th:field="*{contentReference}">
-            </p>
+                                <span
+                                    class="code-value"
+                                    th:text="${closeId}">
+                                    UUID
+                                </span>
+                            </div>
 
-            <p>
-                <label for="supportedAmount">
-                    Importe soportado
-                </label>
+                            <div class="form-group">
+                                <label>
+                                    Evento
+                                </label>
 
-                <input
-                    id="supportedAmount"
-                    name="supportedAmount"
-                    type="text"
-                    inputmode="decimal"
-                    th:field="*{supportedAmount}">
-            </p>
+                                <span
+                                    class="code-value"
+                                    th:text="${eventId}">
+                                    UUID
+                                </span>
+                            </div>
 
-            <p>
-                <label for="evidenceDate">
-                    Fecha de la evidencia
-                </label>
+                            <div
+                                class="form-group form-group--full"
+                                th:if="${closeState != null}">
 
-                <input
-                    id="evidenceDate"
-                    name="evidenceDate"
-                    type="date"
-                    required
-                    th:field="*{evidenceDate}">
-            </p>
+                                <label>
+                                    Estado del cierre
+                                </label>
 
-            <p>
-                <label for="legibilityStatus">
-                    Estado de legibilidad
-                </label>
+                                <span
+                                    class="status-badge"
+                                    th:text="${closeState}">
+                                    PREPARATION
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                <select
-                    id="legibilityStatus"
-                    name="legibilityStatus"
-                    required
-                    th:field="*{legibilityStatus}">
+                    <div class="card__body">
+                        <form
+                            class="form"
+                            method="post"
+                            th:action="@{/closes/{closeId}/events/{eventId}/supporting-evidence(
+                                closeId=${closeId},
+                                eventId=${eventId}
+                            )}"
+                            th:object="${evidenceForm}">
 
-                    <option value="">
-                        Seleccionar
-                    </option>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="evidenceType">
+                                        Tipo de evidencia
+                                    </label>
 
-                    <option value="UNVERIFIED">
-                        Sin verificar
-                    </option>
+                                    <input
+                                        id="evidenceType"
+                                        name="evidenceType"
+                                        type="text"
+                                        maxlength="40"
+                                        placeholder="RECEIPT"
+                                        autocomplete="off"
+                                        required
+                                        th:field="*{evidenceType}">
 
-                    <option value="LEGIBLE">
-                        Legible
-                    </option>
+                                    <p class="form-help">
+                                        Clasificación funcional del documento,
+                                        con un máximo de 40 caracteres.
+                                    </p>
+                                </div>
 
-                    <option value="ILLEGIBLE">
-                        Ilegible
-                    </option>
-                </select>
-            </p>
+                                <div class="form-group">
+                                    <label for="evidenceDate">
+                                        Fecha de la evidencia
+                                    </label>
 
-            <button type="submit">
-                Registrar evidencia
-            </button>
-        </form>
+                                    <input
+                                        id="evidenceDate"
+                                        name="evidenceDate"
+                                        type="date"
+                                        required
+                                        th:field="*{evidenceDate}">
 
-        <p>
-            <a
-                th:href="@{/closes/{closeId}/events/{eventId}(closeId=${closeId},eventId=${eventId})}">
-                Volver al evento
-            </a>
-        </p>
-    </main>
+                                    <p class="form-help">
+                                        Fecha indicada en el documento o
+                                        referencia de soporte.
+                                    </p>
+                                </div>
+
+                                <div class="form-group form-group--full">
+                                    <label for="contentReference">
+                                        Referencia
+                                    </label>
+
+                                    <input
+                                        id="contentReference"
+                                        name="contentReference"
+                                        type="text"
+                                        maxlength="490"
+                                        placeholder="reference:documento"
+                                        autocomplete="off"
+                                        required
+                                        th:field="*{contentReference}">
+
+                                    <p class="form-help">
+                                        Puede representar un identificador,
+                                        ubicación documental o referencia
+                                        administrada externamente.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="supportedAmount">
+                                        Importe soportado
+                                    </label>
+
+                                    <input
+                                        id="supportedAmount"
+                                        name="supportedAmount"
+                                        type="text"
+                                        inputmode="decimal"
+                                        placeholder="0.0000"
+                                        autocomplete="off"
+                                        th:field="*{supportedAmount}">
+
+                                    <p class="form-help">
+                                        Campo opcional. Indica el importe
+                                        respaldado por esta evidencia.
+                                    </p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="legibilityStatus">
+                                        Estado de legibilidad
+                                    </label>
+
+                                    <select
+                                        id="legibilityStatus"
+                                        name="legibilityStatus"
+                                        required
+                                        th:field="*{legibilityStatus}">
+
+                                        <option value="">
+                                            Seleccionar estado
+                                        </option>
+
+                                        <option value="UNVERIFIED">
+                                            Sin verificar
+                                        </option>
+
+                                        <option value="LEGIBLE">
+                                            Legible
+                                        </option>
+
+                                        <option value="ILLEGIBLE">
+                                            Ilegible
+                                        </option>
+                                    </select>
+
+                                    <p class="form-help">
+                                        Registra si el contenido puede ser
+                                        revisado de manera confiable.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit">
+                                    Registrar evidencia
+                                </button>
+
+                                <a
+                                    class="button button-secondary"
+                                    th:href="@{/closes/{closeId}/events/{eventId}(
+                                        closeId=${closeId},
+                                        eventId=${eventId}
+                                    )}">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <aside class="card content-grid__full">
+                    <div class="card__body">
+                        <p class="page-eyebrow">
+                            Tratamiento de la referencia
+                        </p>
+
+                        <h2>
+                            Contenido externo no consultado
+                        </h2>
+
+                        <p class="muted">
+                            La referencia se conservará como texto opaco.
+                            El sistema no accederá a direcciones web,
+                            rutas locales ni recursos externos indicados
+                            en este campo.
+                        </p>
+                    </div>
+                </aside>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

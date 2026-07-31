@@ -4,66 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cierres operativos | Operational Close Validator</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/app.css"
+        th:href="@{/css/app.css}">
 </head>
 <body>
-    <main>
-        <h1>Cierres operativos</h1>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="app-header__content">
+                <a
+                    class="brand"
+                    th:href="@{/}">
+                    <span
+                        class="brand__mark"
+                        aria-hidden="true">
+                        OCV
+                    </span>
 
-        <p>
-            <a th:href="@{/closes/new}">
-                Crear cierre operativo
-            </a>
-        </p>
-
-        <p th:if="${#lists.isEmpty(closes)}">
-            No existen cierres operativos registrados.
-        </p>
-
-        <table th:unless="${#lists.isEmpty(closes)}">
-            <thead>
-                <tr>
-                    <th>Período</th>
-                    <th>Moneda</th>
-                    <th>Saldo inicial</th>
-                    <th>Estado</th>
-                    <th>Detalle</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="close : ${closes}">
-                    <td>
-                        <span th:text="${close.periodStart}">
-                            2026-07-01
+                    <span class="brand__text">
+                        <span class="brand__name">
+                            Operational Close Validator
                         </span>
-                        a
-                        <span th:text="${close.periodEnd}">
-                            2026-07-31
-                        </span>
-                    </td>
-                    <td th:text="${close.currencyCode}">
-                        PEN
-                    </td>
-                    <td th:text="${close.initialBalance}">
-                        0.0000
-                    </td>
-                    <td th:text="${close.state}">
-                        PREPARATION
-                    </td>
-                    <td>
-                        <a
-                            th:href="@{/closes/{id}(id=${close.id})}">
-                            Ver
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
 
-        <p>
-            <a th:href="@{/dashboard}">
-                Volver al panel
-            </a>
-        </p>
-    </main>
+                        <span class="brand__subtitle">
+                            Control, evidencia y trazabilidad
+                        </span>
+                    </span>
+                </a>
+
+                <a
+                    class="button button-secondary"
+                    th:href="@{/dashboard}">
+                    Volver al panel
+                </a>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <header class="page-header">
+                <div class="page-header__content">
+                    <p class="page-eyebrow">
+                        Gestión operativa
+                    </p>
+
+                    <h1>
+                        Cierres operativos
+                    </h1>
+
+                    <p class="page-description">
+                        Consulta los períodos registrados, revisa sus
+                        saldos y continúa trabajando desde el detalle
+                        de cada cierre.
+                    </p>
+                </div>
+
+                <div class="page-actions">
+                    <a
+                        class="button"
+                        th:href="@{/closes/new}">
+                        Crear cierre
+                    </a>
+                </div>
+            </header>
+
+            <section
+                class="empty-state"
+                th:if="${#lists.isEmpty(closes)}"
+                aria-labelledby="empty-title">
+
+                <h2
+                    id="empty-title"
+                    class="empty-state__title">
+                    No existen cierres registrados
+                </h2>
+
+                <p class="empty-state__description">
+                    Crea el primer cierre operativo para comenzar a
+                    registrar eventos, Evidencias y validaciones.
+                </p>
+
+                <a
+                    class="button"
+                    th:href="@{/closes/new}">
+                    Crear primer cierre
+                </a>
+            </section>
+
+            <section
+                th:unless="${#lists.isEmpty(closes)}"
+                aria-label="Listado de cierres operativos">
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    Período
+                                </th>
+
+                                <th scope="col">
+                                    Moneda
+                                </th>
+
+                                <th scope="col">
+                                    Saldo inicial
+                                </th>
+
+                                <th scope="col">
+                                    Estado
+                                </th>
+
+                                <th scope="col">
+                                    Acción
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="close : ${closes}">
+                                <td>
+                                    <strong>
+                                        <span th:text="${close.periodStart}">
+                                            2026-07-01
+                                        </span>
+
+                                        <span class="muted">
+                                            →
+                                        </span>
+
+                                        <span th:text="${close.periodEnd}">
+                                            2026-07-31
+                                        </span>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${close.currencyCode}">
+                                        PEN
+                                    </span>
+                                </td>
+
+                                <td th:text="${close.initialBalance}">
+                                    0.0000
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="status-badge"
+                                        th:text="${close.state}">
+                                        PREPARATION
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a
+                                        class="button button-secondary"
+                                        th:href="@{/closes/{id}(id=${close.id})}">
+                                        Ver detalle
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section
+                class="card"
+                style="margin-top: 20px;"
+                aria-labelledby="information-title">
+
+                <div class="card__body">
+                    <p class="page-eyebrow">
+                        Información
+                    </p>
+
+                    <h2 id="information-title">
+                        Seguimiento centralizado
+                    </h2>
+
+                    <p class="muted">
+                        Desde el detalle de cada cierre podrás registrar
+                        eventos, adjuntar referencias de Evidencias,
+                        revisar Alertas y ejecutar las acciones permitidas
+                        por su estado actual.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>
